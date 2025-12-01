@@ -5,7 +5,7 @@ namespace bth_dc_inventory.Models
 {
     public class DataCenter
     {
-        public int ID { get; set; } // Primary Key
+        public int Id { get; set; } // Primary Key
 
         [Required]
         [StringLength(200)]

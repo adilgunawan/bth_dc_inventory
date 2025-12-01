@@ -6,7 +6,8 @@ namespace bth_dc_inventory.Models
 {
     public class Item
     {
-        public int ID { get; set; } // Primary Key
+        [Key]
+        public int Id { get; set; } // Primary Key
 
         [Required]
         [MaxLength(200)]

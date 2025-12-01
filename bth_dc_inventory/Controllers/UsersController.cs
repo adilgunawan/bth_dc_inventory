@@ -9,7 +9,7 @@ namespace bth_dc_inventory.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class UsersController : ControllerBase    
     {
         private readonly ApplicationDbContext _context;
 

@@ -5,7 +5,7 @@ namespace bth_dc_inventory.Models
 {
     public class Category
     {
-        public int ID { get; set; } // Primary Key
+        public int Id { get; set; } // Primary Key
 
         [Required]
         [StringLength(200)]
@@ -15,7 +15,8 @@ namespace bth_dc_inventory.Models
         public string Description { get; set; } = string.Empty; // Deskripsi tidak boleh null
 
         [MaxLength(500)]
-        public string Image { get; set; } //gambar per katergori
+        public string Image { get; set; } = string.Empty;
+
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.Now; // Tanggal pembuatan tidak boleh null

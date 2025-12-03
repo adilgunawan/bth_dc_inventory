@@ -6,7 +6,7 @@ namespace bth_dc_inventory.Models
 {
     public class Report
     {
-        public int ID { get; set; } // Primary Key
+        public int Id { get; set; } // Primary Key
 
         [Required]
         public int Month { get; set; } // Bulan laporan (misalnya 1 = Januari)

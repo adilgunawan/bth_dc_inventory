@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace bth_dc_inventory.Models
 {
@@ -27,9 +29,10 @@ namespace bth_dc_inventory.Models
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.Now; // Non-nullable, default sekarang
 
-        public DateTime? UpdatedAt { get; set; } // Bisa null untuk tanggal diperbarui
+        public DateTime? UpdatedAt { get; set; } // Bisa null untuk tanggal diperbaruiW
 
         // Tambahkan Properti Navigasi untuk Laporan
         public ICollection<Report> Reports { get; set; } = new List<Report>();
+        public ICollection<Item> CreatedItems { get; set; } = new List<Item>();
     }
 }

@@ -4,9 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - bth_dc_inventory</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- TAILWIND HARUS PALING TERAKHIR -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/bth_dc_inventory.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
@@ -34,6 +34,19 @@
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
+    </div>
+
+    <div class="p-6 text-center">
+        <h1 class="text-xl font-bold text-green-600 bg-red-200">
+            Tailwind CSS Aktif 🚀
+        </h1>
+
+        <p class="mt-4 text-gray-600 text-4xl ">
+            Inventory Data Center siap dikembangkan
+        </p>
+    </div>
+    <div class="p-10 bg-red-500 text-white text-4xl font-bold">
+        TAILWIND AKTIF dawdas
     </div>
 
     <footer class="border-top footer text-muted">

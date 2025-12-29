@@ -61,6 +61,7 @@ namespace bth_dc_inventory.Controllers
             }
 
             item.CreatedAt = DateTime.UtcNow;
+
             _context.Items.Add(item);   
             await _context.SaveChangesAsync();
 

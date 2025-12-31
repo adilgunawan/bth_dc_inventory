@@ -2,16 +2,10 @@
 
 namespace bth_dc_inventory.DTOs.User
 {
-
-    public enum UserRole
-    {
-        User,
-        Admin
-    }
-
     public class UserCreateDto
     {
         [Required]
+        [StringLength(100, MinimumLength = 3)]
         public string Username { get; set; } = string.Empty;
 
         [Required]
@@ -19,8 +13,7 @@ namespace bth_dc_inventory.DTOs.User
         public string Email { get; set; } = string.Empty;
 
         [Required]
+        [MinLength(6)]
         public string Password { get; set; } = string.Empty;
-
-        public string Role { get; set; } = "user";
     }
 }

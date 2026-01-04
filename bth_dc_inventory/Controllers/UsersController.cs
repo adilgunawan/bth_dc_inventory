@@ -1,99 +1,235 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using bth_dc_inventory.Data;
 using bth_dc_inventory.Models;
-
+using bth_dc_inventory.DTOs.Users;
 
 namespace bth_dc_inventory.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase    
+    public class UsersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
         public UsersController(ApplicationDbContext context)
         {
-            _context = context;
+                    this._context = context;
         }
 
-        //GET: api/users
+        // =====================================================
+        // GET: api/users
+        // =====================================================
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserReadDto>>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            var users = await _context.Users
+                .Select(u => new UserReadDto
+                {
+                    Id = u.Id,
+                    Username = u.Username,
+                    Email = u.Email,
+                    Role = u.Role,
+                    CreatedAt = u.CreatedAt
+                })
+                .ToListAsync();
+
+            return Ok(users);
         }
 
-        //GET: api/user/5
+        // =====================================================
+        // GET: api/users/{id}
+        // =====================================================
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<ActionResult<UserReadDto>> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users
+                .Where(u => u.Id == id)
+                .Select(u => new UserReadDto
+                {
+                    Id = u.Id,
+                    Username = u.Username,
+                    Email = u.Email,
+                    Role = u.Role,
+                    CreatedAt = u.CreatedAt
+                })
+                .FirstOrDefaultAsync();
 
             if (user == null)
-            {
-                return NotFound(); // Jika user tidak ditemukan, kembalikan status HTTP 404
-            }
+                return NotFound();
 
-            return Ok(user); // Jika user ditemukan, kembalikan data user dengan HTTP 200 OK
+            return Ok(user);
         }
 
-        //POST: api/Users
+        // =====================================================
+        // POST: api/users
+        // =====================================================
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<UserReadDto>> PostUser(UserCreateDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = new User
+            {
+                Username = dto.Username,
+                Email = dto.Email,
+                Password = dto.Password, // ⚠️ akan di-hash nanti
+                Role = "user",
+                CreatedAt = DateTime.Now
+            };
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            var result = new UserReadDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.Role,
+                CreatedAt = user.CreatedAt
+            };
+
+            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, result);
         }
 
-        //PUT: api/user/5
+        // =====================================================
+        // PUT: api/users/{id}
+        // =====================================================
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(int id, UserUpdateDto dto)
         {
-            if (id != user.Id)
-            {
-                return BadRequest("Id mismatch between route and body.");
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            // Temukan user dari database berdasarkan id
             var existingUser = await _context.Users.FindAsync(id);
             if (existingUser == null)
-            {
                 return NotFound();
-            }
 
-            // Perbarui hanya properti yang diubah
-            existingUser.Username = user.Username;
-            existingUser.Email = user.Email;
-            existingUser.Password = user.Password; // Harusnya dienkripsi
-            existingUser.Role = user.Role;
+            existingUser.Username = dto.Username;
+            existingUser.Email = dto.Email;
+            existingUser.UpdatedAt = DateTime.Now;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
-        // Metode pengecekan apakah User dengan ID tertentu ada
-        private bool UserExists(int id)
+        // =====================================================
+        // DELETE: api/users/{id}
+        // =====================================================
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return NotFound();
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
+
+
+//using Microsoft.AspNetCore.Http;
+//using Microsoft.AspNetCore.Mvc;
+//using Microsoft.EntityFrameworkCore;
+//using bth_dc_inventory.Data;
+//using bth_dc_inventory.Models;
+
+
+//namespace bth_dc_inventory.Controllers
+//{
+//    [Route("api/[controller]")]
+//    [ApiController]
+//    public class UsersController : ControllerBase    
+//    {
+//        private readonly ApplicationDbContext _context;
+
+//        public UsersController(ApplicationDbContext context)
+//        {
+//            _context = context;
+//        }
+
+//        //GET: api/users
+//        [HttpGet]
+//        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+//        {
+//            return await _context.Users.ToListAsync();
+//        }
+
+//        //GET: api/user/5
+//        [HttpGet("{id}")]
+//        public async Task<ActionResult<User>> GetUser(int id)
+//        {
+//            var user = await _context.Users.FindAsync(id);
+
+//            if (user == null)
+//            {
+//                return NotFound(); // Jika user tidak ditemukan, kembalikan status HTTP 404
+//            }
+
+//            return Ok(user); // Jika user ditemukan, kembalikan data user dengan HTTP 200 OK
+//        }
+
+//        //POST: api/Users
+//        [HttpPost]
+//        public async Task<ActionResult<User>> PostUser(User user)
+//        {
+//            _context.Users.Add(user);
+//            await _context.SaveChangesAsync();
+
+//            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+//        }
+
+//        //PUT: api/user/5
+//        [HttpPut("{id}")]
+//        public async Task<IActionResult> PutUser(int id, User user)
+//        {
+//            if (id != user.Id)
+//            {
+//                return BadRequest("Id mismatch between route and body.");
+//            }
+
+//            // Temukan user dari database berdasarkan id
+//            var existingUser = await _context.Users.FindAsync(id);
+//            if (existingUser == null)
+//            {
+//                return NotFound();
+//            }
+
+//            // Perbarui hanya properti yang diubah
+//            existingUser.Username = user.Username;
+//            existingUser.Email = user.Email;
+//            existingUser.Password = user.Password; // Harusnya dienkripsi
+//            existingUser.Role = user.Role;
+
+//            try
+//            {
+//                await _context.SaveChangesAsync();
+//            }
+//            catch (DbUpdateConcurrencyException)
+//            {
+//                if (!UserExists(id))
+//                {
+//                    return NotFound();
+//                }
+//                else
+//                {
+//                    throw;
+//                }
+//            }
+
+//            return NoContent();
+//        }
+
+//        // Metode pengecekan apakah User dengan ID tertentu ada
+//        private bool UserExists(int id)
+//        {
+//            return _context.Users.Any(e => e.Id == id);
+//        }
+//    }
+//}

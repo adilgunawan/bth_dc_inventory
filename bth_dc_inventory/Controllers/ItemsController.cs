@@ -179,7 +179,7 @@ namespace bth_dc_inventory.Controllers
                 .Include(i => i.DataCenter)
                 .AsQueryable();
 
-            // 🔍 SEARCH
+            //  SEARCH
             if (!string.IsNullOrEmpty(filter.Search))
             {
                 query = query.Where(i =>
@@ -187,13 +187,13 @@ namespace bth_dc_inventory.Controllers
                     i.ItemCode.Contains(filter.Search));
             }
 
-            // 🏷 FILTER CATEGORY
+            //  FILTER CATEGORY
             if (filter.CategoryId.HasValue)
             {
                 query = query.Where(i => i.CategoryId == filter.CategoryId);
             }
 
-            // 🏢 FILTER DATA CENTER
+            //  FILTER DATA CENTER
             if (filter.DataCenterId.HasValue)
             {
                 query = query.Where(i => i.DataCenterId == filter.DataCenterId);
@@ -201,7 +201,7 @@ namespace bth_dc_inventory.Controllers
 
             var totalItems = await query.CountAsync();
 
-            // 📄 PAGINATION
+            //  PAGINATION
             var items = await query
                 .OrderByDescending(i => i.CreatedAt)
                 .Skip((filter.Page - 1) * filter.PageSize)

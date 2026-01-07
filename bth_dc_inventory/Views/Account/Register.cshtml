@@ -1,0 +1,100 @@
+﻿@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Register";
+}
+
+<div class="flex h-screen">
+
+    <!-- LEFT -->
+    <div class="w-1/2 flex items-center justify-center bg-white">
+        <!-- LOGO INFINEON (TOP LEFT) -->
+        <div class="absolute top-6 left-6 z-50">
+            <img src="~/images/logo-infineon.png"
+            @* alt="Infineon Logo" *@l
+                 class="h-10">
+        </div>
+
+        <div class="w-[380px] p-8 rounded-xl shadow-lg">
+
+            <!-- LOGO -->
+            <div class="flex flex-col items-center mb-6">
+                <img src="~/images/logo-icon.svg" class="h-20 mb-4" />
+                <h1 class="text-xl font-semibold text-gray-700">Infineon Technologies Batam</h1>
+                <p class="text-sm text-gray-500">Create an Account</p>
+            </div>
+
+            <!-- FORM -->
+            <form method="post">
+
+                <!-- USERNAME -->
+                <div class="mb-4">
+                    <label class="text-sm text-gray-600">Username</label>
+                    <div class="flex items-center border rounded-lg px-3 mt-1 focus-within:ring-2 ring-teal-500">
+
+                        <!-- USER ICON -->
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                  d="M5.121 17.804A9 9 0 0112 15c3.866 0 7 2.239 7 5v1H5v-1c0-1.379.476-2.66 1.121-3.196z" />
+                            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                  d="M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+
+                        <input type="text"
+                               name="Username"
+                               class="w-full px-3 py-2 outline-none"
+                               placeholder="Enter your username" />
+                    </div>
+                </div>
+
+                <!-- EMAIL -->
+                <div class="mb-4">
+                    <label class="text-sm text-gray-600">Email</label>
+                    <div class="flex items-center border rounded-lg px-3 mt-1 focus-within:ring-2 ring-teal-500">
+
+                        <!-- USER ICON -->
+                        <img src="~/icons/email.svg" alt="Alternate Text" />
+
+                        <input type="text"
+                               name="Email"
+                               class="w-full px-3 py-2 outline-none"
+                               placeholder="Enter your Email" />
+                    </div>
+                </div>
+
+                <!-- PASSWORD -->
+                <div class="mb-6">
+                    <label class="text-sm text-gray-600">Password</label>
+                    <div class="flex items-center border rounded-lg px-3 mt-1 focus-within:ring-2 ring-teal-500">
+
+                        <!-- LOCK ICON -->
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                  d="M12 11c1.657 0 3 .895 3 2v2H9v-2c0-1.105 1.343-2 3-2z" />
+                            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                  d="M6 8V7a6 6 0 1112 0v1" />
+                        </svg>
+
+                        <input type="password"
+                               name="Password"
+                               class="w-full px-3 py-2 outline-none"
+                               placeholder="Enter your password" />
+                    </div>
+                </div>
+
+                <!-- BUTTON -->
+                <button class="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg transition">
+                    Register
+                </button>
+
+                
+
+            </form>
+        </div>
+    </div>
+
+    <!-- RIGHT IMAGE -->
+    <div class="w-1/2">
+        <img src="~/images/datacenter.png"
+             class="h-full w-full object-cover" />
+    </div>
+</div>

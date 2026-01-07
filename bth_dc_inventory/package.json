@@ -109,7 +109,8 @@
         "tailwindcss": "^4.1.18"
     },
     "scripts": {
-        "build": "npx tailwindcss -i ./wwwroot/css/site.css -o ./wwwroot/css/output.css --watch"
+        "build": "npx tailwindcss -i ./wwwroot/css/site.css -o ./wwwroot/css/output.css",
+        "watch": "npx tailwindcss -i ./wwwroot/css/site.css -o ./wwwroot/css/output.css --watch"
     },
     "keywords": [],
     "author": "",

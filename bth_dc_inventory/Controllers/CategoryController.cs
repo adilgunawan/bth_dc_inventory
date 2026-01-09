@@ -21,7 +21,7 @@ namespace bth_dc_inventory.Controllers
         // GET: api/category
         // =====================================
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryReadDto>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<CategoryReadDto>>> GetCategories() 
         {
             var categories = await _context.Categories
                 .Select(c => new CategoryReadDto

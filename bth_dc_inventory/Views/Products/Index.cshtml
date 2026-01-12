@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Products";
+}
+
+<div class="space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold">Products Data</h1>
+            <p class="text-gray-500">Manage Data Center Products</p>
+        </div>
+
+        <button class="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700">
+            <span class="text-xl">+</span>
+            Add Product
+        </button>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="bg-white p-4 rounded-xl shadow-sm flex items-center gap-4">
+        <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2 flex-1">
+            <input type="text" placeholder="Search products..."
+                   class="bg-transparent outline-none flex-1 text-sm" />
+        </div>
+
+        <select class="bg-gray-100 px-4 py-2 rounded-lg text-sm outline-none">
+            <option>All Categories</option>
+            <option>Server</option>
+            <option>Cable</option>
+            <option>PDU</option>
+        </select>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-600">
+            <tr>
+                <th class="text-left px-4 py-3">PO Number</th>
+                <th class="text-left px-4 py-3">Product Name</th>
+                <th class="text-left px-4 py-3">Asset Number</th>
+                <th class="text-left px-4 py-3">Category</th>
+                <th class="text-left px-4 py-3">Location</th>
+                <th class="text-left px-4 py-3">Detail Product</th>
+                <th class="text-left px-4 py-3">Action</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+
+            <!-- Row 1 -->
+            <tr>
+                <td class="px-4 py-3">PO-2025-001</td>
+                <td class="px-4 py-3">Server Dell PowerEdge R550</td>
+                <td class="px-4 py-3">AST-0001</td>
+                <td class="px-4 py-3">
+                    <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">Server</span>
+                </td>
+                <td class="px-4 py-3">DC 1</td>
+                <td class="px-4 py-3">
+                    <span class="text-teal-600 bg-teal-50 px-3 py-1 rounded-full text-xs">
+                        Detail Product
+                    </span>
+                </td>
+                <td class="px-4 py-3 flex gap-2">
+                    <button class="border p-2 rounded hover:bg-gray-100">✏️</button>
+                    <button class="border p-2 rounded text-red-500 hover:bg-red-50">🗑️</button>
+                </td>
+            </tr>
+
+            <!-- Row 2 -->
+            <tr>
+                <td class="px-4 py-3">PO-2025-002</td>
+                <td class="px-4 py-3">Cisco Network Switch</td>
+                <td class="px-4 py-3">AST-0002</td>
+                <td class="px-4 py-3">
+                    <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">Network</span>
+                </td>
+                <td class="px-4 py-3">DC 2</td>
+                <td class="px-4 py-3">
+                    <span class="text-teal-600 bg-teal-50 px-3 py-1 rounded-full text-xs">
+                        Detail Product
+                    </span>
+                </td>
+                <td class="px-4 py-3 flex gap-2">
+                    <button class="border p-2 rounded hover:bg-gray-100">✏️</button>
+                    <button class="border p-2 rounded text-red-500 hover:bg-red-50">🗑️</button>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</div>
+    
+</div>

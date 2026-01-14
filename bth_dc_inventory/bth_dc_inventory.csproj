@@ -34,5 +34,12 @@
     <Folder Include="wwwroot\images\" />
     <Folder Include="wwwroot\icons\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Views\Products\Detail.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
   
 </Project>

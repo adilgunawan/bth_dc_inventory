@@ -57,7 +57,7 @@
 
                 <!-- Buying Price -->
                 <div>
-                    <label for="buyingPrice" class="text-sm font-medium text-gray-700">Buying Price</label>
+                    <label for="buyingPrice" class="text-sm font-medium text-gray-700">Buying Price $ </label>
                     <input type="number"
                            id="buyingPrice"
                            placeholder="Enter buying price"
@@ -78,11 +78,14 @@
                 <!-- Location -->
                 <div>
                     <label for="location" class="text-sm font-medium text-gray-700">Location</label>
-                    <input type="text"
-                           id="location"
-                           placeholder="Enter product location"
-                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                           required />
+                    <select id="location"
+                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            required>
+                        <option>Select Location</option>
+                        <option value="Data Center 1">Data Center 1</option>
+                        <option value="Data Center 2">Data Center 2</option>
+                        <option value="Data Center 3">Data Center 3</option>
+                    </select>
                 </div>
 
                 <!-- Date of Purchase -->
@@ -97,11 +100,13 @@
                 <!-- Status -->
                 <div>
                     <label for="status" class="text-sm font-medium text-gray-700">Status</label>
-                    <input type="text"
-                           id="status"
-                           placeholder="Enter product status"
-                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                           required />
+                    <select id="status"
+                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            required>
+                        <option>Select Status Product</option>
+                        <option value="Pending">Pending</option>
+                        <option value="arrived">arrived</option>
+                    </select>
                 </div>
 
                 <!-- Buttons -->

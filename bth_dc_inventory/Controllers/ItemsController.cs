@@ -101,7 +101,7 @@ namespace bth_dc_inventory.Controllers
                 .Select(u => u.Id)
                 .FirstOrDefaultAsync();
 
-            if (userId == 0)
+            if (userId == 0) 
                 return BadRequest("No user found. Please create a user first.");
 
             // =========================

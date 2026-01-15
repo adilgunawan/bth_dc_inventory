@@ -1,0 +1,91 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<body class="bg-gray-50 min-h-screen font-sans">
+    <p class="text-3xl font-bold text-gray-800 mt-2">15</p>
+    </div>
+    <!-- Total Categories -->
+    <div class="bg-white shadow rounded-lg p-4">
+        <h3 class="text-sm text-gray-500">Total Categories</h3>
+        <p class="text-3xl font-bold text-gray-800 mt-2">12</p>
+    </div>
+    <!-- Data Centers -->
+    <div class="bg-white shadow rounded-lg p-4">
+        <h3 class="text-sm text-gray-500">Active Data Centers</h3>
+        <p class="text-3xl font-bold text-gray-800 mt-2">5</p>
+    </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Pie Chart -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Products by Category</h3>
+            <div id="pieChart" class="w-full h-64"></div>
+        </div>
+        <!-- Bar Chart -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Inventory in Data Centers</h3>
+            <div id="barChart" class="w-full h-64"></div>
+        </div>
+    </section>
+
+    <!-- Data Center Breakdown -->
+    <section class="bg-white shadow rounded-lg p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">Data Center Overview</h3>
+        <table class="min-w-full border-collapse border border-gray-200">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="p-4 text-left border border-gray-300 text-sm text-gray-700">#</th>
+                    <th class="p-4 text-left border border-gray-300 text-sm text-gray-700">Data Center Name</th>
+                    <th class="p-4 text-left border border-gray-300 text-sm text-gray-700">Location</th>
+                    <th class="p-4 text-left border border-gray-300 text-sm text-gray-700">Total Products</th>
+                    <th class="p-4 text-left border border-gray-300 text-sm text-gray-700">Status</th>
+                    <th class="p-4 text-left border border-gray-300 text-sm text-gray-700">Capacity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="p-4 text-sm text-gray-500 border">1</td>
+                    <td class="p-4 text-sm text-gray-500 border">Data Center 1</td>
+                    <td class="p-4 text-sm text-gray-500 border">Jakarta</td>
+                    <td class="p-4 text-sm text-gray-500 border">350</td>
+                    <td class="p-4 text-sm text-teal-500 border">Active</td>
+                    <td class="p-4 text-sm text-gray-500 border">90%</td>
+                </tr>
+                <!-- Tambahkan lebih banyak baris -->
+            </tbody>
+        </table>
+    </section>
+    </main>
+    </div>
+
+    <!-- ChartJS Integration -->
+    <script>
+        const pieChartCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieChartCtx, {
+          type: 'pie',
+          data: {
+            labels: ['Server', 'Cable', 'Power Unit'],
+            datasets: [{
+              data: [60, 25, 15],
+              backgroundColor: ['#4CAF50', '#FF9800', '#2196F3'],
+            }]
+          }
+        });
+
+        const barChartCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barChartCtx, {
+          type: 'bar',
+          data: {
+            labels: ['DC 1', 'DC 2', 'DC 3', 'DC 4', 'DC 5'],
+            datasets: [{
+              label: 'Products',
+              data: [100, 150, 120, 80, 90],
+              backgroundColor: '#4CAF50'
+            }]
+          }
+        });
+    </script>
+</body>

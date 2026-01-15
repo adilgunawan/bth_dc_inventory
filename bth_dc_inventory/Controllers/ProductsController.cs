@@ -13,6 +13,24 @@ namespace bth_dc_inventory.Controllers
         {
             return View();
         }
+
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
+
+        public IActionResult Data_center_1()
+        {
+            return View();
+        }
+        public IActionResult Data_center_2()
+        {
+            return View();
+        }
+        public IActionResult Data_center_3()
+        {
+            return View();
+        }
     }
 
 

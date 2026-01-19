@@ -1,0 +1,63 @@
+﻿@{
+    ViewData["Title"] = "Settings ";
+}
+
+<main class="flex-1 p-8">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-700">Settings</h1>
+            <p class="text-sm text-gray-500">Manage User Roles</p>
+        </div>
+        <button class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">Back to Dashboard</button>
+    </header>
+
+    <!-- User Role Management -->
+    <section class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">User Roles</h2>
+        <p class="text-sm text-gray-500 mb-4">View and manage user roles in the system. Assign a user as an Admin if needed.</p>
+
+        <!-- User Table -->
+        <table class="w-full border border-gray-200 rounded-lg overflow-hidden">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="p-3 text-left text-gray-500 text-sm">User ID</th>
+                    <th class="p-3 text-left text-gray-500 text-sm">Username</th>
+                    <th class="p-3 text-left text-gray-500 text-sm">Email</th>
+                    <th class="p-3 text-center text-gray-500 text-sm">Role</th>
+                    <th class="p-3 text-center text-gray-500 text-sm">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                <!-- Example Row 1 -->
+                <tr>
+                    <td class="p-3 text-sm text-gray-600">1</td>
+                    <td class="p-3 text-sm text-gray-600">John Doe</td>
+                    <td class="p-3 text-sm text-gray-600">johndoe@email.com</td>
+                    <td class="p-3 text-sm text-center">
+                        <span class="px-3 py-1 rounded-full text-xs bg-gray-200 text-gray-800">User</span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <button class="px-4 py-2 text-white bg-teal-600 rounded-md text-sm hover:bg-teal-700">
+                            Assign Admin
+                        </button>
+                    </td>
+                </tr>
+                <!-- Example Row 2 -->
+                <tr>
+                    <td class="p-3 text-sm text-gray-600">2</td>
+                    <td class="p-3 text-sm text-gray-600">Jane Smith</td>
+                    <td class="p-3 text-sm text-gray-600">janesmith@email.com</td>
+                    <td class="p-3 text-center">
+                        <span class="px-3 py-1 rounded-full text-xs bg-green-100 text-green-800">Admin</span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <button disabled class="px-4 py-2 text-white bg-gray-300 rounded-md text-sm cursor-not-allowed">
+                            Admin
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</main>

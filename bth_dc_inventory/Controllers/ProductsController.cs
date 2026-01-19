@@ -35,6 +35,10 @@ namespace bth_dc_inventory.Controllers
         {
             return View();
         }
+        public IActionResult Reports()
+        {
+            return View();
+        }
     }
 
 

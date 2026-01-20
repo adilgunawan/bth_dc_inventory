@@ -71,74 +71,184 @@
 
 @* <body class="bg-gray-50 flex min-h-screen font-sans"> *@
 @*     <!-- Sidebar --> *@
-@*     <aside class="w-75 bg-white shadow-md flex flex-col h-screen"> *@
+@*     <aside class="w-64 bg-white shadow-md flex flex-col h-screen"> *@
 @*         <!-- Logo and Branding --> *@
-@*         <div class="p-6 border-b text-xl"> *@
+@*         <div class="p-6 bg-white shadow-md text-xl"> *@
 @*             <div class="flex items-center"> *@
-@*                 <img src="~/images/logo-icon.svg" *@
-@*                      class="h-12 w-auto "> *@
+@*                 <img src="~/images/logo-icon.svg" class="h-12 w-auto"> *@
 @*                 <div class="px-5"> *@
 @*                     <h1 class="text-lg font-semibold text-gray-700">Infineon Batam</h1> *@
 @*                     <p class="text-sm text-gray-500">Data Center Inventory</p> *@
 @*                 </div> *@
 @*             </div> *@
 @*         </div> *@
+
 @*         <!-- Sidebar Navigation --> *@
 @*         <nav class="mt-6"> *@
 @*             <ul class="space-y-1"> *@
+@*                 <!-- Link to Dashboard --> *@
 @*                 <li> *@
-@*                     <a href="#" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700 "> *@
-@*                         <img src="~/icons/dashboard.svg" *@
-@*                              class="px-2 "> *@
+@*                     <a asp-controller="Products" asp-action="Dashboard" *@
+@*                        class="nav-link flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700" *@
+@*                        data-action="Dashboard"> *@
+@*                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="mr-3 text-gray-500"> *@
+@*                             <path fill="currentColor" d="M13.5 8.183V4.817q0-.357.234-.587t.58-.23h4.88q.347 0 .576.23t.23.587v3.366q0 .358-.234.587q-.234.23-.58.23h-4.88q-.346 0-.576-.23t-.23-.587M4 11.2V4.8q0-.34.234-.57t.58-.23h4.88q.347 0 .576.23t.23.57v6.4q0 .34-.234.57t-.58.23h-4.88q-.346 0-.576-.23T4 11.2m9.5 8v-6.4q0-.34.234-.57t.58-.23h4.88q.347 0 .576.23t.23.57v6.4q0 .34-.234.57t-.58.23h-4.88q-.346 0-.576-.23t-.23-.57M4 19.183v-3.366q0-.357.234-.587t.58-.23h4.88q.347 0 .576.23t.23.587v3.366q0 .358-.234.587q-.234.23-.58.23h-4.88q-.346 0-.576-.23T4 19.183M5 11h4.5V5H5zm9.5 8H19v-6h-4.5zm0-11H19V5h-4.5zM5 19h4.5v-3H5zm4.5-3" /> *@
+@*                         </svg> *@
 @*                         Dashboard *@
 @*                     </a> *@
 @*                 </li> *@
-@*                  <li> *@
-@*                     <a href="#" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700 "> *@
-@*                         <img src="~/icons/box.svg" *@
-@*                              class="px-2 "> *@
+
+@*                 <!-- Link to Products --> *@
+@*                 <li> *@
+@*                     <a asp-controller="Products" asp-action="Index" *@
+@*                        class="nav-link flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700" *@
+@*                        data-action="Index"> *@
+@*                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="mr-3 text-gray-500"> *@
+@*                             <path fill="currentColor" d="m17.578 4.432l-2-1.05C13.822 2.461 12.944 2 12 2s-1.822.46-3.578 1.382l-.321.169l8.923 5.099l4.016-2.01c-.646-.732-1.688-1.279-3.462-2.21m4.17 3.534l-3.998 2V13a.75.75 0 0 1-1.5 0v-2.286l-3.5 1.75v9.44c.718-.179 1.535-.607 2.828-1.286l2-1.05c2.151-1.129 3.227-1.693 3.825-2.708c.597-1.014.597-2.277.597-4.8v-.117c0-1.893 0-3.076-.252-3.978M11.25 21.904v-9.44l-8.998-4.5C2 8.866 2 10.05 2 11.941v.117c0 2.525 0 3.788.597 4.802c.598 1.015 1.674 1.58 3.825 2.709l2 1.049c1.293.679 2.11 1.107 2.828 1.286M2.96 6.641l9.04 4.52l3.411-1.705l-8.886-5.078l-.103.054c-1.773.93-2.816 1.477-3.462 2.21" /> *@
+@*                         </svg> *@
 @*                         Products *@
 @*                     </a> *@
 @*                 </li> *@
+
+@*                 <!-- Link to Data Center 1 --> *@
 @*                 <li> *@
-@*                     <a href="#" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700 "> *@
-@*                         <img src="~/icons/datacenter.svg" *@
-@*                              class="px-2 "> *@
+@*                     <a asp-controller="Products" asp-action="Data_center_1" *@
+@*                        class="nav-link flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700" *@
+@*                        data-action="Data_center_1"> *@
+@*                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" class="mr-3 text-gray-500"> *@
+@*                             <path fill="currentColor" d="M28 10h-5V6a2 2 0 0 0-2-2H11a2 2 0 0 0-2 2v4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2M4 28V12h5v2H7v2h2v2H7v2h2v2H7v2h2v4Zm17 0H11V6h10Zm7 0h-5v-4h2v-2h-2v-2h2v-2h-2v-2h2v-2h-2v-2h5Z" /> *@
+@*                             <path fill="currentColor" d="M14 8h4v2h-4zm0 4h4v2h-4zm0 4h4v2h-4z" /> *@
+@*                         </svg> *@
 @*                         Data Center 1 *@
 @*                     </a> *@
 @*                 </li> *@
+
+@*                 <!-- Link to Data Center 2 --> *@
 @*                 <li> *@
-@*                     <a href="#" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700 "> *@
-@*                         <img src="~/icons/datacenter.svg" *@
-@*                              class="px-2 "> *@
+@*                     <a asp-controller="Products" asp-action="Data_center_2" *@
+@*                        class="nav-link flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700" *@
+@*                        data-action="Data_center_2"> *@
+@*                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" class="mr-3 text-gray-500"> *@
+@*                             <path fill="currentColor" d="M28 10h-5V6a2 2 0 0 0-2-2H11a2 2 0 0 0-2 2v4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2M4 28V12h5v2H7v2h2v2H7v2h2v2H7v2h2v4Zm17 0H11V6h10Zm7 0h-5v-4h2v-2h-2v-2h2v-2h-2v-2h2v-2h-2v-2h5Z" /> *@
+@*                             <path fill="currentColor" d="M14 8h4v2h-4zm0 4h4v2h-4zm0 4h4v2h-4z" /> *@
+@*                         </svg> *@
 @*                         Data Center 2 *@
 @*                     </a> *@
 @*                 </li> *@
-@*                  <li> *@
-@*                     <a href="#" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700 "> *@
-@*                         <img src="~/icons/datacenter.svg" *@
-@*                              class="px-2 "> *@
+
+@*                 <!-- Link to Data Center 3 --> *@
+@*                 <li> *@
+@*                     <a asp-controller="Products" asp-action="Data_center_3" *@
+@*                        class="nav-link flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700" *@
+@*                        data-action="Data_center_3"> *@
+@*                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" class="mr-3 text-gray-500"> *@
+@*                             <path fill="currentColor" d="M28 10h-5V6a2 2 0 0 0-2-2H11a2 2 0 0 0-2 2v4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2M4 28V12h5v2H7v2h2v2H7v2h2v2H7v2h2v4Zm17 0H11V6h10Zm7 0h-5v-4h2v-2h-2v-2h2v-2h-2v-2h2v-2h-2v-2h5Z" /> *@
+@*                             <path fill="currentColor" d="M14 8h4v2h-4zm0 4h4v2h-4zm0 4h4v2h-4z" /> *@
+@*                         </svg> *@
 @*                         Data Center 3 *@
 @*                     </a> *@
 @*                 </li> *@
+
+@*                 <!-- Link to Settings --> *@
 @*                 <li> *@
-@*                     <a href="#" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700 "> *@
-@*                         <img src="~/icons/setting.svg" *@
-@*                              class="px-2 "> *@
+@*                     <a asp-controller="Products" asp-action="Settings" *@
+@*                        class="nav-link flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700" *@
+@*                        data-action="Settings"> *@
+@*                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="mr-3 text-gray-500"> *@
+@*                             <path fill="currentColor" d="m9.25 22l-.4-3.2q-.325-.125-.612-.3t-.563-.375L4.7 19.375l-2.75-4.75l2.575-1.95Q4.5 12.5 4.5 12.338v-.675q0-.163.025-.338L1.95 9.375l2.75-4.75l2.975 1.25q.275-.2.575-.375t.6-.3l.4-3.2h5.5l.4 3.2q.325.125.613.3t.562.375l2.975-1.25l2.75 4.75l-2.575 1.95q.025.175.025.338v.674q0 .163-.05.338l2.575 1.95l-2.75 4.75l-2.95-1.25q-.275.2-.575.375t-.6.3l-.4 3.2zm2.8-6.5q1.45 0 2.475-1.025T15.55 12t-1.025-2.475T12.05 8.5q-1.475 0-2.488 1.025T8.55 12t1.013 2.475T12.05 15.5" /> *@
+@*                         </svg> *@
 @*                         Settings *@
 @*                     </a> *@
 @*                 </li> *@
+
+@*                 <!-- Link to Reports --> *@
 @*                 <li> *@
-@*                     <a href="#" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700 "> *@
-@*                         <img src="~/icons/report.svg" *@
-@*                              class="px-2 "> *@
+@*                     <a asp-controller="Products" asp-action="Reports" *@
+@*                        class="nav-link flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700" *@
+@*                        data-action="Reports"> *@
+@*                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="mr-3 text-gray-500"> *@
+@*                             <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"> *@
+@*                                 <path stroke-dasharray="64" stroke-width="2" d="M13 3l6 6v12h-14v-18h8"> *@
+@*                                     <animate fill="freeze" attributeName="stroke-dashoffset" dur="0.6s" values="64;0" /> *@
+@*                                 </path> *@
+@*                                 <path stroke-dasharray="14" stroke-dashoffset="14" d="M12.5 3v5.5h6.5"> *@
+@*                                     <animate fill="freeze" attributeName="stroke-dashoffset" begin="0.7s" dur="0.2s" to="0" /> *@
+@*                                 </path> *@
+@*                                 <g stroke-width="2"> *@
+@*                                     <g stroke-dasharray="6" stroke-dashoffset="6"> *@
+@*                                         <path d="M9 17v-3"> *@
+@*                                             <animate fill="freeze" attributeName="stroke-dashoffset" begin="0.9s" dur="0.2s" to="0" /> *@
+@*                                         </path> *@
+@*                                         <path d="M12 17v-4"> *@
+@*                                             <animate fill="freeze" attributeName="stroke-dashoffset" begin="1.1s" dur="0.2s" to="0" /> *@
+@*                                         </path> *@
+@*                                     </g> *@
+@*                                     <path stroke-dasharray="8" stroke-dashoffset="8" d="M15 17v-5"> *@
+@*                                         <animate fill="freeze" attributeName="stroke-dashoffset" begin="1.3s" dur="0.2s" to="0" /> *@
+@*                                     </path> *@
+@*                                 </g> *@
+@*                             </g> *@
+@*                         </svg> *@
 @*                         Reports *@
 @*                     </a> *@
 @*                 </li> *@
-                
 @*             </ul> *@
 @*         </nav> *@
 @*     </aside> *@
+@*     <script> *@
+@*         document.addEventListener('DOMContentLoaded', function() { *@
+@*             // Ambil action saat ini dari ViewBag atau URL *@
+@*             var currentAction = '@ViewContext.RouteData.Values["Action"]'; *@
 
+@*             // Set active berdasarkan halaman saat ini *@
+@*             document.querySelectorAll('.nav-link').forEach(link => { *@
+@*                 var linkAction = link.getAttribute('data-action'); *@
 
+@*                 if (linkAction === currentAction) { *@
+@*                     // Set active *@
+@*                     link.classList.remove('text-gray-600'); *@
+@*                     link.classList.add('bg-teal-100', 'text-teal-700'); *@
+@*                     link.querySelector('svg').classList.remove('text-gray-500'); *@
+@*                     link.querySelector('svg').classList.add('text-teal-600'); *@
+@*                 } *@
+
+@*                 // Tambah event listener untuk klik *@
+@*                 link.addEventListener('click', function() { *@
+@*                     // Hapus active dari semua link *@
+@*                     document.querySelectorAll('.nav-link').forEach(l => { *@
+@*                         l.classList.remove('bg-teal-100', 'text-teal-700'); *@
+@*                         l.classList.add('text-gray-600'); *@
+@*                         l.querySelector('svg').classList.remove('text-teal-600'); *@
+@*                         l.querySelector('svg').classList.add('text-gray-500'); *@
+@*                     }); *@
+
+@*                     // Set active ke link yang diklik *@
+@*                     this.classList.remove('text-gray-600'); *@
+@*                     this.classList.add('bg-teal-100', 'text-teal-700'); *@
+@*                     this.querySelector('svg').classList.remove('text-gray-500'); *@
+@*                     this.querySelector('svg').classList.add('text-teal-600'); *@
+@*                 }); *@
+@*             }); *@
+@*         }); *@
+@*     </script> *@
+
+@*     @* <script> *@ 
+@*     @*     document.addEventListener('DOMContentLoaded', function() { *@ 
+@*     @*         // Ambil action saat ini dari ViewBag atau URL *@ 
+@*     @*         var currentAction = '@ViewContext.RouteData.Values["Action"]'; *@ 
+
+@*     @*         // Set active berdasarkan halaman saat ini *@ 
+@*     @*         document.querySelectorAll('.nav-link').forEach(link => { *@ 
+@*     @*             var linkAction = link.getAttribute('data-action'); *@ 
+
+@*     @*             if (linkAction === currentAction) { *@ 
+@*     @*                 // Set active *@ 
+@*     @*                 link.classList.remove('text-gray-600'); *@ 
+@*     @*                 link.classList.add('bg-teal-100', 'text-teal-700'); *@ 
+@*     @*                 link.querySelector('svg').classList.remove('text-gray-500'); *@ 
+@*     @*                 link.querySelector('svg').classList.add('text-teal-600'); *@ 
+@*     @*             } *@ 
+@*     @*         }); *@ 
+@*     @*     }); *@ 
+@*     @* </script> *@ 
 @* </body> *@

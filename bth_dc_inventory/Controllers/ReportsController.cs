@@ -127,26 +127,34 @@ namespace bth_dc_inventory.Controllers
         // =========================================
         private byte[] GeneratePdf(IEnumerable<Item> items, int month, int year)
         {
+            QuestPDF.Settings.License = LicenseType.Community;
+
             var doc = Document.Create(container =>
             {
                 container.Page(page =>
                 {
+                    page.Margin(20);
+
+                    page.Footer()
+                    .AlignCenter()
+                    .Text($"Generated at: {DateTime.Now:dd MMM yyyy HH:mm}");
+
                     page.Content().Table(table =>
                     {
                         table.ColumnsDefinition(c =>
                         {
-                            c.RelativeColumn();
-                            c.RelativeColumn();
-                            c.RelativeColumn();
-                            c.RelativeColumn();
+                            c.RelativeColumn(2);
+                            c.RelativeColumn(2);
+                            c.RelativeColumn(1);
+                            c.RelativeColumn(2);
                         });
 
                         table.Header(h =>
                         {
-                            h.Cell().Text("Item");
-                            h.Cell().Text("Category");
-                            h.Cell().Text("Qty");
-                            h.Cell().Text("Price");
+                            h.Cell().Text("Item").SemiBold();
+                            h.Cell().Text("Category").SemiBold();
+                            h.Cell().Text("Qty").SemiBold();
+                            h.Cell().Text("Price").SemiBold();
                         });
 
                         foreach (var i in items)
@@ -154,14 +162,59 @@ namespace bth_dc_inventory.Controllers
                             table.Cell().Text(i.ItemName);
                             table.Cell().Text(i.Category.CategoryName);
                             table.Cell().Text(i.Quantity.ToString());
-                            table.Cell().Text(i.BuyingPrice.ToString("C"));
+                            table.Cell().Text(i.BuyingPrice.ToString("C", CultureInfo.GetCultureInfo("id-ID")));
                         }
                     });
+
+                    page.Footer()
+                        .AlignCenter()
+                        .Text(x =>
+                        {
+                            x.Span("Generated at: ");
+                            x.Span(DateTime.Now.ToString("dd MMM yyyy HH:mm"));
+                        });
                 });
             });
 
             return doc.GeneratePdf();
         }
+        //private byte[] GeneratePdf(IEnumerable<Item> items, int month, int year)
+        //{
+        //    var doc = Document.Create(container =>
+        //    {
+        //        container.Page(page =>
+        //        {
+        //            page.Content().Table(table =>
+        //            {
+        //                table.ColumnsDefinition(c =>
+        //                {
+        //                    c.RelativeColumn();
+        //                    c.RelativeColumn();
+        //                    c.RelativeColumn();
+        //                    c.RelativeColumn();
+        //                });
+
+        //                table.Header(h =>
+        //                {
+        //                    h.Cell().Text("Item");
+        //                    h.Cell().Text("Category");
+        //                    h.Cell().Text("Qty");
+        //                    h.Cell().Text("Price");
+        //                });
+
+        //                foreach (var i in items)
+        //                {
+        //                    table.Cell().Text(i.ItemName);
+        //                    table.Cell().Text(i.Category.CategoryName);
+        //                    table.Cell().Text(i.Quantity.ToString());
+        //                    table.Cell().Text(i.BuyingPrice.ToString("C"));
+        //                }
+        //            });
+        //        });
+        //    });
+
+        //    return doc.GeneratePdf();
+        //}
 
         // =========================================
         // EXCEL GENERATOR

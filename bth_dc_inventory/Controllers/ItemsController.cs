@@ -115,7 +115,7 @@ namespace bth_dc_inventory.Controllers
                 DataCenterId = dto.DataCenterId,
                 BuyingPrice = dto.BuyingPrice,
                 Quantity = 0,
-                Status = "active",
+                Status = "Pending",
                 CreatedAt = DateTime.UtcNow,
                 CreatedById = userId
             };

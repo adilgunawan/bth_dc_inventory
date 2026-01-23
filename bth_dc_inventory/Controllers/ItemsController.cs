@@ -120,6 +120,7 @@ namespace bth_dc_inventory.Controllers
                 CreatedById = userId
             };
 
+
             _context.Items.Add(item);
             await _context.SaveChangesAsync();
 

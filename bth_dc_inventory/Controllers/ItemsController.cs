@@ -171,6 +171,9 @@ namespace bth_dc_inventory.Controllers
             return NoContent();
         }
 
+        // =====================================
+        // FILER PRODUCTS
+        // =====================================
         [HttpGet("filter")]
         public async Task<ActionResult<PagedResponseDto<ItemReadDto>>> FilterItems(
     [FromQuery] ItemFilterDto filter)

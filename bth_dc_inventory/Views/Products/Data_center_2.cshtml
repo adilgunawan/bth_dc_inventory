@@ -2,6 +2,7 @@
     ViewData["Title"] = "Data Center 2";
 }
 
+
 <div class="space-y-6">
 
     <!-- Header -->
@@ -210,6 +211,36 @@
         </div>
     </div>
     <!-- Search & Filter -->
+    <!-- Modal Delete -->
+    <div id="deleteModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+        <div class="bg-white w-96 rounded-lg p-6 shadow-lg">
+            <!-- Title -->
+            <h2 class="text-lg font-semibold text-gray-700 text-center mb-4">Delete Product</h2>
+            <!-- Message -->
+            <p class="text-sm text-gray-500 text-center mb-6">
+                Are you sure you want to delete
+                <span id="deleteProductName" class="font-medium text-gray-800"></span>?
+                This action cannot be undone.
+            </p>
+            <!-- Buttons -->
+            <div class="flex justify-center space-x-4">
+                <button type="button" id="closeDeleteModal"
+                        class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="button" id="confirmDeleteButton"
+                        class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    Cancel
+                </button>
+                @* <button type="button" id="confirmDeleteButton" *@
+                @*         class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700"> *@
+                @*     Yes, Delete *@
+                @* </button> *@
+            </div>
+        </div>
+    </div>
+
+
     <div class="bg-white p-4 rounded-xl shadow-sm flex items-center m-1 mb-10 ">
         <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2 flex-1 me-4  ">
             <input type="text" placeholder="Search products..."
@@ -254,7 +285,7 @@
                     </td>
                     <td class="px-4 py-3 flex gap-2">
                         <button class="editProductButton border p-2 rounded hover:bg-gray-100">✏️</button>
-                        <button class="border p-2 rounded text-red-500 hover:bg-red-50">🗑️</button>
+                        <button class=" deleteProductButton border p-2 rounded text-red-500 hover:bg-red-50">🗑️</button>
                     </td>
                 </tr>
 
@@ -274,9 +305,10 @@
                     </td>
                     <td class="px-4 py-3 flex gap-2">
                         <button class=" editProductButton border p-2 rounded hover:bg-gray-100">✏️</button>
-                        <button class="border p-2 rounded text-red-500 hover:bg-red-50">🗑️</button>
+                        <button class="deleteProductButton border p-2 rounded text-red-500 hover:bg-red-50">🗑️</button>
                     </td>
                 </tr>
+
                 <script>
                     const openModal = document.getElementById("openModal");
                     const closeModal = document.getElementById("closeModal");
@@ -330,6 +362,48 @@
                     editModal.addEventListener("click", (e) => {
                         if (e.target === editModal) {
                             editModal.classList.add("hidden");
+                        }
+                    });
+                </script>
+
+
+                <script>
+                    const deleteButtons = document.querySelectorAll(".deleteProductButton");
+                    const deleteModal = document.getElementById("deleteModal");
+                    const closeDeleteModal = document.getElementById("closeDeleteModal");
+                    const confirmDeleteButton = document.getElementById("confirmDeleteButton");
+                    const deleteProductName = document.getElementById("deleteProductName");
+
+                    let currentRow;
+
+                    // Open Delete Modal on delete button click
+                    deleteButtons.forEach((btn) => {
+                        btn.addEventListener("click", function () {
+                            currentRow = this.closest("tr"); // Get the parent row of the clicked delete button
+                            const productName = currentRow.querySelector(":nth-child(2)").innerText; // Get the product name
+                            deleteProductName.textContent = productName; // Display product name in the modal
+                            deleteModal.classList.remove("hidden"); // Show the delete modal
+                        });
+                    });
+
+                    // Close modal
+                    closeDeleteModal.addEventListener("click", () => {
+                        deleteModal.classList.add("hidden"); // Hide the delete modal
+                    });
+
+                    // Confirm delete action
+                    confirmDeleteButton.addEventListener("click", () => {
+                        if (currentRow) {
+                            currentRow.remove(); // Remove the current row from the table
+                            alert("Product has been deleted successfully!");
+                        }
+                        deleteModal.classList.add("hidden"); // Hide the modal after deletion
+                    });
+
+                    // Close modal on background click
+                    deleteModal.addEventListener("click", (e) => {
+                        if (e.target === deleteModal) {
+                            deleteModal.classList.add("hidden");
                         }
                     });
                 </script>

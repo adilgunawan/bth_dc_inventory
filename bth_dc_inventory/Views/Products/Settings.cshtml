@@ -41,7 +41,7 @@
                         <span class="px-3 py-1 rounded-full text-xs bg-gray-200 text-gray-800">User</span>
                     </td>
                     <td class="p-3 text-center">
-                        <button class="px-4 py-2 text-white bg-teal-600 rounded-md text-sm hover:bg-teal-700">
+                        <button class=" assignAdminButton px-4 py-2 text-white bg-teal-600 rounded-md text-sm hover:bg-teal-700">
                             Assign Admin
                         </button>
                     </td>
@@ -63,4 +63,54 @@
             </tbody>
         </table>
     </section>
+    <!-- Assign Admin Confirmation Modal -->
+    <div id="assignAdminModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+        <div class="bg-white max-w-sm w-full rounded-lg p-6 shadow-lg">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4 text-center">Confirm Role Change</h2>
+            <p class="text-sm text-center text-gray-500 mb-6">
+                Are you sure you want to assign <span id="selectedUserName" class="font-medium text-gray-800"></span> as an Admin?
+                They will have the same permissions as you.
+            </p>
+            <div class="flex justify-center space-x-4">
+                <button type="button" id="closeAssignAdminModal" class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-md hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="button" id="confirmAssignButton" class="px-4 py-2 text-sm bg-teal-600 text-white rounded-md hover:bg-teal-700">
+                    Assign Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+  <script>
+            // Referensi elemen modal
+        const assignAdminModal = document.getElementById("assignAdminModal");
+        const closeAssignAdminModalButton = document.getElementById("closeAssignAdminModal");
+        const confirmAssignAdminButton = document.getElementById("confirmAssignAdmin");
+
+        // Tombol yang akan membuka modal (tambah ke tabel atau elemen lain)
+        const assignButtons = document.querySelectorAll(".assignAdminButton");
+
+        // Event untuk membuka modal
+        assignButtons.forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const userName = this.getAttribute("data-user-name"); // Ambil nama user dari atribut data
+                const selectedUserName = document.getElementById("selectedUserName"); // Referensi elemen di modal
+                selectedUserName.textContent = userName; // Tampilkan nama user di modal
+                assignAdminModal.classList.remove("hidden"); // Tampilkan modal
+            });
+        });
+
+        // Event untuk menutup modal (jika tombol Cancel ditekan)
+        closeAssignAdminModalButton.addEventListener("click", function () {
+            assignAdminModal.classList.add("hidden"); // Sembunyikan modal
+        });
+
+        // Event saat tombol Confirm ditekan (hanya placeholder untuk sekarang)
+        confirmAssignAdminButton.addEventListener("click", function () {
+            alert("Role has been changed to Admin!"); // Contoh pesan (sesuaikan nanti)
+            assignAdminModal.classList.add("hidden"); // Sembunyikan modal setelah aksi
+        });
+  </script>
+
 </main>

@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Detail ";
+    ViewData["Title"] = "Detail Products ";
 }
 
 <body class="bg-gray-50 min-h-screen font-sans">
@@ -161,6 +161,7 @@
                 const location = row.querySelector(":nth-child(5)").innerText.trim();
 
                 // Fill the form with the row data
+                document.getElementById("editpoNumber").value = poNumber;
                 document.getElementById("editProductName").value = productName;
                 document.getElementById("editProductId").value = productId;
                 document.getElementById("editCategory").value = category;

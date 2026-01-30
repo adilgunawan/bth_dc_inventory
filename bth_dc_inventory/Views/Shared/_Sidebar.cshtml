@@ -1,73 +1,164 @@
-﻿<body class="bg-gray-50 flex min-h-screen font-sans">
+﻿@{
+    string IsActive(string controller, string action)
+    {
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+        return (controller == currentController && action == currentAction)
+            ? "bg-teal-100 text-teal-700 border-r-4 border-teal-500 font-semibold"
+            : "text-gray-600 hover:bg-teal-50 hover:text-teal-700";
+    }
+}
+
+<body class="bg-gray-50 flex min-h-screen font-sans">
     <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow-md flex flex-col h-screen flex over">
+    <aside class="w-64 bg-white shadow-md flex flex-col h-screen">
         <!-- Logo and Branding -->
         <div class="p-6 bg-white shadow-md text-xl">
             <div class="flex items-center">
-                <img src="~/images/logo-icon.svg"
-                     class="h-12 w-auto">
+                <img src="~/images/logo-icon.svg" class="h-12 w-auto">
                 <div class="px-5">
                     <h1 class="text-lg font-semibold text-gray-700">Infineon Batam</h1>
                     <p class="text-sm text-gray-500">Data Center Inventory</p>
                 </div>
             </div>
         </div>
+
         <!-- Sidebar Navigation -->
         <nav class="mt-6">
             <ul class="space-y-1">
-                <!-- Link to Dashboard -->
+
                 <li>
-                    <a asp-controller="Products" asp-action="Dashboard" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700">
+                    <a asp-controller="Products" asp-action="Dashboard"
+                       class="flex items-center px-4 py-4 text-xl transition-all @IsActive("Products", "Dashboard")">
                         <img src="~/icons/dashboard.svg" class="px-2">
                         Dashboard
                     </a>
                 </li>
-                <!-- Link to Products -->
+
                 <li>
-                    <a asp-controller="Products" asp-action="Index" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700">
+                    <a asp-controller="Products" asp-action="Index"
+                       class="flex items-center px-4 py-4 text-xl transition-all @IsActive("Products", "Index")">
                         <img src="~/icons/box.svg" class="px-2">
                         Products
                     </a>
                 </li>
-                <!-- Link to Data Center 1 -->
+
                 <li>
-                    <a asp-controller="Products" asp-action="Data_center_1" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700">
+                    <a asp-controller="Products" asp-action="Data_center_1"
+                       class="flex items-center px-4 py-4 text-xl transition-all @IsActive("Products", "Data_center_1")">
                         <img src="~/icons/datacenter.svg" class="px-2">
                         Data Center 1
                     </a>
                 </li>
-                <!-- Link to Data Center 2 -->
+
                 <li>
-                    <a asp-controller="Products" asp-action="Data_center_2" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700">
+                    <a asp-controller="Products" asp-action="Data_center_2"
+                       class="flex items-center px-4 py-4 text-xl transition-all @IsActive("Products", "Data_center_2")">
                         <img src="~/icons/datacenter.svg" class="px-2">
                         Data Center 2
                     </a>
                 </li>
-                <!-- Link to Data Center 3 -->
+
                 <li>
-                    <a asp-controller="Products" asp-action="Data_center_3" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700">
+                    <a asp-controller="Products" asp-action="Data_center_3"
+                       class="flex items-center px-4 py-4 text-xl transition-all @IsActive("Products", "Data_center_3")">
                         <img src="~/icons/datacenter.svg" class="px-2">
                         Data Center 3
                     </a>
                 </li>
-                <!-- Link to Settings -->
+
                 <li>
-                    <a asp-controller="Products" asp-action="Settings" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700">
+                    <a asp-controller="Products" asp-action="Settings"
+                       class="flex items-center px-4 py-4 text-xl transition-all @IsActive("Products", "Settings")">
                         <img src="~/icons/setting.svg" class="px-2">
                         Settings
                     </a>
                 </li>
-                <!-- Link to Reports -->
+
                 <li>
-                    <a asp-controller="Products" asp-action="Reports" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700">
+                    <a asp-controller="Products" asp-action="Reports"
+                       class="flex items-center px-4 py-4 text-xl transition-all @IsActive("Products", "Reports")">
                         <img src="~/icons/report.svg" class="px-2">
                         Reports
                     </a>
                 </li>
+
             </ul>
         </nav>
     </aside>
 </body>
+
+@* <body class="bg-gray-50 flex min-h-screen font-sans"> *@
+@*     <!-- Sidebar --> *@
+@*     <aside class="w-64 bg-white shadow-md flex flex-col h-screen flex over"> *@
+@*         <!-- Logo and Branding --> *@
+@*         <div class="p-6 bg-white shadow-md text-xl"> *@
+@*             <div class="flex items-center"> *@
+@*                 <img src="~/images/logo-icon.svg" *@
+@*                      class="h-12 w-auto"> *@
+@*                 <div class="px-5"> *@
+@*                     <h1 class="text-lg font-semibold text-gray-700">Infineon Batam</h1> *@
+@*                     <p class="text-sm text-gray-500">Data Center Inventory</p> *@
+@*                 </div> *@
+@*             </div> *@
+@*         </div> *@
+@*         <!-- Sidebar Navigation --> *@
+@*         <nav class="mt-6"> *@
+@*             <ul class="space-y-1"> *@
+@*                 <!-- Link to Dashboard --> *@
+@*                 <li> *@
+@*                     <a asp-controller="Products" asp-action="Dashboard" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700"> *@
+@*                         <img src="~/icons/dashboard.svg" class="px-2"> *@
+@*                         Dashboard *@
+@*                     </a> *@
+@*                 </li> *@
+@*                 <!-- Link to Products --> *@
+@*                 <li> *@
+@*                     <a asp-controller="Products" asp-action="Index" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700"> *@
+@*                         <img src="~/icons/box.svg" class="px-2"> *@
+@*                         Products *@
+@*                     </a> *@
+@*                 </li> *@
+@*                 <!-- Link to Data Center 1 --> *@
+@*                 <li> *@
+@*                     <a asp-controller="Products" asp-action="Data_center_1" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700"> *@
+@*                         <img src="~/icons/datacenter.svg" class="px-2"> *@
+@*                         Data Center 1 *@
+@*                     </a> *@
+@*                 </li> *@
+@*                 <!-- Link to Data Center 2 --> *@
+@*                 <li> *@
+@*                     <a asp-controller="Products" asp-action="Data_center_2" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700"> *@
+@*                         <img src="~/icons/datacenter.svg" class="px-2"> *@
+@*                         Data Center 2 *@
+@*                     </a> *@
+@*                 </li> *@
+@*                 <!-- Link to Data Center 3 --> *@
+@*                 <li> *@
+@*                     <a asp-controller="Products" asp-action="Data_center_3" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700"> *@
+@*                         <img src="~/icons/datacenter.svg" class="px-2"> *@
+@*                         Data Center 3 *@
+@*                     </a> *@
+@*                 </li> *@
+@*                 <!-- Link to Settings --> *@
+@*                 <li> *@
+@*                     <a asp-controller="Products" asp-action="Settings" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700"> *@
+@*                         <img src="~/icons/setting.svg" class="px-2"> *@
+@*                         Settings *@
+@*                     </a> *@
+@*                 </li> *@
+@*                 <!-- Link to Reports --> *@
+@*                 <li> *@
+@*                     <a asp-controller="Products" asp-action="Reports" class="flex items-center px-4 py-4 text-xl font-medium text-gray-600 hover:bg-teal-50 hover:text-teal-700"> *@
+@*                         <img src="~/icons/report.svg" class="px-2"> *@
+@*                         Reports *@
+@*                     </a> *@
+@*                 </li> *@
+@*             </ul> *@
+@*         </nav> *@
+@*     </aside> *@
+@* </body> *@
 
 @* <body class="bg-gray-50 flex min-h-screen font-sans"> *@
 @*     <!-- Sidebar --> *@

@@ -39,6 +39,7 @@ namespace bth_dc_inventory.Controllers
         // =====================================
         // GET: api/category/{id}
         // =====================================
+
         [HttpGet("{id:int}")]
         public async Task<ActionResult<CategoryReadDto>> GetCategory(int id)
         {

@@ -11,6 +11,7 @@ namespace bth_dc_inventory.Models
         [Key]
         public int Id { get; set; }
 
+        //// ✅ NEW: PO Number (required)
         [Required]
         [MaxLength(200)]
         public string ItemCode { get; set; } = string.Empty;
@@ -19,10 +20,23 @@ namespace bth_dc_inventory.Models
         [MaxLength(200)]
         public string ItemName { get; set; } = string.Empty;
 
+        // ✅ NEW: Asset Number (nullable)
+        [MaxLength(100)]
+        public string? AssetNumber { get; set; }
+
+        // ✅ NEW: Serial Number (nullable)
+        [MaxLength(100)]
+        public string? SerialNumber { get; set; }
+
+        //// ✅ NEW: PO Number (required)
+        //[Required]
+        //[MaxLength(100)]
+        //public string PONumber { get; set; } = string.Empty;
+
         // Category Relation
         [Required]
         public int CategoryId { get; set; }
-        public Category? Category { get; set; } // no instantiation!
+        public Category? Category { get; set; }
 
         // Data Center Relation
         [Required]
@@ -57,6 +71,7 @@ namespace bth_dc_inventory.Models
     }
 }
 
+
 //using System;
 //using System.ComponentModel.DataAnnotations;
 //using System.ComponentModel.DataAnnotations.Schema;
@@ -64,53 +79,55 @@ namespace bth_dc_inventory.Models
 
 //namespace bth_dc_inventory.Models
 //{
+//    [Index(nameof(ItemCode), IsUnique = true)]
 //    public class Item
 //    {
 //        [Key]
-//        public int Id { get; set; } // Primary Key
+//        public int Id { get; set; }
 
 //        [Required]
 //        [MaxLength(200)]
-//        public string ItemCode { get; set; } = string.Empty; // Kode item tidak boleh null
+//        public string ItemCode { get; set; } = string.Empty;
 
 //        [Required]
 //        [MaxLength(200)]
-//        public string ItemName { get; set; } = string.Empty; // Nama item tidak boleh null
+//        public string ItemName { get; set; } = string.Empty;
 
+//        // Category Relation
 //        [Required]
-//        public int CategoryId { get; set; } // Foreign Key ke tabel Category
+//        public int CategoryId { get; set; }
+//        public Category? Category { get; set; } // no instantiation!
 
-//        [ForeignKey("CategoryId")]
-//        public Category Category { get; set; } = new Category(); // Navigasi ke Category
-
+//        // Data Center Relation
 //        [Required]
-//        public int DataCenterId { get; set; } // Foreign Key ke tabel DataCenter
+//        public int DataCenterId { get; set; }
+//        public DataCenter? DataCenter { get; set; }
 
-//        [ForeignKey("DataCenterId")]
-//        public DataCenter DataCenter { get; set; } = new DataCenter(); // Navigasi ke DataCenter
-
+//        // Buying price
 //        [Required]
 //        [Column(TypeName = "decimal(18,2)")]
-//        public decimal BuyingPrice { get; set; } // Harga pembelian
+//        public decimal BuyingPrice { get; set; }
 
+//        // Quantity
 //        [Required]
-//        public int Quantity { get; set; } // Jumlah
+//        [Range(1, int.MaxValue)]
+//        public int Quantity { get; set; }
 
 //        [Required]
 //        [MaxLength(20)]
-//        public string Status { get; set; } = "active"; // Status (default: active)
+//        public string Status { get; set; } = "active";
+
+//        // Nullable purchase date
+//        public DateTime? DateOfPurchase { get; set; }
+
+//        // Created By (User relation)
+//        [Required]
+//        public int CreatedById { get; set; }
+//        public User? CreatedBy { get; set; }
 
 //        [Required]
-//        public DateTime? DateOfPurchase { get; set; } // Tanggal pembelian di ubah jadi nuulable
-
-//        public int CreatedById { get; set; } // Foreign Key ke tabel User (ID pengguna yang membuat data)
-
-//        [ForeignKey("CreatedById")]
-//        public User CreatedBy { get; set; } = new User(); // Navigasi ke User
-
-//        [Required]
-//        public DateTime CreatedAt { get; set; } = DateTime.Now; // Waktu pembuatan tidak boleh null
-
-//        public DateTime? UpdatedAt { get; set; } // Waktu diperbarui dapat null
+//        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+//        public DateTime? UpdatedAt { get; set; }
 //    }
 //}
+

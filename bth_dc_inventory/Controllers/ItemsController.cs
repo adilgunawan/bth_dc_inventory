@@ -4,6 +4,8 @@ using bth_dc_inventory.Data;
 using bth_dc_inventory.Models;
 using bth_dc_inventory.DTOs.Item;
 using bth_dc_inventory.DTOs.Common;
+using QuestPDF.Fluent;
+using OfficeOpenXml;
 
 namespace bth_dc_inventory.Controllers
 {
@@ -218,6 +220,188 @@ namespace bth_dc_inventory.Controllers
 
             return Ok(items);
         }
+
+        // =====================================
+        // GET: api/items/export/date-range
+        // =====================================
+        [HttpGet("export/date-range")]
+        public async Task<IActionResult> ExportItemsByDateRange(
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime endDate)
+        {
+            if (startDate > endDate)
+                return BadRequest("StartDate tidak boleh lebih besar dari EndDate");
+
+            var items = await _context.Items
+                .Include(i => i.Category)
+                .Include(i => i.DataCenter)
+                .Where(i =>
+                    i.DateOfPurchase.HasValue &&
+                    i.DateOfPurchase.Value.Date >= startDate.Date &&
+                    i.DateOfPurchase.Value.Date <= endDate.Date)
+                .OrderBy(i => i.DateOfPurchase)
+                .ToListAsync();
+
+            if (!items.Any())
+                return NotFound("Tidak ada data pada range tanggal tersebut");
+
+            var pdfBytes = GenerateInventoryPdf(items, startDate, endDate);
+
+            return File(
+                pdfBytes,
+                "application/pdf",
+                $"Inventory_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf"
+            );
+        }
+        private byte[] GenerateInventoryPdf(
+        List<Item> items,
+        DateTime startDate,
+        DateTime endDate)
+            {
+                QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
+                var document = QuestPDF.Fluent.Document.Create(container =>
+                {
+                    container.Page(page =>
+                    {
+                        page.Margin(25);
+
+                        page.Header()
+                            .AlignCenter()
+                            .Text($"Inventory Report\n{startDate:dd MMM yyyy} - {endDate:dd MMM yyyy}")
+                            .SemiBold()
+                            .FontSize(16);
+
+                        page.Content().PaddingTop(15).Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.ConstantColumn(30);
+                                columns.RelativeColumn(3);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(2);
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Text("#").SemiBold();
+                                header.Cell().Text("Item Name").SemiBold();
+                                header.Cell().Text("Category").SemiBold();
+                                header.Cell().Text("Data Center").SemiBold();
+                                header.Cell().Text("Purchase Date").SemiBold();
+                            });
+
+                            int index = 1;
+                            foreach (var item in items)
+                            {
+                                table.Cell().Text(index++.ToString());
+                                table.Cell().Text(item.ItemName);
+                                table.Cell().Text(item.Category?.CategoryName ?? "-");
+                                table.Cell().Text(item.DataCenter?.Name ?? "-");
+                                table.Cell().Text(item.DateOfPurchase?.ToString("dd MMM yyyy") ?? "-");
+                            }
+                        });
+
+                        page.Footer()
+                            .AlignCenter()
+                            .Text($"Generated at {DateTime.Now:dd MMM yyyy HH:mm}")
+                            .FontSize(10);
+                    });
+                });
+
+                return document.GeneratePdf();
+            }
+
+        // =====================================
+        // GET: api/items/export/excel/date-range
+        // =====================================
+        //[HttpGet("export/excel/date-range")]
+        //public async Task<IActionResult> ExportExcelByDateRange(
+        //    [FromQuery] DateTime startDate,
+        //    [FromQuery] DateTime endDate)
+        //{
+        //    if (startDate > endDate)
+        //        return BadRequest("StartDate tidak boleh lebih besar dari EndDate");
+
+        //    var items = await _context.Items
+        //        .Include(i => i.Category)
+        //        .Include(i => i.DataCenter)
+        //        .Where(i =>
+        //            i.DateOfPurchase.HasValue &&
+        //            i.DateOfPurchase.Value.Date >= startDate.Date &&
+        //            i.DateOfPurchase.Value.Date <= endDate.Date)
+        //        .OrderBy(i => i.DateOfPurchase)
+        //        .ToListAsync();
+
+        //    if (!items.Any())
+        //        return NotFound("Tidak ada data pada range tanggal tersebut");
+
+        //    var excelBytes = GenerateExcel(items, startDate, endDate);
+
+        //    return File(
+        //        excelBytes,
+        //        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        //        $"Inventory_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.xlsx"
+        //    );
+        //}
+
+        //private byte[] GenerateExcel(
+        //List<Item> items,
+        //DateTime startDate,
+        //DateTime endDate)
+        //{
+        //    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+        //    using var package = new ExcelPackage();
+        //    var worksheet = package.Workbook.Worksheets.Add("Inventory Report");
+
+        //    // =========================
+        //    // HEADER TITLE
+        //    // =========================
+        //    worksheet.Cells["A1:E1"].Merge = true;
+        //    worksheet.Cells["A1"].Value =
+        //        $"Inventory Report ({startDate:dd MMM yyyy} - {endDate:dd MMM yyyy})";
+        //    worksheet.Cells["A1"].Style.Font.Bold = true;
+        //    worksheet.Cells["A1"].Style.Font.Size = 14;
+
+        //    // =========================
+        //    // TABLE HEADER
+        //    // =========================
+        //    worksheet.Cells[3, 1].Value = "No";
+        //    worksheet.Cells[3, 2].Value = "Item Name";
+        //    worksheet.Cells[3, 3].Value = "Category";
+        //    worksheet.Cells[3, 4].Value = "Data Center";
+        //    worksheet.Cells[3, 5].Value = "Purchase Date";
+
+        //    using (var range = worksheet.Cells[3, 1, 3, 5])
+        //    {
+        //        range.Style.Font.Bold = true;
+        //        range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+        //        range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+        //    }
+
+        //    // =========================
+        //    // DATA
+        //    // =========================
+        //    int row = 4;
+        //    int no = 1;
+
+        //    foreach (var item in items)
+        //    {
+        //        worksheet.Cells[row, 1].Value = no++;
+        //        worksheet.Cells[row, 2].Value = item.ItemName;
+        //        worksheet.Cells[row, 3].Value = item.Category?.CategoryName ?? "-";
+        //        worksheet.Cells[row, 4].Value = item.DataCenter?.Name ?? "-";
+        //        worksheet.Cells[row, 5].Value = item.DateOfPurchase?.ToString("dd MMM yyyy") ?? "-";
+        //        row++;
+        //    }
+
+        //    worksheet.Cells.AutoFitColumns();
+
+        //    return package.GetAsByteArray();
+        //}
+
 
         // =====================================
         // FILTER ITEMS

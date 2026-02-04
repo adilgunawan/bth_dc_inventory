@@ -3,161 +3,281 @@
 }
 
 
-<main class="flex-1 p-6">
-            <!-- Header -->
-            <header class="flex justify-between mb-6">
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Dashboard</title>
+</head>
+
+<body class="bg-gray-50 min-h-screen font-sans">
+
+    <div class="container mx-auto p-6">
+        <!-- Header -->
+        <header class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-700">Infineon Technologies Batam</h1>
+            <p class="text-gray-400 text-sm">Dashboard Data Center Inventory</p>
+        </header>
+
+        <!-- Stats Cards -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <!-- Total Products Card -->
+            <div class="bg-white shadow-md rounded-lg p-6 flex items-center">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-700">Infineon Technologies Batam</h1>
-                    <p class="text-gray-400"> Dashboard Data Center Inventory</p>
+                    <h3 class="text-sm text-gray-400">Total Products</h3>
+                    <p class="text-3xl font-bold text-teal-600">215</p>
+                    <p class="text-sm text-gray-400">Active inventory items</p>
                 </div>
+                <div class="ml-auto bg-teal-100 text-teal-600 rounded-full p-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 8L12 16"></path>
+                        <circle cx="12" cy="8" r="3"></circle>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Pending Products Card -->
+            <div class="bg-white shadow-md rounded-lg p-6 flex items-center">
+                <div>
+                    <h3 class="text-sm text-gray-400">Products Pending</h3>
+                    <p class="text-3xl font-bold text-orange-500">88</p>
+                    <p class="text-sm text-gray-400">Status pending</p>
+                </div>
+                <div class="ml-auto bg-orange-100 text-orange-600 rounded-full p-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 8V12L16 14M5.7 12H12"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Servers Card -->
+            <div class="bg-white shadow-md rounded-lg p-6 flex items-center">
+                <div>
+                    <h3 class="text-sm text-gray-400">Servers</h3>
+                    <p class="text-3xl font-bold text-blue-600">76</p>
+                    <p class="text-sm text-gray-400">24.8% of total items</p>
+                </div>
+                <div class="ml-auto bg-blue-100 text-blue-600 rounded-full p-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 10L12 16"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Cable Power Card -->
+            <div class="bg-white shadow-md rounded-lg p-6 flex items-center">
+                <div>
+                    <h3 class="text-sm text-gray-400">Cable Power</h3>
+                    <p class="text-3xl font-bold text-purple-600">170</p>
+                    <p class="text-sm text-gray-400">55.6% of total items</p>
+                </div>
+                <div class="ml-auto bg-purple-100 text-purple-600 rounded-full p-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-width="2" d="M12,13"></path>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inventory Distribution & Quick Overview -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <!-- Inventory Distribution -->
+            <div class="col-span-2 bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-lg font-bold text-gray-700 mb-4">Inventory Distribution</h3>
+                <p class="text-sm text-gray-400">Breakdown by equipment type</p>
+                <!-- Dummy Pie Chart -->
+                <div class="flex justify-center mt-6">
+                    <div class="w-48 h-48 bg-gray-100 rounded-full flex items-center justify-center">
+                        <span class="text-gray-400">Pie Chart</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Overview -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-lg font-bold text-gray-700 mb-4">Quick Overview</h3>
+                <div>
+                    <p class="text-sm text-gray-400">Total Items</p>
+                    <p class="text-lg font-bold text-gray-700">645</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-400">Active</p>
+                    <p class="text-lg font-bold text-green-600">215</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-400">Pending</p>
+                    <p class="text-lg font-bold text-red-600">88</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Centers -->
+        <section>
+            <h3 class="text-lg font-bold text-gray-700 mb-6">Data Centers</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Data Center 1 -->
+                <div class="relative bg-gradient-to-br from-blue-500 to-blue-400 text-white p-6 rounded-lg shadow-md">
+                    <p class="mb-2 text-sm font-medium opacity-90">Data Center 1</p>
+                    <p class="text-sm font-bold opacity-80">Batam 1 BLok 3</p>
+                    <div class="mt-4">
+                        <h4 class="text-3xl font-bold mb-1">215</h4>
+                        <p class="text-sm opacity-80">Active Items</p>
+                        <div class="mt-3 flex items-center justify-between">
+                            <span class="text-sm opacity-80">Capacity: <strong>300</strong></span>
+                            <span class="inline-block bg-white text-xs px-3 py-1 rounded-full text-teal-600">
+                                Operational
+                            </span>
+                        </div>
+                        <div class="mt-3 bg-white h-2 rounded-full">
+                            <div class="h-2 bg-teal-500 rounded-full" style="width: 71.7%;"></div>
+                        </div>
+                        <div class="mt-3 flex justify-between text-xs opacity-80">
+                            <span>71.7% utilized</span>
+                            <span>12.5 TB</span>
+                        </div>
+                        <button class="mt-4 inline-flex items-center text-sm text-white border border-white rounded-md px-3 py-1 transition hover:bg-white hover:text-blue-400">
+                            View Details →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Data Center 2 -->
+                <div class="relative bg-gradient-to-br from-teal-500 to-teal-400 text-white p-6 rounded-lg shadow-md">
+                    <p class="mb-2 text-sm font-medium opacity-90">Data Center 2</p>
+                    <p class="text-sm font-bold opacity-80">Batam 1 Blok 2</p>
+                    <div class="mt-4">
+                        <h4 class="text-3xl font-bold mb-1">215</h4>
+                        <p class="text-sm opacity-80">Active Items</p>
+                        <div class="mt-3 flex items-center justify-between">
+                            <span class="text-sm opacity-80">Capacity: <strong>300</strong></span>
+                            <span class="inline-block bg-white text-xs px-3 py-1 rounded-full text-teal-600">
+                                Operational
+                            </span>
+                        </div>
+                        <div class="mt-3 bg-white h-2 rounded-full">
+                            <div class="h-2 bg-teal-500 rounded-full" style="width: 77%;"></div>
+                        </div>
+                        <div class="mt-3 flex justify-between text-xs opacity-80">
+                            <span>77% utilized</span>
+                            <span>18.7 TB</span>
+                        </div>
+                        <button class="mt-4 inline-flex items-center text-sm text-white border border-white rounded-md px-3 py-1 transition hover:bg-white hover:text-teal-400">
+                            View Details →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Data Center 3 -->
+                <div class="relative bg-gradient-to-br from-purple-500 to-purple-400 text-white p-6 rounded-lg shadow-md">
+                    <p class="mb-2 text-sm font-medium opacity-90">Data Center 3</p>
+                    <p class="text-sm font-bold opacity-80">Batam 3</p>
+                    <div class="mt-4">
+                        <h4 class="text-3xl font-bold mb-1">215</h4>
+                        <p class="text-sm opacity-80">Active Items</p>
+                        <div class="mt-3 flex items-center justify-between">
+                            <span class="text-sm opacity-80">Capacity: <strong>300</strong></span>
+                            <span class="inline-block bg-white text-xs px-3 py-1 rounded-full text-purple-600">
+                                Operational
+                            </span>
+                        </div>
+                        <div class="mt-3 bg-white h-2 rounded-full">
+                            <div class="h-2 bg-purple-500 rounded-full" style="width: 71.7%;"></div>
+                        </div>
+                        <div class="mt-3 flex justify-between text-xs opacity-80">
+                            <span>71.7% utilized</span>
+                            <span>15.2 TB</span>
+                        </div>
+                        <button class="mt-4 inline-flex items-center text-sm text-white border border-white rounded-md px-3 py-1 transition hover:bg-white hover:text-purple-400">
+                            View Details →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>
+
+
+
+@* <main class="flex-1 p-6"> *@
+@*             <!-- Header --> *@
+@*             <header class="flex justify-between mb-6"> *@
+@*                 <div> *@
+@*                     <h1 class="text-2xl font-bold text-gray-700">Infineon Technologies Batam</h1> *@
+@*                     <p class="text-gray-400"> Dashboard Data Center Inventory</p> *@
+@*                 </div> *@
                 
-            </header>
+@*             </header> *@
 
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex inline-flex">
-                <div class="p-4 bg-white rounded-lg shadow-md flex flex-col">
-                    <div class="flex items-center justify-between h-auto w-auto">
-                        <h3 class="text-gray-500">Total Products</h3>
-                        <img src="~/icons/box.svg" class=" ">
-                    </div>
-                    <p class="text-teal-600 text-2xl font-semibold">215</p>
-                    <p class="text-gray-400 text-sm">Active inventory items</p>
-                </div>
-                <div class="p-4 bg-white rounded-lg shadow-md flex flex-col">
-                    <h3 class="text-gray-500">Products Pending</h3>
-                    <p class="text-orange-500 text-2xl font-semibold">88</p>
-                    <p class="text-gray-400 text-sm">Status Pending</p>
-                </div>
-            </div>
+@*             <!-- Stats Cards --> *@
+@*             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex inline-flex"> *@
+@*                 <div class="p-4 bg-white rounded-lg shadow-md flex flex-col"> *@
+@*                     <div class="flex items-center justify-between h-auto w-auto"> *@
+@*                         <h3 class="text-gray-500">Total Products</h3> *@
+@*                         <img src="~/icons/box.svg" class=" "> *@
+@*                     </div> *@
+@*                     <p class="text-teal-600 text-2xl font-semibold">215</p> *@
+@*                     <p class="text-gray-400 text-sm">Active inventory items</p> *@
+@*                 </div> *@
+@*                 <div class="p-4 bg-white rounded-lg shadow-md flex flex-col"> *@
+@*                     <h3 class="text-gray-500">Products Pending</h3> *@
+@*                     <p class="text-orange-500 text-2xl font-semibold">88</p> *@
+@*                     <p class="text-gray-400 text-sm">Status Pending</p> *@
+@*                 </div> *@
+@*             </div> *@
 
 
-            <!-- Chart and Data Center Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <!-- Placeholder Chart -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h4 class="text-gray-700 mb-4">Data Center Analysis</h4>
-                    <!-- Chart -->
-                    <div class="flex-1">
-                        <h2 class="text-lg font-semibold text-gray-700 mb-4">Report Summary</h2>
-                        <canvas id="reportChart" class="w-full h-48"></canvas>
-                    </div>
-                </div>
+@*             <!-- Chart and Data Center Stats --> *@
+@*             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6"> *@
+@*                 <!-- Placeholder Chart --> *@
+@*                 <div class="bg-white rounded-lg shadow-md p-6"> *@
+@*                     <h4 class="text-gray-700 mb-4">Data Center Analysis</h4> *@
+@*                     <!-- Chart --> *@
+@*                     <div class="flex-1"> *@
+@*                         <h2 class="text-lg font-semibold text-gray-700 mb-4">Report Summary</h2> *@
+@*                         <canvas id="reportChart" class="w-full h-48"></canvas> *@
+@*                     </div> *@
+@*                 </div> *@
 
-                <!-- Data Center Overview -->
-                <div class="grid grid-cols-3 gap-4 flex ">
-                    <div class="p-4 bg-white rounded-lg shadow-md">
-                        <h3>Data Center 1</h3>
-                        <p>215 Active inventory items</p>
-                    </div>
-                    <div class="p-4 bg-white rounded-lg shadow-md">
-                        <h3>Data Center 2</h3>
-                        <p>215 Active inventory items</p>
-                    </div>
-                    <div class="p-4 bg-white rounded-lg shadow-md">
-                        <h3>Data Center 3</h3>
-                        <p>215 Active inventory items</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Chart.js Configuration -->
-            <script>
-                const ctx = document.getElementById('reportChart').getContext('2d');
-                new Chart(ctx, {
-                  type: 'pie',
-                  data: {
-                    labels: ['Server', 'Cable', 'PDU'],
-                    datasets: [{
-                      data: [55, 25, 20],
-                      backgroundColor: ['#4CAF50', '#FF9800', '#03A9F4'],
-                    }]
-                  }
-                });
-            </script>
-        </main>
-@* <body class="bg-gray-50 min-h-screen font-sans"> *@
-@*     <p class="text-3xl font-bold text-gray-800 mt-2">15</p> *@
-@*     </div> *@
-@*     <!-- Total Categories --> *@
-@*     <div class="bg-white shadow rounded-lg p-4"> *@
-@*         <h3 class="text-sm text-gray-500">Total Categories</h3> *@
-@*         <p class="text-3xl font-bold text-gray-800 mt-2">12</p> *@
-@*     </div> *@
-@*     <!-- Data Centers --> *@
-@*     <div class="bg-white shadow rounded-lg p-4"> *@
-@*         <h3 class="text-sm text-gray-500">Active Data Centers</h3> *@
-@*         <p class="text-3xl font-bold text-gray-800 mt-2">5</p> *@
-@*     </div> *@
-@*     </section> *@
-
-@*     <!-- Charts --> *@
-@*     <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6"> *@
-@*         <!-- Pie Chart --> *@
-@*         <div class="bg-white shadow rounded-lg p-6"> *@
-@*             <h3 class="text-lg font-semibold text-gray-700 mb-4">Products by Category</h3> *@
-@*             <div id="pieChart" class="w-full h-64"></div> *@
-@*         </div> *@
-@*         <!-- Bar Chart --> *@
-@*         <div class="bg-white shadow rounded-lg p-6"> *@
-@*             <h3 class="text-lg font-semibold text-gray-700 mb-4">Inventory in Data Centers</h3> *@
-@*             <div id="barChart" class="w-full h-64"></div> *@
-@*         </div> *@
-@*     </section> *@
-
-@*     <!-- Data Center Breakdown --> *@
-@*     <section class="bg-white shadow rounded-lg p-6 mb-6"> *@
-@*         <h3 class="text-lg font-semibold text-gray-700 mb-4">Data Center Overview</h3> *@
-@*         <table class="min-w-full border-collapse border border-gray-200"> *@
-@*             <thead> *@
-@*                 <tr class="bg-gray-100"> *@
-@*                     <th class="p-4 text-left border border-gray-300 text-sm text-gray-700">#</th> *@
-@*                     <th class="p-4 text-left border border-gray-300 text-sm text-gray-700">Data Center Name</th> *@
-@*                     <th class="p-4 text-left border border-gray-300 text-sm text-gray-700">Location</th> *@
-@*                     <th class="p-4 text-left border border-gray-300 text-sm text-gray-700">Total Products</th> *@
-@*                     <th class="p-4 text-left border border-gray-300 text-sm text-gray-700">Status</th> *@
-@*                     <th class="p-4 text-left border border-gray-300 text-sm text-gray-700">Capacity</th> *@
-@*                 </tr> *@
-@*             </thead> *@
-@*             <tbody> *@
-@*                 <tr> *@
-@*                     <td class="p-4 text-sm text-gray-500 border">1</td> *@
-@*                     <td class="p-4 text-sm text-gray-500 border">Data Center 1</td> *@
-@*                     <td class="p-4 text-sm text-gray-500 border">Jakarta</td> *@
-@*                     <td class="p-4 text-sm text-gray-500 border">350</td> *@
-@*                     <td class="p-4 text-sm text-teal-500 border">Active</td> *@
-@*                     <td class="p-4 text-sm text-gray-500 border">90%</td> *@
-@*                 </tr> *@
-@*                 <!-- Tambahkan lebih banyak baris --> *@
-@*             </tbody> *@
-@*         </table> *@
-@*     </section> *@
-@*     </main> *@
-@*     </div> *@
-
-@*     <!-- ChartJS Integration --> *@
-@*     <script> *@
-@*         const pieChartCtx = document.getElementById('pieChart').getContext('2d'); *@
-@*         new Chart(pieChartCtx, { *@
-@*           type: 'pie', *@
-@*           data: { *@
-@*             labels: ['Server', 'Cable', 'Power Unit'], *@
-@*             datasets: [{ *@
-@*               data: [60, 25, 15], *@
-@*               backgroundColor: ['#4CAF50', '#FF9800', '#2196F3'], *@
-@*             }] *@
-@*           } *@
-@*         }); *@
-
-@*         const barChartCtx = document.getElementById('barChart').getContext('2d'); *@
-@*         new Chart(barChartCtx, { *@
-@*           type: 'bar', *@
-@*           data: { *@
-@*             labels: ['DC 1', 'DC 2', 'DC 3', 'DC 4', 'DC 5'], *@
-@*             datasets: [{ *@
-@*               label: 'Products', *@
-@*               data: [100, 150, 120, 80, 90], *@
-@*               backgroundColor: '#4CAF50' *@
-@*             }] *@
-@*           } *@
-@*         }); *@
-@*     </script> *@
-@* </body> *@
+@*                 <!-- Data Center Overview --> *@
+@*                 <div class="grid grid-cols-3 gap-4 flex "> *@
+@*                     <div class="p-4 bg-white rounded-lg shadow-md"> *@
+@*                         <h3>Data Center 1</h3> *@
+@*                         <p>215 Active inventory items</p> *@
+@*                     </div> *@
+@*                     <div class="p-4 bg-white rounded-lg shadow-md"> *@
+@*                         <h3>Data Center 2</h3> *@
+@*                         <p>215 Active inventory items</p> *@
+@*                     </div> *@
+@*                     <div class="p-4 bg-white rounded-lg shadow-md"> *@
+@*                         <h3>Data Center 3</h3> *@
+@*                         <p>215 Active inventory items</p> *@
+@*                     </div> *@
+@*                 </div> *@
+@*             </div> *@
+@*             <!-- Chart.js Configuration --> *@
+@*             <script> *@
+@*                 const ctx = document.getElementById('reportChart').getContext('2d'); *@
+@*                 new Chart(ctx, { *@
+@*                   type: 'pie', *@
+@*                   data: { *@
+@*                     labels: ['Server', 'Cable', 'PDU'], *@
+@*                     datasets: [{ *@
+@*                       data: [55, 25, 20], *@
+@*                       backgroundColor: ['#4CAF50', '#FF9800', '#03A9F4'], *@
+@*                     }] *@
+@*                   } *@
+@*                 }); *@
+@*             </script> *@
+@*         </main> *@

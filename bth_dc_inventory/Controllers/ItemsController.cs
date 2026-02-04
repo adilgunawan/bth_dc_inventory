@@ -184,6 +184,7 @@ namespace bth_dc_inventory.Controllers
             return NoContent();
         }
 
+
         // =====================================
         // GET: api/items/by-date-range
         // =====================================
@@ -222,7 +223,7 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
-        // GET: api/items/export/date-range
+        // GET: api/items/export pdf/date-range
         // =====================================
         [HttpGet("export/date-range")]
         public async Task<IActionResult> ExportItemsByDateRange(

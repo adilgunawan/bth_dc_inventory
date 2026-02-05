@@ -10,6 +10,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Dashboard</title>
 </head>
 
@@ -82,7 +83,7 @@
                 <div class="ml-auto bg-purple-100 text-purple-600 rounded-full p-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
                          stroke="currentColor">
-                        <path stroke-width="2" d="M12,13"></path>
+                       <path stroke-width="2" d="M12,13"></path>
                     </svg>
                 </div>
             </div>
@@ -91,16 +92,16 @@
         <!-- Inventory Distribution & Quick Overview -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <!-- Inventory Distribution -->
+            <!-- Inventory Distribution -->
             <div class="col-span-2 bg-white shadow-md rounded-lg p-6">
                 <h3 class="text-lg font-bold text-gray-700 mb-4">Inventory Distribution</h3>
                 <p class="text-sm text-gray-400">Breakdown by equipment type</p>
-                <!-- Dummy Pie Chart -->
+                <!-- Pie Chart -->
                 <div class="flex justify-center mt-6">
-                    <div class="w-48 h-48 bg-gray-100 rounded-full flex items-center justify-center">
-                        <span class="text-gray-400">Pie Chart</span>
-                    </div>
+                    <canvas id="inventoryPieChart" class="w-48 h-48"></canvas>
                 </div>
             </div>
+          
 
             <!-- Quick Overview -->
             <div class="bg-white shadow-md rounded-lg p-6">
@@ -204,6 +205,64 @@
             </div>
         </section>
     </div>
+
+    <script>
+        // Data for Pie Chart
+        const chartData = {
+            labels: ["Server", "PDU", "Switch", "Cable Power", "Rack"],
+            datasets: [
+                {
+                    label: "Inventory Distribution",
+                    data: [76, 30, 12, 170, 18], // Example data
+                    backgroundColor: [
+                        "#22D3EE", // Cyan
+                        "#FACC15", // Yellow
+                        "#34D399", // Green
+                        "#A78BFA", // Purple
+                        "#F87171"  // Red
+                    ],
+                    hoverOffset: 4,
+                },
+            ],
+        };
+
+        // Config for Pie Chart
+        const config = {
+            type: "pie", // Defines the chart type
+            data: chartData,
+            options: {
+                responsive: true,
+                        maintainAspectRatio: false, // Disable the default aspect ratio handling
+
+                plugins: {
+                    legend: {
+                        position: "right", // Position of legend
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                const value = chartData.datasets[0].data[tooltipItem.dataIndex];
+                                const label = chartData.labels[tooltipItem.dataIndex];
+                                const percentage = (
+                                    (value /
+                                        chartData.datasets[0].data.reduce(
+                                            (a, b) => a + b,
+                                            0
+                                        )) *
+                                    100
+                                ).toFixed(1);
+                                return `${label}: ${value} (${percentage}%)`;
+                            },
+                        },
+                    },
+                },
+            },
+        };
+
+        // Render the chart
+        const ctx = document.getElementById("inventoryPieChart").getContext("2d");
+        new Chart(ctx, config);
+    </script>
 </body>
 
 </html>

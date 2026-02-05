@@ -69,6 +69,14 @@
                 </li>
 
                 <li>
+                    <a asp-controller="Products" asp-action="Category"
+                       class="flex items-center px-4 py-4 text-xl transition-all @IsActive("Products", "Category")">
+                        <img src="~/icons/report.svg" class="px-2">
+                        Category
+                    </a>
+                </li>
+
+                <li>
                     <a asp-controller="Products" asp-action="Settings"
                        class="flex items-center px-4 py-4 text-xl transition-all @IsActive("Products", "Settings")">
                         <img src="~/icons/setting.svg" class="px-2">

@@ -1,0 +1,340 @@
+﻿@{
+    ViewData["Title"] = "Category ";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 min-h-screen font-sans">
+    <div class="container mx-auto p-6">
+        <!-- Header -->
+        <header class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-700">Category Management</h1>
+            <p class="text-gray-400 text-sm">Manage product categories and classifications</p>
+        </header>
+
+        <!-- Stats -->
+        <section class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <p class="text-sm text-gray-400">Total Categories</p>
+                <p class="text-3xl font-bold text-purple-600">6</p>
+            </div>
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <p class="text-sm text-gray-400">Active Categories</p>
+                <p class="text-3xl font-bold text-green-600">6</p>
+            </div>
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <p class="text-sm text-gray-400">Inactive</p>
+                <p class="text-3xl font-bold text-gray-500">0</p>
+            </div>
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <p class="text-sm text-gray-400">Total Products</p>
+                <p class="text-3xl font-bold text-blue-600">303</p>
+            </div>
+        </section>
+
+        <!-- Add Category Button -->
+        <button id="addCategoryButton"
+                class="hover:bg-teal-700  bg-teal-600 text-white px-4 py-2 rounded-md shadow  float-right">
+            + Add Category
+        </button>
+
+        <!-- Category Cards -->
+        <section class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Example Category Card -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden p-4">
+                <img src="https://via.placeholder.com/400x200.png" alt="Switch" class="rounded-lg mb-4">
+                <span class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">24 products</span>
+                <h2 class="text-lg font-bold text-gray-700 mt-2">Switch</h2>
+                <p class="text-sm text-gray-500">Network switches for data routing</p>
+                <p class="text-xs text-gray-400 mt-4">By Jane Smith · 12/01/2026</p>
+                <div class="mt-4 flex justify-between text-sm">
+                    <button class="text-blue-500 hover:underline editCategoryButton">Edit</button>
+                    <button class="text-red-500 hover:underline deleteCategoryButton">Delete</button>
+                </div>
+            </div>
+        </section>
+    </div>
+    <!-- Modal Edit -->
+    <!-- Modal Edit -->
+    <div id="editCategoryModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-8">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-700">Edit Category</h2>
+                <button id="closeEditModal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <!-- Form -->
+            <form id="editCategoryForm" class="space-y-4">
+                <!-- Image Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category Image</label>
+                    <!-- Image Preview -->
+                    <div id="editImagePreview"
+                         class="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg text-gray-400 bg-gray-50">
+                        <span id="defaultEditText">Upload an image or update current image</span>
+                        <img id="editedUploadedImage" class="hidden w-full h-full object-cover rounded-lg" />
+                    </div>
+                    <input type="file" id="editUploadImage" accept="image/*"
+                           class="mt-3 w-full text-sm file:bg-teal-600 file:border-0 file:px-4 file:py-2 file:rounded-md file:text-white focus:outline-none">
+                </div>
+                <!-- Category Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Category Name</label>
+                    <input id="editCategoryName" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="e.g., Server Equipment">
+                </div>
+                <!-- Description -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea id="editCategoryDescription" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Describe this category..."></textarea>
+                </div>
+                <!-- Status Toggle -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Status</label>
+                    <div class="flex items-center space-x-4">
+                        <label><input type="radio" name="status" value="active" class="mr-2"> Active</label>
+                        <label><input type="radio" name="status" value="inactive" class="mr-2"> Inactive</label>
+                    </div>
+                </div>
+                <!-- Buttons -->
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancelEditModal" class="px-4 py-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-100">
+                        Cancel
+                    </button>
+                    <button type="submit" class=" text-white px-4 py-2 rounded-md hover:bg-teal-700  bg-teal-600">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Modal Delete -->
+    <div id="deleteCategoryModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-8">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-700">Delete Category</h2>
+                <button id="closeDeleteModal" class="text-gray-500 hover:text-gray-700">&times;</button>
+            </div>
+            <!-- Message -->
+            <p class="text-sm text-gray-500 mb-6">
+                Are you sure you want to delete this category? This action cannot be undone.
+            </p>
+            <!-- Buttons -->
+            <div class="flex justify-end space-x-4">
+                <button id="cancelDelete" type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button id="confirmDelete" type="button" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add Category -->
+    <div id="addCategoryModal"
+         class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-700">Add New Category</h2>
+                <button id="closeModalButton" class="text-gray-500 hover:text-gray-700">&times;</button>
+            </div>
+            <form class="space-y-4">
+                <!-- Image Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category Image</label>
+                    <div id="imagePreview"
+                         class="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg text-gray-400 bg-gray-50">
+                        <span id="defaultText">Upload an image or select a file</span>
+                        <img id="uploadedImage" class="hidden w-full h-full object-cover rounded-lg" />
+                    </div>
+                    <input type="file" id="uploadImage" accept="image/*"
+                           class="mt-3 w-full text-sm file:bg-teal-100 file:border-0 file:px-4 file:py-2 file:rounded-md file:text-grey-300  focus:outline-none" />
+                </div>
+           
+                <!-- Category Name -->
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Category Name</label>
+                        <input class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                               placeholder="e.g., Server Equipment">
+                    </div>
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                                  placeholder="Describe this category..."></textarea>
+                    </div>
+                </div>
+                <div>
+                    <!-- Status -->
+                    <label class="block text-sm font-medium text-gray-700">Status</label>
+                    <div class="flex space-x-4 mt-2">
+                        <button class="px-4 py-2 border border-teal-500 rounded-md hover:bg-teal-700  bg-teal-600 text-white">
+                            Active
+                        </button>
+                        <button class="px-4 py-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-100">
+                            Inactive
+                        </button>
+                    </div>
+                </div>
+                <!-- Buttons -->
+                <div class="flex justify-end space-x-4 mt-6">
+                    <button type="button" id="closeModalButton_2"
+                            class="text-gray-500 border border-gray-300 px-4 py-2 rounded-md">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class=" text-white px-4 py-2 rounded-md hover:bg-teal-700  bg-teal-600">
+                        Add Category
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Modal Add Category -->
+    <script>
+        // Referensi elemen
+        const uploadImageInput = document.getElementById("uploadImage");
+        const imagePreview = document.getElementById("imagePreview");
+        const uploadedImage = document.getElementById("uploadedImage");
+        const defaultText = document.getElementById("defaultText");
+
+        // Saat pengguna memilih file
+        uploadImageInput.addEventListener("change", () => {
+          const file = uploadImageInput.files[0];
+
+          if (file) {
+            const reader = new FileReader();
+
+            // Ketika file berhasil dibaca
+            reader.onload = function (event) {
+              uploadedImage.setAttribute("src", event.target.result);
+              uploadedImage.classList.remove("hidden");
+              defaultText.classList.add("hidden");
+            };
+
+            // Baca file sebagai URL data
+            reader.readAsDataURL(file);
+          } else {
+            // Kembalikan ke state awal jika tidak ada file
+            uploadedImage.classList.add("hidden");
+            defaultText.classList.remove("hidden");
+            uploadedImage.setAttribute("src", "");
+          }
+        });
+    </script>
+    <!-- Modal Add Category -->
+    <script>
+        // Modal Logic
+        const addCategoryButton = document.getElementById("addCategoryButton");
+        const addCategoryModal = document.getElementById("addCategoryModal");
+        const closeModalButtons = document.querySelectorAll("#closeModalButton, #closeModalButton_2");
+
+        // Show Modal
+        addCategoryButton.addEventListener("click", () => {
+          addCategoryModal.classList.remove("hidden");
+        });
+
+        // Close Modal
+        closeModalButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            addCategoryModal.classList.add("hidden");
+          });
+        });
+    </script>
+
+    <script>
+        // Reference elements
+        const editButtons = document.querySelectorAll('.editCategoryButton');
+        const deleteButtons = document.querySelectorAll('.deleteCategoryButton');
+
+        const editModal = document.getElementById('editCategoryModal');
+        const deleteModal = document.getElementById('deleteCategoryModal');
+
+        const closeEditModal = document.getElementById('closeEditModal');
+        const closeDeleteModal = document.getElementById('closeDeleteModal');
+
+        const cancelEditModal = document.getElementById('cancelEditModal');
+        const cancelDelete = document.getElementById('cancelDelete');
+        const confirmDelete = document.getElementById('confirmDelete');
+
+        // Show Edit Modal
+        editButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                editModal.classList.remove('hidden');
+            });
+        });
+
+        // Show Delete Modal
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                deleteModal.classList.remove('hidden');
+            });
+        });
+
+        // Close Edit Modal
+        closeEditModal.addEventListener('click', () => {
+            editModal.classList.add('hidden');
+        });
+        cancelEditModal.addEventListener('click', () => {
+            editModal.classList.add('hidden');
+        });
+
+        // Close Delete Modal
+        closeDeleteModal.addEventListener('click', () => {
+            deleteModal.classList.add('hidden');
+        });
+        cancelDelete.addEventListener('click', () => {
+            deleteModal.classList.add('hidden');
+        });
+
+        // Confirm Deletion (Add specific logic here)
+        confirmDelete.addEventListener('click', () => {
+            alert('Category has been deleted.');
+            deleteModal.classList.add('hidden');
+        });
+    </script>
+
+    <script>
+        // Referensi elemen untuk modal edit
+        const editUploadImageInput = document.getElementById("editUploadImage");
+        const editImagePreview = document.getElementById("editImagePreview");
+        const editedUploadedImage = document.getElementById("editedUploadedImage");
+        const defaultEditText = document.getElementById("defaultEditText");
+
+        // Saat pengguna memilih file di modal Edit
+        editUploadImageInput.addEventListener("change", () => {
+            const file = editUploadImageInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                // Ketika file berhasil dibaca
+                reader.onload = function (event) {
+                    editedUploadedImage.setAttribute("src", event.target.result);
+                    editedUploadedImage.classList.remove("hidden"); // Tampilkan gambar
+                    defaultEditText.classList.add("hidden"); // Sembunyikan placeholder
+                };
+
+                // Baca file sebagai URL data
+                reader.readAsDataURL(file);
+            } else {
+                // Reset ke keadaan awal
+                editedUploadedImage.classList.add("hidden");
+                defaultEditText.classList.remove("hidden");
+                editedUploadedImage.setAttribute("src", "");
+            }
+        });
+    </script>
+</body>
+
+</html>

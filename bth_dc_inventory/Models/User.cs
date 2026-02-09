@@ -24,6 +24,8 @@ namespace bth_dc_inventory.Models
         [Required]
         [StringLength(500)] // hashed password length
         public string Password { get; set; } = string.Empty;
+        //[Required, StringLength(500)]
+        //public string PasswordHash { get; set; } = string.Empty;
 
         [Required]
         [StringLength(20)]

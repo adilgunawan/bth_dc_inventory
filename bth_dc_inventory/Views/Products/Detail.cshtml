@@ -8,11 +8,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <title>Product Detail</title>
 </head>
-    <body class="bg-gray-50 min-h-screen font-sans">
-    <!-- Main Content -->
+
+<body class="bg-gray-50 min-h-screen font-sans">
     <main class="p-6">
         <!-- Header -->
         <header class="flex justify-between items-center border-b pb-4">
@@ -21,114 +20,25 @@
                 <p class="text-sm text-gray-500">Manage Data Center 1 Products</p>
             </div>
             <!-- Action Buttons -->
-            <div class="space-x-4 flex justify-between">
-                <button class=" editProductButton bg-red-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-red-700 flex items-center space-x-2">
-                    ✏️ <span>Edit Product</span>
+            <div class="space-x-4 flex">
+                <!-- Delete Button -->
+                <button id="openDeleteModal"
+                        class="bg-red-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-red-700">
+                    Delete Product
                 </button>
-                <button class="editProductButton bg-teal-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-teal-700 flex items-center space-x-2">
-                    ✏️ <span>Edit Product</span>
+                <!-- Edit Button -->
+                <button id="openEditModal"
+                        class="bg-teal-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-teal-700">
+                    Edit Product
                 </button>
             </div>
         </header>
 
-        <!-- Edit Product Modal -->
-        <div id="editProductModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
-            <div class="bg-white max-w-lg w-full mx-auto rounded-lg p-6 shadow-lg">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">Edit Product</h2>
-                <form id="editProductForm" class="space-y-4">
-                    <!-- Product Name -->
-                    <div>
-                        <label for="editProductName" class="text-sm font-medium text-gray-700">Product Name</label>
-                        <input type="text"
-                               id="editProductName"
-                               placeholder="Enter product name"
-                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                               required />
-                    </div>
-                    <!-- Product ID -->
-                    <div>
-                        <label for="editProductId" class="text-sm font-medium text-gray-700">Product ID</label>
-                        <input type="text"
-                               id="editProductId"
-                               placeholder="Enter product ID"
-                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                               required />
-                    </div>
-                    <!-- Category -->
-                    <div>
-                        <label for="editCategory" class="text-sm font-medium text-gray-700">Category</label>
-                        <select id="editCategory"
-                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                required>
-                            <option>Select product category</option>
-                            <option value="Server">Server</option>
-                            <option value="Cable">Cable</option>
-                            <option value="PDU">PDU</option>
-                        </select>
-                    </div>
-                    <!-- Buying Price -->
-                    <div>
-                        <label for="editBuyingPrice" class="text-sm font-medium text-gray-700">Buying Price $</label>
-                        <input type="number"
-                               id="editBuyingPrice"
-                               placeholder="Enter buying price"
-                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                               required />
-                    </div>
-                    <!-- Quantity -->
-                    <div>
-                        <label for="editQuantity" class="text-sm font-medium text-gray-700">Quantity</label>
-                        <input type="number"
-                               id="editQuantity"
-                               placeholder="Enter product quantity"
-                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                               required />
-                    </div>
-                    <!-- Location -->
-                    <div>
-                        <label for="editLocation" class="text-sm font-medium text-gray-700">Location</label>
-                        <select id="editLocation"
-                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                required>
-                            <option>Select Location</option>
-                            <option value="Data Center 1">Data Center 1</option>
-                            <option value="Data Center 2">Data Center 2</option>
-                            <option value="Data Center 3">Data Center 3</option>
-                        </select>
-                    </div>
-                    <!-- Date of Purchase -->
-                    <div>
-                        <label for="editDateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
-                        <input type="date"
-                               id="editDateOfPurchase"
-                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                               required />
-                    </div>
-                    <!-- Status -->
-                    <div>
-                        <label for="editStatus" class="text-sm font-medium text-gray-700">Status</label>
-                        <select id="editStatus"
-                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                required>
-                            <option>Select Status Product</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Arrived">Arrived</option>
-                        </select>
-                    </div>
-                    <!-- Buttons -->
-                    <div class="flex justify-end space-x-4">
-                        <button type="button" id="closeEditModal" class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-md hover:bg-gray-100">Cancel</button>
-                        <button type="submit" class="px-4 py-2 text-sm bg-teal-600 text-white rounded-md hover:bg-teal-700">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
         <!-- Details Section -->
         <section class="mt-6 bg-white p-6 rounded-lg shadow-sm">
-            <!-- Grid Container -->
+            <!-- Grid for Details -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Primary Details -->
+                <!-- Product Details -->
                 <div>
                     <h2 class="text-lg font-semibold text-gray-700 mb-6">Primary Details</h2>
                     <ul class="space-y-4 text-gray-600">
@@ -147,50 +57,137 @@
 
                 <!-- Product Image -->
                 <div class="flex justify-center items-center">
-                    <img src="~/images/server_dell.png" alt="Product Image" class="rounded-lg shadow-lg object-cover">
+                    <img src="~/images/server_dell.png" alt="Product Image"
+                         class="rounded-lg shadow-lg object-cover">
                 </div>
             </div>
-            
-
         </section>
     </main>
+
+    <!-- Modal Edit Product -->
+    <div id="editModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+        <div class="bg-white w-full max-w-lg rounded-lg p-6 shadow-lg">
+            <h2 class="text-lg font-bold text-gray-700 mb-4">Edit Product</h2>
+            <form id="editForm" class="space-y-4">
+                <div>
+                    <label for="productName" class="text-sm font-medium text-gray-700">Product Name</label>
+                    <input type="text" id="productName"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required />
+                </div>
+                <div>
+                    <label for="poNumber" class="text-sm font-medium text-gray-700">PO Number</label>
+                    <input type="text" id="poNumber"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required />
+                </div>
+                <div>
+                    <label for="assetNumber" class="text-sm font-medium text-gray-700">Asset Number</label>
+                    <input type="text" id="assetNumber"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                </div>
+                <div>
+                    <label for="serialNumber" class="text-sm font-medium text-gray-700">Serial Number</label>
+                    <input type="text" id="serialNumber"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                </div>
+                <div>
+                    <label for="category" class="text-sm font-medium text-gray-700">Product Category</label>
+                    <input type="text" id="category"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                </div>
+                <div>
+                    <label for="buyingPrice" class="text-sm font-medium text-gray-700">Buying Price</label>
+                    <input type="text" id="buyingPrice"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                </div>
+                <div>
+                    <label for="quantity" class="text-sm font-medium text-gray-700">Quantity</label>
+                    <input type="number" id="quantity"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                </div>
+                <div>
+                    <label for="location" class="text-sm font-medium text-gray-700">Location</label>
+                    <input type="text" id="location"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                </div>
+                <div>
+                    <label for="dateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
+                    <input type="date" id="dateOfPurchase"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                </div>
+                <div>
+                    <label for="status" class="text-sm font-medium text-gray-700">Status</label>
+                    <select id="status"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <option value="Pending">Pending</option>
+                        <option value="Arrived">Arrived</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="closeEditModal"
+                            class="px-4 py-2 rounded-md text-gray-500 bg-gray-100 hover:bg-gray-200">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Delete Product -->
+    <div id="deleteModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+            <h2 class="text-lg font-bold text-gray-700 mb-4">Delete Product</h2>
+            <p class="text-sm text-gray-500">Are you sure you want to delete this product? This action cannot be undone.</p>
+            <div class="flex justify-end space-x-4">
+                <button id="closeDeleteModal"
+                        class="bg-gray-100 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200">
+                    Cancel
+                </button>
+                <button id="confirmDeleteButton"
+                        class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
     <script>
-        const editButtons = document.querySelectorAll(".editProductButton");
-        const editModal = document.getElementById("editProductModal");
-        const closeEditButton = document.getElementById("closeEditModal");
+        // Edit Modal Logic
+        const editModal = document.getElementById('editModal');
+        const openEditModal = document.getElementById('openEditModal');
+        const closeEditModal = document.getElementById('closeEditModal');
 
-        // Open Edit Modal
-        editButtons.forEach((btn) => {
-            btn.addEventListener("click", function () {
-                const row = this.closest("tr");
-                const poNumber = row.querySelector(":nth-child(1)").innerText;
-                const productName = row.querySelector(":nth-child(2)").innerText;
-                const productId = row.querySelector(":nth-child(3)").innerText;
-                const category = row.querySelector(":nth-child(4)").innerText.trim();
-                const location = row.querySelector(":nth-child(5)").innerText.trim();
-
-                // Fill the form with the row data
-                document.getElementById("editpoNumber").value = poNumber;
-                document.getElementById("editProductName").value = productName;
-                document.getElementById("editProductId").value = productId;
-                document.getElementById("editCategory").value = category;
-                document.getElementById("editLocation").value = location;
-
-                editModal.classList.remove("hidden");
-            });
+        openEditModal.addEventListener('click', () => {
+            editModal.classList.remove('hidden');
         });
 
-        // Close Modal
-        closeEditButton.addEventListener("click", () => {
-            editModal.classList.add("hidden");
+        closeEditModal.addEventListener('click', () => {
+            editModal.classList.add('hidden');
         });
 
-        // Close Modal on Background Click
-        editModal.addEventListener("click", (e) => {
-            if (e.target === editModal) {
-                editModal.classList.add("hidden");
-            }
+        // Delete Modal Logic
+        const deleteModal = document.getElementById('deleteModal');
+        const openDeleteModal = document.getElementById('openDeleteModal');
+        const closeDeleteModal = document.getElementById('closeDeleteModal');
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+
+        openDeleteModal.addEventListener('click', () => {
+            deleteModal.classList.remove('hidden');
+        });
+
+        closeDeleteModal.addEventListener('click', () => {
+            deleteModal.classList.add('hidden');
+        });
+
+        confirmDeleteButton.addEventListener('click', () => {
+            alert('Product has been deleted');
+            deleteModal.classList.add('hidden');
         });
     </script>
 </body>
+
 </html>

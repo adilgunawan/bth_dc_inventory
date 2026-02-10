@@ -17,9 +17,21 @@
 
     <div class="container mx-auto p-6">
         <!-- Header -->
-        <header class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-700">Infineon Technologies Batam</h1>
-            <p class="text-gray-400 text-sm">Dashboard Data Center Inventory</p>
+        <header class="mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-700">Infineon Technologies Batam</h1>
+                <p class="text-gray-400 text-sm">Dashboard Data Center Inventory</p>
+            </div>
+            
+            <!-- Search Engine -->
+            <div class="flex items-center space-x-3">
+                <input type="text" id="searchInput" placeholder="Search..."
+                       class="w-64 bg-white border border-gray-300 rounded-md px-4 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder-gray-400">
+                <button id="searchButton"
+                        class="bg-teal-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-teal-700 transition">
+                    Search
+                </button>
+            </div>
         </header>
 
         <!-- Stats Cards -->

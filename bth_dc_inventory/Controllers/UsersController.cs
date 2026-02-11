@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using bth_dc_inventory.Data;
 using bth_dc_inventory.Models;
 using bth_dc_inventory.DTOs.Users;
+using bth_dc_inventory.Helpers;
 
 namespace bth_dc_inventory.Controllers
 {
@@ -11,10 +12,12 @@ namespace bth_dc_inventory.Controllers
     public class UsersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public UsersController(ApplicationDbContext context)
+        public UsersController(ApplicationDbContext context, IConfiguration configuration)
         {
                     this._context = context;
+                    _configuration = configuration;
         }
 
         // =====================================================
@@ -129,6 +132,103 @@ namespace bth_dc_inventory.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+
+        // =====================================================
+        // REGISTER: POST api/users/register
+        // =====================================================
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(UserCreateDto dto)
+        {
+            // 1. Validasi apakah `Email` atau `Username` sudah ada di database.
+            var existingEmail = await _context.Users.AnyAsync(u => u.Email == dto.Email);
+            if (existingEmail)
+            {
+                return BadRequest(new { message = "Email sudah digunakan." });
+            }
+
+            var existingUsername = await _context.Users.AnyAsync(u => u.Username == dto.Username);
+            if (existingUsername)
+            {
+                return BadRequest(new { message = "Username sudah digunakan." });
+            }
+
+            // 2. Hash password menggunakan BCrypt.
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+            // 3. Buat user baru.
+            var newUser = new User
+            {
+                Username = dto.Username,
+                Email = dto.Email,
+                Password = hashedPassword, // Simpan password yang sudah di-hash
+                CreatedAt = DateTime.Now
+            };
+
+            // 4. Simpan user ke database.
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+
+            // 5. Konversi ke DTO untuk dikembalikan ke client.
+            var userDto = new UserReadDto
+            {
+                Id = newUser.Id,
+                Username = newUser.Username,
+                Email = newUser.Email,
+                Role = newUser.Role,
+                CreatedAt = newUser.CreatedAt
+            };
+
+            // 6. Kembalikan response `201 Created`.
+            return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, userDto);
+        }
+
+        // =====================================================
+        // LOGIN: POST api/users/login
+        // =====================================================
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+            {
+                return Unauthorized(new { message = "Invalid email or password." });
+            }
+
+            // Ambil config JWT dari appsettings.json
+            var jwtKey = _configuration["Jwt:Key"];
+            var jwtIssuer = _configuration["Jwt:Issuer"];
+            var jwtAudience = _configuration["Jwt:Audience"];
+
+            var token = JwtHelper.GenerateJwtToken(
+                user.Id.ToString(),
+                user.Username,
+                user.Email,
+                user.Role,
+                jwtKey,
+                jwtIssuer,
+                jwtAudience
+            );
+
+            return Ok(new
+            {
+                token,
+                user = new
+                {
+                    user.Id,
+                    user.Username,
+                    user.Email,
+                    user.Role
+                }
+            });
         }
     }
 }

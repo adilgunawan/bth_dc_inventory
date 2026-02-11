@@ -20,56 +20,39 @@
                 <h1 class="text-xl font-semibold text-gray-700">Infineon Technologies Batam</h1>
                 <p class="text-sm text-gray-500">Data Center Inventory</p>
             </div>
-
-            <!-- FORM -->
-            <form method="post">
-
+            <form id="loginForm">
                 <!-- USERNAME -->
                 <div class="mb-4">
-                    <label class="text-sm text-gray-600">Username</label>
+                    <label class="text-sm text-gray-600">Email</label>
                     <div class="flex items-center border border-gray-300 rounded-lg px-3 mt-1 focus-within:ring-2 ring-teal-500">
-
-                        <!-- USER ICON -->
-                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                  d="M5.121 17.804A9 9 0 0112 15c3.866 0 7 2.239 7 5v1H5v-1c0-1.379.476-2.66 1.121-3.196z" />
-                            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                  d="M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-
-                        <input type="text"
-                               name="Username"
+                        <!-- EMAIL ICON -->
+                        <img src="~/icons/email.svg" />
+                        <input type="email"
+                               id="email"
+                               name="Email"
                                class="w-full px-3 py-2 outline-none"
-                               placeholder="Enter your username" />
+                               placeholder="Enter your email" required />
                     </div>
                 </div>
-
                 <!-- PASSWORD -->
-                <div class="mb-6">
+                <div class="mb-4">
                     <label class="text-sm text-gray-600">Password</label>
                     <div class="flex items-center border border-gray-300 rounded-lg px-3 mt-1 focus-within:ring-2 ring-teal-500">
-
                         <!-- LOCK ICON -->
-                        <img src="~/icons/lock.svg" class="m-auto" />
-
+                        <img src="~/icons/lock.svg" />
                         <input type="password"
+                               id="password"
                                name="Password"
                                class="w-full px-3 py-2 outline-none"
-                               placeholder="Enter your password" />
+                               placeholder="Enter your password" required />
                     </div>
                 </div>
-
                 <!-- BUTTON -->
-                <button class="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg transition">
+                <button id="loginButton" class="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg transition" type="button">
                     Login
                 </button>
-
-                <!-- FORGOT -->
-                <p class="text-center text-sm mt-4">
-                    <a href="#" class="text-teal-600 hover:underline">Forgot Password?</a>
-                </p>
-
             </form>
+           
         </div>
     </div>
 
@@ -78,63 +61,55 @@
         <img src="~/images/datacenter.png"
              class="h-full w-full object-cover" />
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const loginButton = document.getElementById("loginButton");
+
+            loginButton.addEventListener("click", async function (event) {
+                event.preventDefault();
+                loginButton.disabled = true;
+
+                try {
+                    const email = document.getElementById("email").value.trim();
+                    const password = document.getElementById("password").value.trim();
+
+                    const response = await fetch("/api/users/login", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+
+                        alert("Login berhasil! Selamat datang, " + result.user.username);
+
+                        // Simpan token ke localStorage
+                        localStorage.setItem("token", result.token);
+
+                        window.location.href = "/Products/Dashboard";
+                    } else {
+                        const errorData = await response.json();
+                        alert(errorData.message || "Invalid credentials.");
+                    }
+
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("Terjadi kesalahan saat login.");
+                } finally {
+                    loginButton.disabled = false;
+                }
+            });
+
+        });
+    </script>
+    
 </div>
 
-@* @{ *@
-@*     Layout = "_LayoutAuth"; *@
-@* } *@
-
-@* <div class="min-h-screen grid grid-cols-1 md:grid-cols-2"> *@
-
-@*     <!-- LEFT --> *@
-@*     <div class="flex items-center justify-center"> *@
-@*         <div class="w-full max-w-sm bg-white rounded-xl shadow-lg p-8"> *@
-
-@*             <img src="~/images/logo-infineon.png" class="h-10 mx-auto mb-4" /> *@
-
-@*             <div class="flex justify-center mb-4"> *@
-@*                 <img src="~/images/app-icon.svg" class="h-12" /> *@
-@*             </div> *@
-
-@*             <h2 class="text-center font-semibold mb-6"> *@
-@*                 Infineon Batam<br /> *@
-@*                 <span class="text-sm text-gray-500">Data Center Inventory</span> *@
-@*             </h2> *@
-
-@*             <form method="post" class="space-y-4"> *@
-
-@*                 <!-- Username --> *@
-@*                 <div class="relative"> *@
-@*                     <span class="absolute left-3 top-2.5 text-gray-400"> *@
-@*                         <img src="~/icons/user.svg" class="w-4 h-4" /> *@
-@*                     </span> *@
-@*                     <input type="text" *@
-@*                            placeholder="Enter your Username" *@
-@*                            class="w-full pl-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" /> *@
-@*                 </div> *@
-
-@*                 <!-- Password --> *@
-@*                 <div class="relative"> *@
-@*                     <span class="absolute left-3 top-2.5 text-gray-400"> *@
-@*                         <img src="~/icons/lock.svg" class="w-4 h-4" /> *@
-@*                     </span> *@
-@*                     <input type="password" *@
-@*                            placeholder="Enter your Password" *@
-@*                            class="w-full pl-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" /> *@
-@*                 </div> *@
-
-@*                 <button class="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700"> *@
-@*                     Login *@
-@*                 </button> *@
-
-@*                 <p class="text-center text-sm text-teal-600 hover:underline cursor-pointer"> *@
-@*                     Forgot Password? *@
-@*                 </p> *@
-
-@*             </form> *@
-@*         </div> *@
-@*     </div> *@
-
-@*     <!-- RIGHT --> *@
-@*     <div class="hidden md:block bg-[url('/images/datacenter.png')] bg-cover bg-center"></div> *@
-@* </div> *@

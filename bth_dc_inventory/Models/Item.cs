@@ -11,7 +11,7 @@ namespace bth_dc_inventory.Models
         [Key]
         public int Id { get; set; }
 
-        //// ✅ NEW: PO Number (required)
+        ////  PO Number (required)
         [Required]
         [MaxLength(200)]
         public string ItemCode { get; set; } = string.Empty;

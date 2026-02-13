@@ -10,7 +10,7 @@
         </div>
 
         <!-- Right Profile -->
-    <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3">
             <div class="flex items-center gap-2">
                 <div class="w-10 h-10 bg-teal-600 text-white flex items-center justify-center rounded-full font-bold">
                     A
@@ -19,7 +19,21 @@
                     <p class="font-semibold text-sm">Admin</p>
                     <p class="text-xs text-gray-400">Data Center Inventory</p>
                 </div>
+            <button id="logoutButton" class="bg-red-500 text-white px-4 py-2 rounded-lg px-4">
+                Logout
+            </button>
             </div>
         </div>
 
+         
+
+         <script>
+            document.getElementById('logoutButton').addEventListener('click', () => {
+                // Hapus token dari LocalStorage
+                localStorage.removeItem('token');
+
+                // Redirect ke halaman login
+                window.location.href = "/account/login";
+            });
+         </script>
     </div>

@@ -19,6 +19,8 @@
 
         public DateTime? DateOfPurchase { get; set; }
         public DateTime? UpdatedAt { get; set; }
+
+
     }
 }
 //using System;

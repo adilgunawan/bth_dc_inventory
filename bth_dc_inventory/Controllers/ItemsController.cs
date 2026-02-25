@@ -466,6 +466,47 @@ namespace bth_dc_inventory.Controllers
         //    return package.GetAsByteArray();
         //}
 
+        // DATA CENTER PRODUCT
+        [HttpGet("data-center/{dataCenterId}")]
+        public async Task<ActionResult<List<ItemReadDto>>> GetItemsByDataCenter(int dataCenterId)
+        {
+            // Validasi apakah DataCenterId valid
+            var isValidDataCenter = await _context.DataCenters.AnyAsync(dc => dc.Id == dataCenterId);
+            if (!isValidDataCenter)
+            {
+                return NotFound(new { message = $"Data Center with ID {dataCenterId} not found." });
+            }
+
+            // Ambil data item berdasarkan DataCenterId
+            var items = await _context.Items
+                .Include(i => i.Category)
+                .Include(i => i.DataCenter)
+                .Where(i => i.DataCenterId == dataCenterId)  // Filter berdasarkan DataCenterId
+                .Select(i => new ItemReadDto
+                {
+                    Id = i.Id,
+                    ItemCode = i.ItemCode,
+                    ItemName = i.ItemName,
+                    AssetNumber = i.AssetNumber,
+                    SerialNumber = i.SerialNumber,
+                    CategoryName = i.Category.CategoryName,
+                    DataCenterName = i.DataCenter.Name, // Ambil nama DataCenter
+                    BuyingPrice = i.BuyingPrice,
+                    Quantity = i.Quantity,
+                    Status = i.Status,
+                    DateOfPurchase = i.DateOfPurchase,
+                    UpdatedAt = i.UpdatedAt
+                })
+                .ToListAsync();
+
+            // Validasi jika tidak ada data ditemukan
+            if (!items.Any())
+            {
+                return NotFound(new { message = $"No items found in Data Center with ID {dataCenterId}." });
+            }
+
+            return Ok(items);
+        }
 
         // =====================================
         // FILTER ITEMS

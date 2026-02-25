@@ -190,4 +190,77 @@
     </script>
 </body>
 
+    <script>
+              document.addEventListener("DOMContentLoaded", async function () {
+        // Ambil parameter id dari URL
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get("id");
+
+        // Validasi productId
+        if (!productId) {
+            document.querySelector("main").innerHTML = `
+                <div class="text-center mt-20">
+                    <h1 class="text-2xl font-bold text-red-500">Invalid Product ID</h1>
+                    <p class="text-gray-600 mt-2">Please provide a valid product ID to view details.</p>
+                    <a href="/datacenter1" class="mt-4 inline-block text-teal-600 underline">Go Back to Data Center 1</a>
+                </div>
+            `;
+            return;
+        }
+
+        try {
+            // Fetch detail produk dari backend
+            const response = await fetch(`/api/items/${productId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    document.querySelector("main").innerHTML = `
+                        <div class="text-center mt-20">
+                            <h1 class="text-2xl font-bold text-red-500">Product Not Found</h1>
+                            <p class="text-gray-600 mt-2">The product you are looking for could not be found.</p>
+                            <a href="/datacenter1" class="mt-4 inline-block text-teal-600 underline">Go Back to Data Center 1</a>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`Failed to fetch product details. Status: ${response.status}`);
+                }
+                return;
+            }
+
+            const product = await response.json();
+
+            // Render data ke halaman
+            document.querySelector("ul.space-y-4").innerHTML = `
+                <li><span class="font-semibold text-gray-700">Product Name:</span> ${product.itemName}</li>
+                <li><span class="font-semibold text-gray-700">PO Number:</span> ${product.itemCode}</li>
+                <li><span class="font-semibold text-gray-700">Asset Number:</span> ${product.assetNumber || "N/A"}</li>
+                <li><span class="font-semibold text-gray-700">Serial Number:</span> ${product.serialNumber || "N/A"}</li>
+                <li><span class="font-semibold text-gray-700">Product Category:</span> ${product.categoryName}</li>
+                <li><span class="font-semibold text-gray-700">Buying Price:</span> $${product.buyingPrice}</li>
+                <li><span class="font-semibold text-gray-700">Quantity:</span> ${product.quantity}</li>
+                <li><span class="font-semibold text-gray-700">Location:</span> ${product.dataCenterName}</li>
+                <li><span class="font-semibold text-gray-700">Date of Purchase:</span> ${new Date(product.dateOfPurchase).toLocaleDateString()}</li>
+                <li><span class="font-semibold text-gray-700">Status:</span> ${product.status}</li>
+            `;
+
+            document.querySelector(".flex img").src = product.imageUrl || "~/images/default-product.png";
+
+        } catch (error) {
+            console.error("Error fetching product details:", error);
+            document.querySelector("main").innerHTML = `
+                <div class="text-center mt-20">
+                    <h1 class="text-2xl font-bold text-red-500">Failed to Load Product Details</h1>
+                    <p class="text-gray-600 mt-2">Please try again later.</p>
+                    <a href="/datacenter1" class="mt-4 inline-block text-teal-600 underline">Go Back</a>
+                </div>
+            `;
+        }
+    });
+</script>
+
 </html>

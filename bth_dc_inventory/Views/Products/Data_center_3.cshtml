@@ -415,6 +415,62 @@
         </table>
     </div>
 
+    <!-- GET DATA FORM DATABASE -->
+    <script>
+                document.addEventListener("DOMContentLoaded", function () {
+            const productTableBody = document.querySelector(".divide-y"); // Tabel body elemen
 
+            // Fungsi untuk memuat data Data Center 1
+            async function loadDataCenter1Products() {
+                try {
+                    const response = await fetch("/api/items/data-center/6", {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch products. Status: ${response.status}`);
+                    }
+
+                    const products = await response.json();
+
+                    // Kosongkan tabel sebelum menambahkan data baru
+                    productTableBody.innerHTML = "";
+
+                    // Tambahkan data produk ke tabel
+                    products.forEach(product => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td class="px-4 py-3">${product.itemCode}</td>
+                            <td class="px-4 py-3">${product.itemName}</td>
+                            <td class="px-4 py-3">${product.assetNumber || "N/A"}</td>
+                            <td class="px-4 py-3">
+                                <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">${product.categoryName}</span>
+                            </td>
+                            <td class="px-4 py-3">${product.dataCenterName}</td>
+                            <td class="px-4 py-3">
+                                <a href="/Product/Detail?id=${product.id}" class="text-teal-600 bg-teal-50 px-3 py-1 rounded-full text-xs hover:bg-teal-700 hover:text-white">
+                                    Detail Product
+                                </a>
+                            </td>
+                            <td class="px-4 py-3 flex gap-2">
+                                <button class="editProductButton border p-2 rounded hover:bg-gray-100">✏️</button>
+                                <button class="deleteProductButton border p-2 rounded text-red-500 hover:bg-red-50">🗑️</button>
+                            </td>
+                        `;
+                        productTableBody.appendChild(row);
+                    });
+                } catch (error) {
+                    console.error("Error while loading products:", error);
+                    alert("Failed to load products for Data Center 1.");
+                }
+            }
+
+            // Panggil fungsi saat halaman dimuat
+            loadDataCenter1Products();
+        });
+    </script>
 </div>
 </html>

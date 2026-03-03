@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Infrastructure;
 using System.Text;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // =========================
@@ -48,6 +49,7 @@ builder.Services.AddSwaggerGen();
 // =========================
 var app = builder.Build();
 
+app.MapControllers(); // Memetakan controller otomatis
 // =========================
 // MIDDLEWARE
 // =========================

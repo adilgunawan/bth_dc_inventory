@@ -59,101 +59,138 @@ namespace bth_dc_inventory.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ItemReadDto>> GetItem(int id)
         {
+            // Cari item berdasarkan ID
             var item = await _context.Items
-                .Include(i => i.Category)
-                .Include(i => i.DataCenter)
-                .Where(i => i.Id == id)
+                .Include(i => i.Category) // Relasi ke tabel Category
+                .Include(i => i.DataCenter) // Relasi ke tabel DataCenter
+                .Where(i => i.Id == id) // Filter dengan ID
                 .Select(i => new ItemReadDto
                 {
                     Id = i.Id,
                     ItemCode = i.ItemCode,
                     ItemName = i.ItemName,
-
-                    AssetNumber = i.AssetNumber,
-                    SerialNumber = i.SerialNumber,
-                    //PONumber = i.PONumber,
-
-                    CategoryName = i.Category.CategoryName,
-                    DataCenterName = i.DataCenter.Name,
+                    AssetNumber = string.IsNullOrWhiteSpace(i.AssetNumber) ? null : i.AssetNumber,
+                    SerialNumber = string.IsNullOrWhiteSpace(i.SerialNumber) ? null : i.SerialNumber,
+                    CategoryName = i.Category != null ? i.Category.CategoryName : "N/A", // Pastikan relasi tidak null
+                    DataCenterName = i.DataCenter != null ? i.DataCenter.Name : "N/A", // Pastikan relasi tidak null
                     BuyingPrice = i.BuyingPrice,
                     Quantity = i.Quantity,
                     Status = i.Status,
-                    DateOfPurchase = i.DateOfPurchase,
-                    UpdatedAt = i.UpdatedAt
+                    DateOfPurchase = i.DateOfPurchase.HasValue ? i.DateOfPurchase.Value : null, // Validasi null
+                    UpdatedAt = i.UpdatedAt.HasValue ? i.UpdatedAt.Value : null // Validasi null
                 })
                 .FirstOrDefaultAsync();
 
+            // Jika item tidak ditemukan
             if (item == null)
-                return NotFound();
+                return NotFound(new { message = "Item not found." });
 
+            // Jika ditemukan, kembalikan hasil
             return Ok(item);
         }
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<ItemReadDto>> GetItem(int id)
+        //{
+        //    var item = await _context.Items
+        //        .Include(i => i.Category)
+        //        .Include(i => i.DataCenter)
+        //        .Where(i => i.Id == id)
+        //        .Select(i => new ItemReadDto
+        //        {
+        //            Id = i.Id,
+        //            ItemCode = i.ItemCode,
+        //            ItemName = i.ItemName,
+
+        //            AssetNumber = i.AssetNumber,
+        //            SerialNumber = i.SerialNumber,
+        //            //PONumber = i.PONumber,
+
+        //            CategoryName = i.Category.CategoryName,
+        //            DataCenterName = i.DataCenter.Name,
+        //            BuyingPrice = i.BuyingPrice,
+        //            Quantity = i.Quantity,
+        //            Status = i.Status,
+        //            DateOfPurchase = i.DateOfPurchase,
+        //            UpdatedAt = i.UpdatedAt
+        //        })
+        //        .FirstOrDefaultAsync();
+
+        //    if (item == null)
+        //        return NotFound();
+
+        //    return Ok(item);
+        //}
 
         // =====================================
         // POST: api/items
         // =====================================
-        [HttpPost]
-        public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto dto)
-        {
-            // Validasi Model State
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-                return BadRequest(new { message = "Validation failed.", errors });
-            }
+        // =====================================
+        // =====================================
+        //[HttpPost]
+        //public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto dto)
+        //{
+        //    // Validasi Model State
+        //    if (!ModelState.IsValid)
+        //    {
+        //        var errors = ModelState.Values
+        //            .SelectMany(v => v.Errors)
+        //            .Select(e => e.ErrorMessage);
+        //        return BadRequest(new { message = "Validation failed.", errors });
+        //    }
 
-            // Validasi CategoryId
-            if (!await _context.Categories.AnyAsync(c => c.Id == dto.CategoryId))
-            {
-                return BadRequest(new { message = "Invalid CategoryId." });
-            }
+        //    // Validasi `CategoryId`
+        //    if (!await _context.Categories.AnyAsync(c => c.Id == dto.CategoryId))
+        //    {
+        //        return BadRequest(new { message = "Invalid CategoryId." });
+        //    }
 
-            // Validasi DataCenterId
-            if (!await _context.DataCenters.AnyAsync(d => d.Id == dto.DataCenterId))
-            {
-                return BadRequest(new { message = "Invalid DataCenterId." });
-            }
+        //    // Validasi `DataCenterId`
+        //    if (!await _context.DataCenters.AnyAsync(d => d.Id == dto.DataCenterId))
+        //    {
+        //        return BadRequest(new { message = "Invalid DataCenterId." });
+        //    }
 
-            // Get UserId untuk CreatedById
-            var userId = await _context.Users.Select(u => u.Id).FirstOrDefaultAsync();
-            if (userId == 0)
-            {
-                return BadRequest(new { message = "No user found. Please create a user first." });
-            }
+        //    // Get `UserId` untuk atribut `CreatedById`
+        //    var userId = await _context.Users.Select(u => u.Id).FirstOrDefaultAsync();
+        //    if (userId == 0)
+        //    {
+        //        return BadRequest(new { message = "No user found. Please create a user first." });
+        //    }
 
-            // Buat item baru
-            var item = new Item
-            {
-                ItemCode = dto.ItemCode,
-                ItemName = dto.ItemName,
-                AssetNumber = dto.AssetNumber,
-                SerialNumber = dto.SerialNumber,
-                CategoryId = dto.CategoryId,
-                DataCenterId = dto.DataCenterId,
-                BuyingPrice = dto.BuyingPrice,
-                Quantity = dto.Quantity,
-                Status = "Pending",
-                CreatedAt = DateTime.UtcNow,
-                CreatedById = userId
-            };
+        //    // Membuat Item baru
+        //    var item = new Item
+        //    {
+        //        ItemCode = dto.ItemCode,
+        //        ItemName = dto.ItemName,
+        //        AssetNumber = dto.AssetNumber,
+        //        SerialNumber = dto.SerialNumber,
+        //        CategoryId = dto.CategoryId,
+        //        DataCenterId = dto.DataCenterId,
+        //        BuyingPrice = dto.BuyingPrice,
+        //        Quantity = dto.Quantity,
+        //        Status = "Pending",
+        //        CreatedById = userId,
+        //        CreatedAt = DateTime.UtcNow,
+        //    };
 
-            try
-            {
-                _context.Items.Add(item);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while creating the product.", error = ex.Message });
-            }
+        //    try
+        //    {
+        //        // Simpan Item ke database
+        //        _context.Items.Add(item);
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "An error occurred while creating the product.", error = ex.Message });
+        //    }
 
-            // Jika sukses, kembalikan respon 201 Created
-            return CreatedAtAction(nameof(GetItem), new { id = item.Id }, new
-            {
-                message = "Item successfully created.",
-                itemId = item.Id
-            });
-        }
+        //    // Jika sukses, kembalikan respons 201 Created dengan `ItemId`
+        //    return CreatedAtAction(nameof(GetItem), new { id = item.Id }, new
+        //    {
+        //        message = "Item successfully created.",
+        //        itemId = item.Id
+        //    });
+        //}
         //[HttpPost]
         //public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto dto)
         //{

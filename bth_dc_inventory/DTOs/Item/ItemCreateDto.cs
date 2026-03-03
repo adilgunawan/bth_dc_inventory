@@ -27,6 +27,8 @@ namespace bth_dc_inventory.DTOs.Item
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater than zero.")]
         public int Quantity { get; set; }
+        public DateTime? DateOfPurchase { get; set; }
+
     }
     //public class ItemCreateDto
     //{

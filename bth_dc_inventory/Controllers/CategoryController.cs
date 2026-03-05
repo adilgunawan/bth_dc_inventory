@@ -37,6 +37,23 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
+        // GET: api/categories/dropdown
+        // =====================================
+        [HttpGet("dropdown")]
+        public async Task<IActionResult> GetCategoriesDropdown()
+        {
+            var categories = await _context.Categories
+                .Select(c => new
+                {
+                    c.Id,
+                    c.CategoryName
+                })
+                .ToListAsync();
+
+            return Ok(categories);
+        }
+
+        // =====================================
         // GET: api/category/{id}
         // =====================================
 

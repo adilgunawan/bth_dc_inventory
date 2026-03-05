@@ -1,0 +1,808 @@
+﻿@{
+    ViewData["Title"] = "Products";
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+    
+<div class="space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between my-8">
+        <div>
+            <h1 class="text-2xl font-semibold">Products Data</h1>
+            <p class="text-gray-500">Manage Data Center Products</p>
+        </div>
+
+        <button id="openModal" class="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700">
+            <span class="text-xl">+</span>
+            Add Product
+        </button>
+    </div>
+
+    <!-- Modal ADD -->
+    <div id="addProductModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+        <div class="bg-white max-w-lg w-full mx-auto rounded-lg p-6 shadow-lg">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">New Product</h2>
+            <form id="addProductForm" class="space-y-4">
+                <!-- Product Name -->
+                <div>
+                    <label for="productName" class="text-sm font-medium text-gray-700">Product Name</label>
+                    <input type="text"
+                           id="productName"
+                           placeholder="Enter product name"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+
+                <!--  PO Number -->
+                <div>
+                    <label for="itemCode" class="text-sm font-medium text-gray-700">PO Number</label>
+                    <input type="text"
+                           id="itemCode"
+                           placeholder="Enter PO Number"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+                <!-- Serial Number -->
+                <div>
+                    <label for="serialNumber" class="text-sm font-medium text-gray-700">Serial Number</label>
+                    <input type="text"
+                           id="serialNumber"
+                           placeholder="Enter serial number"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+
+                <!-- Asset Number -->
+                <div>
+                    <label for="assetNumber" class="text-sm font-medium text-gray-700">Asset Number</label>
+                    <input type="text"
+                           id="assetNumber"
+                           placeholder="Enter asset number"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+
+                <!-- Category -->
+                <div>
+                    <label for="category" class="text-sm font-medium text-gray-700">Category</label>
+                    <select id="category"
+                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            required>
+                        <option value="">Select product category</option>
+                    </select>
+                </div>
+
+                <!-- Buying Price -->
+                <div>
+                    <label for="buyingPrice" class="text-sm font-medium text-gray-700">Buying Price $ </label>
+                    <input type="number"
+                           id="buyingPrice"
+                           placeholder="Enter buying price"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+
+                <!-- Quantity -->
+                <div>
+                    <label for="quantity" class="text-sm font-medium text-gray-700">Quantity</label>
+                    <input type="number"
+                           id="quantity"
+                           placeholder="Enter product quantity"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+
+                <!-- Location -->
+                <div>
+                    <label for="location" class="text-sm font-medium text-gray-700">Location</label>
+                    <select id="location"
+                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            required>
+                        <option value="">Select Location</option>
+                    </select>
+                </div>
+
+                <!-- Date of Purchase -->
+                <div>
+                    <label for="dateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
+                    <input type="date"
+                           id="dateOfPurchase"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label for="status" class="text-sm font-medium text-gray-700">Status</label>
+                    <select id="status"
+                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            required>
+                        <option>Select Status Product</option>
+                        <option value="Pending">Pending</option>
+                        <option value="arrived">arrived</option>
+                    </select>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="closeModal" class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-md hover:bg-gray-100">Discard</button>
+                    <button type="submit" class="px-4 py-2 text-sm bg-teal-600 text-white rounded-md hover:bg-teal-700">Add Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editProductModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+        <div class="bg-white max-w-lg w-full mx-auto rounded-lg p-6 shadow-lg">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Edit Product</h2>
+            <form id="editProductForm" class="space-y-4">
+                <!-- Product Name -->
+                <div>
+                    <label for="editProductName" class="text-sm font-medium text-gray-700">Product Name</label>
+                    <input type="text"
+                           id="editProductName"
+                           placeholder="Enter product name"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+                <!-- PO NUMBER -->
+                <div>
+                    <label for="poNumber" class="text-sm font-medium text-gray-700">Product ID</label>
+                    <input type="text"
+                           id="editProductId"
+                           placeholder="Enter PO Number"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+                <!-- Asset NUMBER -->
+                <div>
+                    <label for="assetNumber" class="text-sm font-medium text-gray-700">Asset Number</label>
+                    <input type="text"                                                                                                                                                                                                                        
+                           id="editProductId"
+                           placeholder="Enter Asset Number"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+                <!-- Serial NUMBER -->
+                <div>
+                    <label for="serialNumber" class="text-sm font-medium text-gray-700">Serial Number</label>
+                    <input type="text"
+                           id="editProductId"
+                           placeholder="Enter Serial Number"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+                <!-- Category -->
+                <div>
+                    <label for="editCategory" class="text-sm font-medium text-gray-700">Category</label>
+                    <select id="editCategory"
+                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            required>
+                        <option value="">Select product category</option>
+                    </select>
+                </div>
+                <!-- Buying Price -->
+                <div>
+                    <label for="editBuyingPrice" class="text-sm font-medium text-gray-700">Buying Price $</label>
+                    <input type="number"
+                           id="editBuyingPrice"
+                           placeholder="Enter buying price"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+                <!-- Quantity -->
+                <div>
+                    <label for="editQuantity" class="text-sm font-medium text-gray-700">Quantity</label>
+                    <input type="number"
+                           id="editQuantity"
+                           placeholder="Enter product quantity"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+                <!-- Location -->
+                <div>
+                    <label for="editLocation" class="text-sm font-medium text-gray-700">Location</label>
+                    <select id="editLocation"
+                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            required>
+                        <option value="">Select Location</option>
+                    </select>
+                </div>
+                <!-- Date of Purchase -->
+                <div>
+                    <label for="editDateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
+                    <input type="date"
+                           id="editDateOfPurchase"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
+                </div>
+                <!-- Status -->
+                <div>
+                    <label for="editStatus" class="text-sm font-medium text-gray-700">Status</label>
+                    <select id="editStatus"
+                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            required>
+                        <option>Select Status Product</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Arrived">Arrived</option>
+                    </select>
+                </div>
+                <!-- Buttons -->
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="closeEditModal" class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-md hover:bg-gray-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-sm bg-teal-600 text-white rounded-md hover:bg-teal-700">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal Delete -->
+    <div id="deleteModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+        <div class="bg-white w-96 rounded-lg p-6 shadow-lg">
+            <!-- Title -->
+            <h2 class="text-lg font-semibold text-gray-700 text-center mb-4">Delete Product</h2>
+            <!-- Message -->
+            <p class="text-sm text-gray-500 text-center mb-6">
+                Are you sure you want to delete
+                <span id="deleteProductName" class="font-medium text-gray-800"></span>?
+                This action cannot be undone.
+            </p>
+            <!-- Buttons -->
+            <div class="flex justify-center space-x-4">
+                <button type="button" id="closeDeleteModal"
+                        class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="button" id="confirmDeleteButton"
+                        class="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-700">
+                    Yes
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="bg-white p-4 rounded-xl shadow-sm flex items-center m-1 mb-10">
+        <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2 flex-1 me-4">
+            <input type="text" id="search" placeholder="Search products..."
+                   class="bg-transparent outline-none flex-1 text-sm" />
+        </div>
+        <select class="bg-gray-100 px-4 py-2 rounded-lg text-sm outline-none">
+            <option>All Categories</option>
+            <option>Server</option>
+            <option>Cable</option>
+            <option>PDU</option>
+        </select>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <table class="w-full text-sm">
+            <tbody class="divide-y">
+                    <table id="productTable" class="w-full text-sm">
+                        <thead class="bg-gray-50 text-gray-600">
+                            <tr>
+                                <th class="text-left px-4 py-3">PO Number</th>
+                                <th class="text-left px-4 py-3">Product Name</th>
+                                <th class="text-left px-4 py-3">Asset Number</th>
+                                <th class="text-left px-4 py-3">Category</th>
+                                <th class="text-left px-4 py-3">Location</th>
+                                <th class="text-left px-4 py-3">Detail Product</th>
+                                <th class="text-left px-4 py-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody" class="divide-y">
+                            <!-- Rows akan ditambahkan secara dinamis menggunakan JavaScript -->
+                        </tbody>
+                    </table>
+               
+                
+            </tbody>
+        </table>
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <table class="w-full text-sm">
+                <!-- Konten tabel Anda -->
+            </table>
+            <!-- Tambahkan elemen pagination -->
+            <div id="pagination" class="flex justify-center gap-2 mt-4"></div>
+        </div>
+        <div id="loader" class="hidden text-center py-4">🔄 Loading...</div>
+
+
+    <script>
+                    async function loadProducts() {
+                const productTableBody = document.getElementById("productTableBody");
+
+                try {
+                    const response = await fetch("/api/items", {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    if (response.ok) {
+                        const products = await response.json();
+
+                        // Kosongkan tabel sebelumnya
+                        productTableBody.innerHTML = "";
+
+                        // Tambahkan tiap produk ke tabel
+                        products.forEach(product => {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td class="px-4 py-3">${product.itemCode}</td>
+                                <td class="px-4 py-3">${product.itemName}</td>
+                                <td class="px-4 py-3">${product.assetNumber || "-"}</td>
+                                <td class="px-4 py-3">
+                                    <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">${product.categoryName}</span>
+                                </td>
+                                <td class="px-4 py-3">${product.dataCenterName}</td>
+                                <td class="px-4 py-3">
+                                    <a href="#" class="text-teal-600 bg-teal-50 px-3 py-1 rounded-full text-xs hover:bg-teal-700 hover:text-white">Detail Product</a>
+                                </td>
+                                <td class="px-4 py-3 flex gap-2">
+                                    <button class="editProductButton border p-2 rounded hover:bg-gray-100">✏️</button>
+                                    <button class="deleteProductButton border p-2 rounded text-red-500 hover:bg-red-50">🗑️</button>
+                                </td>
+                            `;
+                            productTableBody.appendChild(row);
+                        });
+                    } else {
+                        console.error("Failed to load products:", response.status);
+                    }
+                } catch (error) {
+                    console.error("Error loading products:", error);
+                }
+            }
+    </script>
+    </div>
+
+    
+    </div>
+
+    <!-- Script Add modul -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const form = document.getElementById("addProductForm");
+        const openModal = document.getElementById("openModal");
+        const closeModal = document.getElementById("closeModal");
+        const addProductModal = document.getElementById("addProductModal");
+
+        // ========================
+        // OPEN MODAL + LOAD DATA
+        // ========================
+        openModal.addEventListener("click", async () => {
+            addProductModal.classList.remove("hidden");
+            await loadDropdowns();
+        });
+
+        // ========================
+        // CLOSE MODAL
+        // ========================
+        closeModal.addEventListener("click", () => {
+            addProductModal.classList.add("hidden");
+            form.reset();
+        });
+
+        // ========================
+        // LOAD DROPDOWNS
+        // ========================
+          async function loadDropdowns() {
+        try {
+            const [catRes, dcRes] = await Promise.all([
+                fetch("/api/Category/dropdown"),
+                fetch("/api/DataCenters/dropdown")
+            ]);
+
+            if (!catRes.ok || !dcRes.ok) {
+                throw new Error("Failed to fetch dropdown data");
+            }
+
+            const categories = await catRes.json();
+            const dataCenters = await dcRes.json();
+
+            const categorySelect = document.getElementById("category");
+            const locationSelect = document.getElementById("location");
+
+            categorySelect.innerHTML = '<option value="">Select Category</option>';
+            locationSelect.innerHTML = '<option value="">Select Location</option>';
+
+            categories.forEach(cat => {
+                const option = document.createElement("option");
+                option.value = cat.id;
+                option.textContent = cat.categoryName;
+                categorySelect.appendChild(option);
+            });
+
+            dataCenters.forEach(dc => {
+                const option = document.createElement("option");
+                option.value = dc.id;
+                option.textContent = dc.name;
+                locationSelect.appendChild(option);
+            });
+
+        } catch (error) {
+            console.error("Dropdown Error:", error);
+            alert("Failed to load dropdown data");
+        }
+    }
+
+        // ========================
+        // SUBMIT FORM
+        // ========================
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            // VALIDASI BASIC
+            if (!document.getElementById("category").value ||
+                !document.getElementById("location").value) {
+                alert("Category and Location must be selected");
+                return;
+            }
+
+            const productData = {
+                itemCode: document.getElementById("itemCode").value.trim(),
+                itemName: document.getElementById("productName").value.trim(),
+                assetNumber: document.getElementById("assetNumber").value.trim(),
+                serialNumber: document.getElementById("serialNumber").value.trim(),
+                categoryId: parseInt(document.getElementById("category").value),
+                dataCenterId: parseInt(document.getElementById("location").value),
+                buyingPrice: parseFloat(document.getElementById("buyingPrice").value) || 0,
+                quantity: parseInt(document.getElementById("quantity").value) || 0,
+                dateOfPurchase: document.getElementById("dateOfPurchase").value
+            };
+
+            try {
+                const response = await fetch("/api/items", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText);
+                }
+
+                alert("Product successfully created!");
+                addProductModal.classList.add("hidden");
+                form.reset();
+
+                // Lebih bagus nanti kita ganti ini pakai reload table saja
+                location.reload();
+
+            } catch (error) {
+                console.error("Submit Error:", error);
+                alert("Failed to create product");
+            }
+        });
+
+    });
+</script>
+
+    <!-- Script Edit modul -->
+    <script>
+        const editButtons = document.querySelectorAll(".editProductButton");
+        const editModal = document.getElementById("editProductModal");
+        const closeEditButton = document.getElementById("closeEditModal");
+
+        // Open Edit Modal
+        editButtons.forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const row = this.closest("tr");
+                const poNumber = row.querySelector(":nth-child(1)").innerText;
+                const productName = row.querySelector(":nth-child(2)").innerText;
+                const productId = row.querySelector(":nth-child(3)").innerText;
+                const category = row.querySelector(":nth-child(4)").innerText.trim();
+                const location = row.querySelector(":nth-child(5)").innerText.trim();
+
+                // Fill the form with the row data
+                document.getElementById("editProductName").value = productName;
+                document.getElementById("editProductId").value = productId;
+                document.getElementById("editCategory").value = category;
+                document.getElementById("editLocation").value = location;
+
+                editModal.classList.remove("hidden");
+            });
+        });
+
+        // Close Modal
+        closeEditButton.addEventListener("click", () => {
+            editModal.classList.add("hidden");
+        });
+
+        // Close Modal on Background Click
+        editModal.addEventListener("click", (e) => {
+            if (e.target === editModal) {
+                editModal.classList.add("hidden");
+            }
+        });
+    </script>
+
+    <!-- Script Delete modul -->
+  <script>
+          let selectedProductId = null;
+
+    document.addEventListener("click", function (e) {
+
+        if (e.target.closest(".deleteProductButton")) {
+
+            const btn = e.target.closest(".deleteProductButton");
+            selectedProductId = btn.dataset.id;
+
+            const row = btn.closest("tr");
+            const productName = row.children[1].innerText;
+
+            document.getElementById("deleteProductName").textContent = productName;
+
+            document.getElementById("deleteModal").classList.remove("hidden");
+        }
+
+    });
+  </script>
+  <script>
+             confirmDeleteButton.addEventListener("click", async () => {
+
+        if (!selectedProductId) return;
+
+        try {
+
+            const response = await fetch(`/api/items/${selectedProductId}`, {
+                method: "DELETE"
+            });
+
+            if (!response.ok) {
+                throw new Error("Delete failed");
+            }
+
+            alert("Product deleted successfully");
+
+            deleteModal.classList.add("hidden");
+
+            location.reload();
+
+        } catch (error) {
+
+            console.error(error);
+            alert("Failed to delete product");
+
+        }
+
+    });
+  </script>
+    <!-- SCRIPT NGAMBIL SEMUA DATA DARI DATABASE -->
+    <script> 
+          document.addEventListener("DOMContentLoaded", function () { 
+          const productTableBody = document.getElementById("productTableBody"); 
+
+          // Fungsi untuk memuat semua produk dari API 
+         async function loadProducts() { 
+              try { 
+                  const response = await fetch("/api/items/data-center/3", { 
+                      method: "GET", 
+                      headers: { 
+                          "Content-Type": "application/json" 
+                      } 
+                  }); 
+                  if (!response.ok) { 
+                      throw new Error(`Failed to load products: ${response.status}`); 
+                  } 
+
+                  const products = await response.json(); 
+
+                  // Clear existing rows 
+                  productTableBody.innerHTML = ""; 
+
+                  // Render rows secara dinamis 
+                 products.forEach(product => { 
+                      const row = document.createElement("tr"); 
+                     row.innerHTML = ` 
+                          <td class="px-4 py-3">${product.itemCode}</td> 
+                          <td class="px-4 py-3">${product.itemName}</td> 
+                          <td class="px-4 py-3">${product.assetNumber || "-"}</td> 
+                          <td class="px-4 py-3"> 
+                              <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">${product.categoryName}</span> 
+                          </td> 
+                          <td class="px-4 py-3">${product.dataCenterName}</td> 
+                          <td class="px-4 py-3"> 
+                              <a href=""/Products/Detail?id=${product.id}" 
+                                 class="text-teal-600 bg-teal-50 px-3 py-1 rounded-full text-xs hover:bg-teal-700 hover:text-white transition ease-in-out duration-500"> 
+                                 Detail Product 
+                              </a> 
+                         </td> 
+                          <td class="px-4 py-3 flex gap-2">
+                                  <button class="editProductButton border p-2 rounded hover:bg-gray-100" data-id="${product.id}">✏️</button>
+                                  <button class="deleteProductButton border p-2 rounded text-red-500 hover:bg-red-50" data-id="${product.id}">🗑️</button>
+                          </td> 
+                      `; 
+                      productTableBody.appendChild(row); 
+                 }); 
+              } catch (error) {
+                 console.error(error); 
+                 alert("Error loading products."); 
+              } 
+         } 
+
+         // Panggil fungsi untuk memuat produk saat halaman dimuat *
+         loadProducts(); 
+     }); 
+  </script>
+
+    <!-- searching features  !-->
+    <script>
+        // Menjalankan script setelah DOM selesai dimuat
+        document.addEventListener("DOMContentLoaded", () => {
+            const productTableBody = document.getElementById("productTableBody"); // Body tabel untuk produk
+            const paginationDiv = document.getElementById("pagination"); // Div untuk pagination
+            const searchInput = document.querySelector("#search"); // Input search elemen
+            const pageSize = 10; // Jumlah item per halaman
+            let currentPage = 1; // Halaman saat ini
+            let totalPages = 0; // Total halaman
+            let currentSearchQuery = ""; // Query pencarian saat ini (kosong di awal)
+
+            /**
+             * Fungsi untuk memuat produk berdasarkan parameter pencarian dan halaman
+             */
+            async function fetchProducts(page, searchQuery = "") {
+                const loader = document.getElementById("loader"); // Loader (opsional jika diimplementasikan)
+
+                // Tampilkan loader jika ada
+                if (loader) loader.classList.remove("hidden");
+
+                try {
+                    // URL API dengan parameter pencarian dan pagination
+                    const response = await fetch(
+                        `/api/items/filter?search=${searchQuery}&page=${page}&pageSize=${pageSize}`,
+                        {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        }
+                    );
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch products. Status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    // Perbarui table dan elemen pagination
+                    updateTable(data.data); // Tampilkan produk
+                    updatePagination(data.page, data.totalPages); // Tampilkan paginasi
+
+                } catch (error) {
+                    console.error("Error fetching products:", error);
+                    alert("Failed to fetch products. Please try again.");
+                } finally {
+                    // Sembunyikan loader jika ada
+                    if (loader) loader.classList.add("hidden");
+                }
+            }
+
+            /**
+             * Fungsi untuk memperbarui tabel produk berdasarkan data yang diterima
+             */
+            function updateTable(products) {
+                // Kosongkan tabel sebelum menambahkan data
+                productTableBody.innerHTML = "";
+
+                // Jika tidak ada data, tampilkan pesan
+                if (products.length === 0) {
+                    productTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-3">No products found</td>
+                        </tr>`;
+                    return;
+                }
+
+                // Tambahkan data produk ke tabel
+                products.forEach(product => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="px-4 py-3">${product.itemCode || "-"}</td>
+                        <td class="px-4 py-3">${product.itemName || "-"}</td>
+                        <td class="px-4 py-3">${product.assetNumber || "-"}</td>
+                        <td class="px-4 py-3">
+                            <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">${product.categoryName}</span>
+                        </td>
+                        <td class="px-4 py-3">${product.dataCenterName || "-"}</td>
+                        <td class="px-4 py-3">
+                            <a href="/Products/Detail?id=${product.id}"
+                               class="text-teal-600 bg-teal-50 px-3 py-1 rounded-full text-xs hover:bg-teal-700 hover:text-white">
+                               Detail Product
+                            </a>
+                        </td>
+                        <td class="px-4 py-3 flex gap-2">
+                            <button class="editProductButton border p-2 rounded hover:bg-gray-100">✏️</button>
+                            <button class="deleteProductButton border p-2 rounded text-red-500 hover:bg-red-50">🗑️</button>
+                        </td>
+                    `;
+                    productTableBody.appendChild(row);
+                });
+            }
+
+            /**
+             * Fungsi untuk memperbarui elemen pagination
+             */
+            function updatePagination(page, totalPagesCount) {
+                currentPage = page; // Perbarui halaman saat ini
+                totalPages = totalPagesCount; // Perbarui jumlah halaman total
+
+                // Kosongkan elemen pagination sebelumnya
+                paginationDiv.innerHTML = "";
+
+                // Jika hanya ada 1 halaman, sembunyikan pagination
+                if (totalPages <= 1) return;
+
+                // Tombol halaman sebelumnya
+                if (currentPage > 1) {
+                    paginationDiv.innerHTML += `
+                        <button
+                            data-page="${currentPage - 1}"
+                            class="pagination-button px-3 py-1 bg-teal-600 text-white rounded">
+                            Previous
+                        </button>`;
+                }
+
+                // Tombol untuk setiap halaman
+                for (let i = 1; i <= totalPages; i++) {
+                    const activeClass = i === currentPage ? "bg-teal-600 text-white" : "bg-gray-300 text-black";
+                    paginationDiv.innerHTML += `
+                        <button
+                            data-page="${i}"
+                            class="pagination-button px-3 py-1 rounded ${activeClass}">
+                            ${i}
+                        </button>`;
+                }
+
+                // Tombol halaman berikutnya
+                if (currentPage < totalPages) {
+                    paginationDiv.innerHTML += `
+                        <button
+                            data-page="${currentPage + 1}"
+                            class="pagination-button px-3 py-1 bg-teal-600 text-white rounded">
+                            Next
+                        </button>`;
+                }
+
+                // Tambahkan event listener untuk setiap tombol pagination
+                document.querySelectorAll(".pagination-button").forEach(button => {
+                    button.addEventListener("click", function () {
+                        const selectedPage = parseInt(this.getAttribute("data-page"));
+                        fetchProducts(selectedPage, currentSearchQuery); // Muat data dengan pencarian saat ini
+                    });
+                });
+            }
+
+            /**
+             * Event untuk Search Bar (trigger pada tombol Enter)
+             */
+            searchInput.addEventListener("keypress", function (event) {
+                if (event.key === "Enter") { // Deteksi tombol Enter
+                    currentSearchQuery = event.target.value.trim(); // Simpan query pencarian
+                    fetchProducts(1, currentSearchQuery); // Muat data dari halaman pertama dengan pencarian
+                }
+            });
+
+            /**
+             * Inisialisasi halaman pertama
+             */
+            fetchProducts(1); // Memuat data tanpa filter pada awal halaman
+        });
+    </script>   
+
+
+</html>

@@ -46,6 +46,11 @@ namespace bth_dc_inventory.Controllers
         {
             return View();
         }
+
+        public IActionResult Data_center_11()
+        {
+            return View();
+        }
     }
 
 

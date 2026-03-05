@@ -126,119 +126,72 @@ namespace bth_dc_inventory.Controllers
         // =====================================
         // =====================================
         // =====================================
-        //[HttpPost]
-        //public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto dto)
-        //{
-        //    // Validasi Model State
-        //    if (!ModelState.IsValid)
-        //    {
-        //        var errors = ModelState.Values
-        //            .SelectMany(v => v.Errors)
-        //            .Select(e => e.ErrorMessage);
-        //        return BadRequest(new { message = "Validation failed.", errors });
-        //    }
+        [HttpPost]
+        public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto dto)
+        {
+            // Validasi Model State
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage);
+                return BadRequest(new { message = "Validation failed.", errors });
+            }
 
-        //    // Validasi `CategoryId`
-        //    if (!await _context.Categories.AnyAsync(c => c.Id == dto.CategoryId))
-        //    {
-        //        return BadRequest(new { message = "Invalid CategoryId." });
-        //    }
+            // Validasi `CategoryId`
+            if (!await _context.Categories.AnyAsync(c => c.Id == dto.CategoryId))
+            {
+                return BadRequest(new { message = "Invalid CategoryId." });
+            }
 
-        //    // Validasi `DataCenterId`
-        //    if (!await _context.DataCenters.AnyAsync(d => d.Id == dto.DataCenterId))
-        //    {
-        //        return BadRequest(new { message = "Invalid DataCenterId." });
-        //    }
+            // Validasi `DataCenterId`
+            if (!await _context.DataCenters.AnyAsync(d => d.Id == dto.DataCenterId))
+            {
+                return BadRequest(new { message = "Invalid DataCenterId." });
+            }
 
-        //    // Get `UserId` untuk atribut `CreatedById`
-        //    var userId = await _context.Users.Select(u => u.Id).FirstOrDefaultAsync();
-        //    if (userId == 0)
-        //    {
-        //        return BadRequest(new { message = "No user found. Please create a user first." });
-        //    }
+            // Get `UserId` untuk atribut `CreatedById`
+            var userId = await _context.Users.Select(u => u.Id).FirstOrDefaultAsync();
+            if (userId == 0)
+            {
+                return BadRequest(new { message = "No user found. Please create a user first." });
+            }
 
-        //    // Membuat Item baru
-        //    var item = new Item
-        //    {
-        //        ItemCode = dto.ItemCode,
-        //        ItemName = dto.ItemName,
-        //        AssetNumber = dto.AssetNumber,
-        //        SerialNumber = dto.SerialNumber,
-        //        CategoryId = dto.CategoryId,
-        //        DataCenterId = dto.DataCenterId,
-        //        BuyingPrice = dto.BuyingPrice,
-        //        Quantity = dto.Quantity,
-        //        Status = "Pending",
-        //        CreatedById = userId,
-        //        CreatedAt = DateTime.UtcNow,
-        //    };
+            // Membuat Item baru
+            var item = new Item
+            {
+                ItemCode = dto.ItemCode,
+                ItemName = dto.ItemName,
+                AssetNumber = dto.AssetNumber,
+                SerialNumber = dto.SerialNumber,
+                CategoryId = dto.CategoryId,
+                DataCenterId = dto.DataCenterId,
+                BuyingPrice = dto.BuyingPrice,
+                Quantity = dto.Quantity,
+                Status = "Pending",
+                CreatedById = userId,
+                CreatedAt = DateTime.UtcNow,
+            };
 
-        //    try
-        //    {
-        //        // Simpan Item ke database
-        //        _context.Items.Add(item);
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new { message = "An error occurred while creating the product.", error = ex.Message });
-        //    }
+            try
+            {
+                // Simpan Item ke database
+                _context.Items.Add(item);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while creating the product.", error = ex.Message });
+            }
 
-        //    // Jika sukses, kembalikan respons 201 Created dengan `ItemId`
-        //    return CreatedAtAction(nameof(GetItem), new { id = item.Id }, new
-        //    {
-        //        message = "Item successfully created.",
-        //        itemId = item.Id
-        //    });
-        //}
-        //[HttpPost]
-        //public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto dto)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ModelState);
-
-        //    if (!await _context.Categories.AnyAsync(c => c.Id == dto.CategoryId))
-        //        return BadRequest("Invalid CategoryId");
-
-        //    if (!await _context.DataCenters.AnyAsync(d => d.Id == dto.DataCenterId))
-        //        return BadRequest("Invalid DataCenterId");
-
-        //    var userId = await _context.Users
-        //        .Select(u => u.Id)
-        //        .FirstOrDefaultAsync();
-
-        //    if (userId == 0)
-        //        return BadRequest("No user found. Please create a user first.");
-
-        //    var item = new Item
-        //    {
-        //        ItemCode = dto.ItemCode,
-        //        ItemName = dto.ItemName,
-
-        //        AssetNumber = dto.AssetNumber,
-        //        SerialNumber = dto.SerialNumber,
-        //        //PONumber = dto.PONumber,
-
-        //        CategoryId = dto.CategoryId,
-        //        DataCenterId = dto.DataCenterId,
-        //        BuyingPrice = dto.BuyingPrice,
-
-        //        Quantity = 0,
-        //        Status = "Pending",
-        //        CreatedAt = DateTime.UtcNow,
-        //        CreatedById = userId
-        //    };
-
-        //    _context.Items.Add(item);
-        //    await _context.SaveChangesAsync();
-
-        //    return CreatedAtAction(nameof(GetItem), new { id = item.Id }, new
-        //    {
-        //        message = "Item successfully created",
-        //        itemId = item.Id
-        //    });
-        //}
-
+            // Jika sukses, kembalikan respons 201 Created dengan `ItemId`
+            return CreatedAtAction(nameof(GetItem), new { id = item.Id }, new
+            {
+                message = "Item successfully created.",
+                itemId = item.Id
+            });
+        }
+       
         // =====================================
         // PUT: api/items/{id}
         // =====================================

@@ -28,46 +28,20 @@
         <h2 class="text-lg font-semibold text-gray-700 mb-4">User Roles</h2>
         <p class="text-sm text-gray-500 mb-4">View and manage user roles in the system. Assign a user as an Admin if needed.</p>
 
-        <!-- User Table -->
+
+        <!-- User Table 2-->
         <table class="w-full border border-gray-200 rounded-lg overflow-hidden">
             <thead class="bg-gray-100">
                 <tr>
-                    <th class="p-3 text-left text-gray-500 text-sm">User ID</th>
+                    <th class="p-3 text-left text-gray-500 text-sm">NO</th>
                     <th class="p-3 text-left text-gray-500 text-sm">Username</th>
                     <th class="p-3 text-left text-gray-500 text-sm">Email</th>
                     <th class="p-3 text-center text-gray-500 text-sm">Role</th>
                     <th class="p-3 text-center text-gray-500 text-sm">Action</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
-                <!-- Example Row 1 -->
-                <tr>
-                    <td class="p-3 text-sm text-gray-600">1</td>
-                    <td class="p-3 text-sm text-gray-600">John Doe</td>
-                    <td class="p-3 text-sm text-gray-600">johndoe@email.com</td>
-                    <td class="p-3 text-sm text-center">
-                        <span class="px-3 py-1 rounded-full text-xs bg-gray-200 text-gray-800">User</span>
-                    </td>
-                    <td class="p-3 text-center">
-                        <button class=" assignAdminButton px-4 py-2 text-white bg-teal-600 rounded-md text-sm hover:bg-teal-700">
-                            Assign Admin
-                        </button>
-                    </td>
-                </tr>
-                <!-- Example Row 2 -->
-                <tr>
-                    <td class="p-3 text-sm text-gray-600">2</td>
-                    <td class="p-3 text-sm text-gray-600">Jane Smith</td>
-                    <td class="p-3 text-sm text-gray-600">janesmith@email.com</td>
-                    <td class="p-3 text-center">
-                        <span class="px-3 py-1 rounded-full text-xs bg-green-100 text-green-800">Admin</span>
-                    </td>
-                    <td class="p-3 text-center">
-                        <button disabled class="px-4 py-2 text-white bg-gray-300 rounded-md text-sm cursor-not-allowed">
-                            Admin
-                        </button>
-                    </td>
-                </tr>
+            <tbody id="userTableBody" class="divide-y divide-gray-200">
+                <!-- Data rows will be dynamically inserted here -->
             </tbody>
         </table>
     </section>
@@ -122,4 +96,102 @@
   </script>
 
 </main>
+<script>
+        document.addEventListener("DOMContentLoaded", function () {
+        const userTableBody = document.getElementById("userTableBody");
+        const apiUrl = "https://localhost:7035/api/users"; // Sesuaikan dengan URL backend Anda
+
+        // Fetch users from API
+        function fetchUsers() {
+            fetch(apiUrl)
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch user data");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log("Users fetched:", data); // Debugging log
+                    renderUserTable(data); // Render data to table
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("Failed to load user data. Please try again.");
+                });
+        }
+
+        // Render data ke tabel
+        function renderUserTable(users) {
+            userTableBody.innerHTML = ""; // Kosongkan tabel
+            users.forEach((user, index) => {
+                const userRow = `
+                    <tr>
+                        <td class="p-3 text-sm text-gray-600">${index + 1}</td>
+                        <td class="p-3 text-sm text-gray-600">${user.username}</td>
+                        <td class="p-3 text-sm text-gray-600">${user.email}</td>
+                        <td class="p-3 text-center">
+                            <span class="px-3 py-1 rounded-full text-xs ${
+                                user.role === "Admin" ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-800"
+                            }">
+                                ${user.role}
+                            </span>
+                        </td>
+                        <td class="p-3 text-center">
+                            ${
+                                user.role === "Admin"
+                                    ? `<button disabled class="px-4 py-2 text-white bg-gray-300 rounded-md text-sm cursor-not-allowed">
+                                           Admin
+                                       </button>`
+                                    : `<button class="assignAdminButton px-4 py-2 text-white bg-teal-600 rounded-md text-sm hover:bg-teal-700" data-id="${user.id}">
+                                           Assign Admin
+                                       </button>`
+                            }
+                        </td>
+                    </tr>
+                `;
+                userTableBody.insertAdjacentHTML("beforeend", userRow);
+            });
+
+            // Tambahkan event listener ke tombol assign admin
+            bindAssignAdminButtons();
+        }
+
+        // Tambahkan logika untuk tombol Assign Admin
+        function bindAssignAdminButtons() {
+            const assignAdminButtons = document.querySelectorAll(".assignAdminButton");
+            assignAdminButtons.forEach((button) => {
+                button.addEventListener("click", function () {
+                    const userId = this.dataset.id;
+                    assignAdminRole(userId);
+                });
+            });
+        }
+
+        // Function untuk memberikan role admin
+        function assignAdminRole(userId) {
+            const assignAdminApiUrl = `https://localhost:7035/api/users/assign-admin/${userId}`; // Sesuaikan endpoint assign admin
+
+            fetch(assignAdminApiUrl, {
+                method: "PUT",
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Failed to assign admin role");
+                    }
+                    return response.json();
+                })
+                .then(() => {
+                    alert("User has been assigned as Admin.");
+                    fetchUsers(); // Refresh tabel setelah update
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("Failed to assign admin role. Please try again.");
+                });
+        }
+
+        // Inisialisasi: Fetch data pengguna saat halaman dimuat
+        fetchUsers();
+    });
+</script>
 </html>

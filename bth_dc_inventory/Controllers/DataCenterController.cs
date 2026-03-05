@@ -40,6 +40,23 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
+        // GET: api/datacenters/dropdown
+        // =====================================
+        [HttpGet("dropdown")]
+        public async Task<IActionResult> GetDataCentersDropdown()
+        {
+            var dataCenters = await _context.DataCenters
+                .Select(dc => new
+                {
+                    dc.Id,
+                    dc.Name
+                })
+                .ToListAsync();
+
+            return Ok(dataCenters);
+        }
+
+        // =====================================
         // GET: api/datacenters/{id}
         // =====================================
         [HttpGet("{id}")]

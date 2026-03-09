@@ -19,6 +19,7 @@ namespace bth_dc_inventory.Controllers
             _context = context;
         }
 
+
         // =====================================
         // GET: api/reports/stats
         // =====================================
@@ -308,8 +309,9 @@ namespace bth_dc_inventory.Controllers
         {
             try
             {
-                // Set QuestPDF license
+                // ✅ DIPERBAIKI: Set QuestPDF license dan font configuration
                 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+                QuestPDF.Settings.CheckIfAllTextGlyphsAreAvailable = false; // Disable font check
 
                 var document = Document.Create(container =>
                 {
@@ -317,6 +319,9 @@ namespace bth_dc_inventory.Controllers
                     {
                         page.Size(QuestPDF.Helpers.PageSizes.A4.Landscape());
                         page.Margin(25);
+
+                        // ✅ DIPERBAIKI: Set default font
+                        page.DefaultTextStyle(x => x.FontFamily(Fonts.Arial).FontSize(10));
 
                         // Header
                         page.Header()
@@ -390,8 +395,8 @@ namespace bth_dc_inventory.Controllers
         {
             try
             {
-                // Set EPPlus license
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                // ✅ PERBAIKI: EPPlus 8+ menggunakan ExcelPackage.License
+                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
 
                 using var package = new ExcelPackage();
                 var worksheet = package.Workbook.Worksheets.Add("Inventory Report");
@@ -441,7 +446,6 @@ namespace bth_dc_inventory.Controllers
                     {
                         range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
                     }
-
                     row++;
                 }
 

@@ -165,14 +165,12 @@
             let currentPage = 1;
             let currentDateRange = {};
 
-            // Initialize with last 30 days
+            // Initialize with last 30 days - ✅ DIPERBAIKI
             const today = new Date();
-            const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-
+            const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000); // ✅ Diperbaiki
             document.getElementById("startDate").value = thirtyDaysAgo.toISOString().split('T')[0];
             document.getElementById("endDate").value = today.toISOString().split('T')[0];
 
-            // Load initial data
             loadReportData();
 
             // ========================
@@ -182,8 +180,7 @@
                 const days = parseInt(this.value);
                 if (days) {
                     const end = new Date();
-                    const start = new Date(end.getTime() - days * 24 * 60 * 60 * 1000);
-
+                    const start = new Date(end.getTime() - days * 24 * 60 * 60 * 1000); // ✅ Diperbaiki
                     document.getElementById("startDate").value = start.toISOString().split('T')[0];
                     document.getElementById("endDate").value = end.toISOString().split('T')[0];
                 }
@@ -198,12 +195,11 @@
             document.getElementById("exportExcel").addEventListener("click", exportToExcel);
 
             // ========================
-            // LOAD REPORT DATA
+            // LOAD REPORT DATA - ✅ DIPERBAIKI FETCH SYNTAX
             // ========================
             async function loadReportData() {
                 try {
                     showLoading(true);
-
                     const startDate = document.getElementById("startDate").value;
                     const endDate = document.getElementById("endDate").value;
 
@@ -215,7 +211,7 @@
 
                     currentDateRange = { startDate, endDate };
 
-                    // Load stats and data in parallel
+                    // ✅ DIPERBAIKI: gunakan parentheses biasa ()
                     const [statsResponse, dataResponse] = await Promise.all([
                         fetch(`/api/reports/stats?startDate=${startDate}&endDate=${endDate}`),
                         fetch(`/api/reports/data?startDate=${startDate}&endDate=${endDate}&page=${currentPage}&pageSize=50`)
@@ -231,9 +227,7 @@
                     updateStats(stats);
                     updateTable(data);
                     updatePagination(data);
-
                     showLoading(false);
-
                 } catch (error) {
                     console.error("Error loading report data:", error);
                     showError("Failed to load report data. Please try again.");
@@ -265,7 +259,6 @@
                 }
 
                 emptyState.classList.add("hidden");
-
                 tableBody.innerHTML = data.data.map(item => `
                     <tr class="border-b hover:bg-gray-50">
                         <td class="p-3">${item.itemCode || '-'}</td>
@@ -290,7 +283,6 @@
                 // Update showing info
                 const from = (data.page - 1) * data.pageSize + 1;
                 const to = Math.min(from + data.data.length - 1, data.totalCount);
-
                 document.getElementById("showingFrom").textContent = from;
                 document.getElementById("showingTo").textContent = to;
                 document.getElementById("totalCount").textContent = data.totalCount;
@@ -301,7 +293,6 @@
             // ========================
             function updatePagination(data) {
                 const pagination = document.getElementById("pagination");
-
                 if (data.totalPages <= 1) {
                     pagination.innerHTML = "";
                     return;
@@ -360,100 +351,89 @@
             };
 
             // ========================
-            // EXPORT FUNCTIONS
+            // EXPORT FUNCTIONS - ✅ DIPERBAIKI
             // ========================
-                   // Update fungsi export untuk menggunakan ReportsController
-        async function exportToPDF() {
-            try {
-                console.log("Starting PDF export...");
-                setExportLoading("exportPDF", true);
+            async function exportToPDF() {
+                try {
+                    console.log("Starting PDF export...");
+                    setExportLoading("exportPDF", true);
+                    const { startDate, endDate } = currentDateRange;
+                    if (!startDate || !endDate) {
+                        throw new Error("Date range not selected");
+                    }
 
-                const { startDate, endDate } = currentDateRange;
+                    console.log("Requesting PDF with dates:", startDate, endDate);
+                    // ✅ DIPERBAIKI: gunakan parentheses biasa ()
+                    const response = await fetch(`/api/reports/export/pdf?startDate=${startDate}&endDate=${endDate}`);
+                    console.log("Response status:", response.status);
 
-                if (!startDate || !endDate) {
-                    throw new Error("Date range not selected");
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error("Server error:", errorText);
+                        throw new Error(`Server error: ${response.status} - ${errorText}`); // ✅ Diperbaiki
+                    }
+
+                    const blob = await response.blob();
+                    console.log("Blob size:", blob.size);
+
+                    if (blob.size === 0) {
+                        throw new Error("Empty file received");
+                    }
+
+                    downloadFile(blob, `InventoryReport_${startDate}_${endDate}.pdf`);
+                    showExportSuccess("PDF exported successfully!");
+                } catch (error) {
+                    console.error("Error exporting PDF:", error);
+                    showError(`Failed to export PDF: ${error.message}`); // ✅ Diperbaiki
+                } finally {
+                    setExportLoading("exportPDF", false);
                 }
-
-                console.log("Requesting PDF with dates:", startDate, endDate);
-
-                // GUNAKAN ENDPOINT REPORTS CONTROLLER
-                const response = await fetch(`/api/reports/export/pdf?startDate=${startDate}&endDate=${endDate}`);
-
-                console.log("Response status:", response.status);
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error("Server error:", errorText);
-                    throw new Error(`Server error: ${response.status} - ${errorText}`);
-                }
-
-                const blob = await response.blob();
-                console.log("Blob size:", blob.size);
-
-                if (blob.size === 0) {
-                    throw new Error("Empty file received");
-                }
-
-                downloadFile(blob, `InventoryReport_${startDate}_${endDate}.pdf`);
-                showExportSuccess("PDF exported successfully!");
-
-            } catch (error) {
-                console.error("Error exporting PDF:", error);
-                showError(`Failed to export PDF: ${error.message}`);
-            } finally {
-                setExportLoading("exportPDF", false);
             }
-        }
 
-        async function exportToExcel() {
-            try {
-                console.log("Starting Excel export...");
-                setExportLoading("exportExcel", true);
+            async function exportToExcel() {
+                try {
+                    console.log("Starting Excel export...");
+                    setExportLoading("exportExcel", true);
+                    const { startDate, endDate } = currentDateRange;
+                    if (!startDate || !endDate) {
+                        throw new Error("Date range not selected");
+                    }
 
-                const { startDate, endDate } = currentDateRange;
+                    // ✅ DIPERBAIKI: gunakan parentheses biasa ()
+                    const response = await fetch(`/api/reports/export/excel?startDate=${startDate}&endDate=${endDate}`);
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error("Server error:", errorText);
+                        throw new Error(`Server error: ${response.status}`); // ✅ Diperbaiki
+                    }
 
-                if (!startDate || !endDate) {
-                    throw new Error("Date range not selected");
+                    const blob = await response.blob();
+                    if (blob.size === 0) {
+                        throw new Error("Empty file received");
+                    }
+
+                    downloadFile(blob, `InventoryReport_${startDate}_${endDate}.xlsx`);
+                    showExportSuccess("Excel exported successfully!");
+                } catch (error) {
+                    console.error("Error exporting Excel:", error);
+                    showError(`Failed to export Excel: ${error.message}`); // ✅ Diperbaiki
+                } finally {
+                    setExportLoading("exportExcel", false);
                 }
-
-                // GUNAKAN ENDPOINT REPORTS CONTROLLER
-                const response = await fetch(`/api/reports/export/excel?startDate=${startDate}&endDate=${endDate}`);
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error("Server error:", errorText);
-                    throw new Error(`Server error: ${response.status}`);
-                }
-
-                const blob = await response.blob();
-
-                if (blob.size === 0) {
-                    throw new Error("Empty file received");
-                }
-
-                downloadFile(blob, `InventoryReport_${startDate}_${endDate}.xlsx`);
-                showExportSuccess("Excel exported successfully!");
-
-            } catch (error) {
-                console.error("Error exporting Excel:", error);
-                showError(`Failed to export Excel: ${error.message}`);
-            } finally {
-                setExportLoading("exportExcel", false);
             }
-        }
 
-        // Helper function untuk download
-        function downloadFile(blob, filename) {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        }
+            // Helper function untuk download
+            function downloadFile(blob, filename) {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }
 
             // ========================
             // UTILITY FUNCTIONS
@@ -479,20 +459,16 @@
                     type === 'success' ? 'bg-green-500' : 'bg-red-500'
                 } text-white max-w-sm`;
                 toast.textContent = message;
-
                 setTimeout(() => {
                     toast.remove();
                 }, 3000);
-
                 return toast;
             }
 
             function setExportLoading(buttonId, loading) {
                 const button = document.getElementById(buttonId);
                 const status = document.getElementById("exportStatus");
-
                 button.disabled = loading;
-
                 if (loading) {
                     status.textContent = "Generating file...";
                     status.className = "text-sm text-blue-600";

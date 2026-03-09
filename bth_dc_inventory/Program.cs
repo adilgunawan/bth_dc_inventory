@@ -1,10 +1,9 @@
-using bth_dc_inventory.Data;
+﻿using bth_dc_inventory.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Infrastructure;
 using System.Text;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,9 +30,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "YourIssuer",      // Ubah dengan issuer valid
-            ValidAudience = "YourAudience", // Ubah dengan audience valid
-            IssuerSigningKey = new SymmetricSecurityKey(key) // Secret key untuk token
+            ValidIssuer = "YourIssuer",
+            ValidAudience = "YourAudience",
+            IssuerSigningKey = new SymmetricSecurityKey(key)
         };
     });
 
@@ -44,17 +43,31 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 52428800; // 50MB
+});
+
+// ✅ BENAR UNTUK EPPlus 7.x - gunakan LicenseContext
+OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+// ✅ QuestPDF
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+QuestPDF.Settings.CheckIfAllTextGlyphsAreAvailable = false;
+
 // =========================
 // BUILD THE APPLICATION
 // =========================
 var app = builder.Build();
 
-app.MapControllers(); // Memetakan controller otomatis
 // =========================
-// MIDDLEWARE
+// MIDDLEWARE CONFIGURATION
 // =========================
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 if (!app.Environment.IsDevelopment())
 {
@@ -65,8 +78,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthentication(); // Middleware untuk autentikasi
-app.UseAuthorization();  // Middleware untuk otorisasi
+app.UseAuthentication();
+app.UseAuthorization();
 
 // =========================
 // ROUTING
@@ -77,79 +90,3 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
-
-//using bth_dc_inventory.Data;
-//using Microsoft.EntityFrameworkCore;
-//using QuestPDF.Infrastructure;
-//using Microsoft.AspNetCore.Authentication.JwtBearer;
-//using Microsoft.IdentityModel.Tokens;
-//using System.Text;
-
-
-//var builder = WebApplication.CreateBuilder(args);
-
-
-//// =========================
-//// DATABASE CONNECTION
-//// =========================
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//    options.UseSqlServer(
-//        builder.Configuration.GetConnectionString("DefaultConnection")
-//    )
-//);
-
-//// =========================
-//// SERVICES
-//// =========================
-//builder.Services.AddControllersWithViews();
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
-//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-//var app = builder.Build();
-
-//// =========================
-//// MIDDLEWARE
-//// =========================
-//app.UseSwagger();
-//app.UseSwaggerUI();
-
-//var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("BTH_DC_INVENTORY")); // Ganti dengan key yang kuat
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//    .AddJwtBearer(options =>
-//    {
-//        options.TokenValidationParameters = new TokenValidationParameters
-//        {
-//            ValidateIssuer = true,
-//            ValidateAudience = true,
-//            ValidateLifetime = true,
-//            ValidateIssuerSigningKey = true,
-//            ValidIssuer = "YourIssuer",
-//            ValidAudience = "YourAudience",
-//            IssuerSigningKey = key
-//        };
-//    });
-
-//if (!app.Environment.IsDevelopment())
-//{
-//    app.UseExceptionHandler("/Home/Error");
-//    app.UseHsts();
-//}
-
-//app.UseHttpsRedirection();
-//app.UseStaticFiles();
-
-//app.UseRouting();
-
-//app.UseAuthorization();
-
-//// =========================
-//// ROUTING
-//// =========================
-//app.MapControllers();
-
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-//app.Run();

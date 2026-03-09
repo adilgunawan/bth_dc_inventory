@@ -1,64 +1,68 @@
 ﻿@{
-    ViewData["Title"] = "Detail Products ";
+    ViewData["Title"] = "Detail Products";
 }
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Product Detail</title>
 </head>
-
 <body class="bg-gray-50 min-h-screen font-sans">
     <main class="p-6">
         <!-- Header -->
         <header class="flex justify-between items-center border-b pb-4">
             <div>
                 <h1 class="text-2xl font-bold text-gray-700">Product Detail</h1>
-                <p class="text-sm text-gray-500">Manage Data Center 1 Products</p>
+                <p class="text-sm text-gray-500">Manage Data Center Products</p>
             </div>
             <!-- Action Buttons -->
             <div class="space-x-4 flex">
+                <!-- Back Button -->
+                <button onclick="goBack()" class="bg-gray-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-700">
+                    Back
+                </button>
                 <!-- Delete Button -->
-                <button id="openDeleteModal"
-                        class="bg-red-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-red-700">
+                <button id="openDeleteModal" class="bg-red-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-red-700">
                     Delete Product
                 </button>
                 <!-- Edit Button -->
-                <button id="openEditModal"
-                        class="bg-teal-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-teal-700">
+                <button id="openEditModal" class="bg-teal-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-teal-700">
                     Edit Product
                 </button>
             </div>
         </header>
 
+        <!-- Loading State -->
+        <div id="loadingState" class="mt-6 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
+            <p class="mt-4 text-gray-600">Loading product details...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="mt-6 text-center hidden">
+            <div class="text-red-500 text-6xl mb-4">⚠️</div>
+            <h1 class="text-2xl font-bold text-red-500 mb-2">Failed to Load Product Details</h1>
+            <p id="errorMessage" class="text-gray-600 mb-4">Please try again later.</p>
+            <button onclick="goBack()" class="text-teal-600 underline hover:text-teal-700">Go Back</button>
+        </div>
+
         <!-- Details Section -->
-        <section class="mt-6 bg-white p-6 rounded-lg shadow-sm">
+        <section id="productDetails" class="mt-6 bg-white p-6 rounded-lg shadow-sm hidden">
             <!-- Grid for Details -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Product Details -->
                 <div>
                     <h2 class="text-lg font-semibold text-gray-700 mb-6">Primary Details</h2>
-                    <ul class="space-y-4 text-gray-600">
-                        <li><span class="font-semibold text-gray-700">Product Name:</span> Server Dell 1238</li>
-                        <li><span class="font-semibold text-gray-700">PO Number:</span> 456567899999999999</li>
-                        <li><span class="font-semibold text-gray-700">Asset Number:</span> h92149y812</li>
-                        <li><span class="font-semibold text-gray-700">Serial Number:</span> 39492039</li>
-                        <li><span class="font-semibold text-gray-700">Product Category:</span> Server</li>
-                        <li><span class="font-semibold text-gray-700">Buying Price:</span>$ 80000 </li>
-                        <li><span class="font-semibold text-gray-700">Quantity:</span> 1</li>
-                        <li><span class="font-semibold text-gray-700">Location:</span> Data Center 1</li>
-                        <li><span class="font-semibold text-gray-700">Date of Purchase:</span> 12/02/2025</li>
-                        <li><span class="font-semibold text-gray-700">Status:</span> Pending</li>
+                    <ul id="detailList" class="space-y-4 text-gray-600">
+                        <!-- Details will be populated here -->
                     </ul>
                 </div>
-
                 <!-- Product Image -->
                 <div class="flex justify-center items-center px-3">
-                    <img src="~/images/dummy_picture.png" alt="Product Image"
-                         class="rounded-lg shadow-lg object-cover">
+                    <img id="productImage" src="/images/dummy_picture.png" alt="Product Image"
+                         class="rounded-lg shadow-lg object-cover max-w-full h-auto">
                 </div>
             </div>
         </section>
@@ -66,70 +70,90 @@
 
     <!-- Modal Edit Product -->
     <div id="editModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
-        <div class="bg-white w-full max-w-lg rounded-lg p-6 shadow-lg">
+        <div class="bg-white w-full max-w-lg rounded-lg p-6 shadow-lg max-h-screen overflow-y-auto">
             <h2 class="text-lg font-bold text-gray-700 mb-4">Edit Product</h2>
             <form id="editForm" class="space-y-4">
+                <input type="hidden" id="editProductId">
+
                 <div>
-                    <label for="productName" class="text-sm font-medium text-gray-700">Product Name</label>
-                    <input type="text" id="productName"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required />
+                    <label for="editProductName" class="text-sm font-medium text-gray-700">Product Name</label>
+                    <input type="text" id="editProductName"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
                 </div>
+
                 <div>
-                    <label for="poNumber" class="text-sm font-medium text-gray-700">PO Number</label>
-                    <input type="text" id="poNumber"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required />
+                    <label for="editItemCode" class="text-sm font-medium text-gray-700">Item Code</label>
+                    <input type="text" id="editItemCode"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                           required />
                 </div>
+
                 <div>
-                    <label for="assetNumber" class="text-sm font-medium text-gray-700">Asset Number</label>
-                    <input type="text" id="assetNumber"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                    <label for="editAssetNumber" class="text-sm font-medium text-gray-700">Asset Number</label>
+                    <input type="text" id="editAssetNumber"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 </div>
+
                 <div>
-                    <label for="serialNumber" class="text-sm font-medium text-gray-700">Serial Number</label>
-                    <input type="text" id="serialNumber"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                    <label for="editSerialNumber" class="text-sm font-medium text-gray-700">Serial Number</label>
+                    <input type="text" id="editSerialNumber"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 </div>
+
                 <div>
-                    <label for="category" class="text-sm font-medium text-gray-700">Product Category</label>
-                    <input type="text" id="category"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                    <label for="editCategory" class="text-sm font-medium text-gray-700">Product Category</label>
+                    <select id="editCategory"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            required>
+                        <option value="">Select Category</option>
+                    </select>
                 </div>
+
                 <div>
-                    <label for="buyingPrice" class="text-sm font-medium text-gray-700">Buying Price</label>
-                    <input type="text" id="buyingPrice"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                    <label for="editBuyingPrice" class="text-sm font-medium text-gray-700">Buying Price ($)</label>
+                    <input type="number" id="editBuyingPrice" step="0.01"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 </div>
+
                 <div>
-                    <label for="quantity" class="text-sm font-medium text-gray-700">Quantity</label>
-                    <input type="number" id="quantity"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                    <label for="editQuantity" class="text-sm font-medium text-gray-700">Quantity</label>
+                    <input type="number" id="editQuantity" min="0"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 </div>
+
                 <div>
-                    <label for="location" class="text-sm font-medium text-gray-700">Location</label>
-                    <input type="text" id="location"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                    <label for="editLocation" class="text-sm font-medium text-gray-700">Location</label>
+                    <select id="editLocation"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            required>
+                        <option value="">Select Location</option>
+                    </select>
                 </div>
+
                 <div>
-                    <label for="dateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
-                    <input type="date" id="dateOfPurchase"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+                    <label for="editDateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
+                    <input type="date" id="editDateOfPurchase"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 </div>
+
                 <div>
-                    <label for="status" class="text-sm font-medium text-gray-700">Status</label>
-                    <select id="status"
-                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    <label for="editStatus" class="text-sm font-medium text-gray-700">Status</label>
+                    <select id="editStatus"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
                         <option value="Pending">Pending</option>
                         <option value="Arrived">Arrived</option>
                     </select>
                 </div>
-                <div class="flex justify-end space-x-4">
+
+                <div class="flex justify-end space-x-4 mt-6">
                     <button type="button" id="closeEditModal"
                             class="px-4 py-2 rounded-md text-gray-500 bg-gray-100 hover:bg-gray-200">
                         Cancel
                     </button>
-                    <button type="submit"
+                    <button type="submit" id="saveEditButton"
                             class="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700">
-                        Save
+                        Save Changes
                     </button>
                 </div>
             </form>
@@ -140,7 +164,10 @@
     <div id="deleteModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
         <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
             <h2 class="text-lg font-bold text-gray-700 mb-4">Delete Product</h2>
-            <p class="text-sm text-gray-500">Are you sure you want to delete this product? This action cannot be undone.</p>
+            <p class="text-sm text-gray-500 mb-6">
+                Are you sure you want to delete <span id="deleteProductName" class="font-semibold"></span>?
+                This action cannot be undone.
+            </p>
             <div class="flex justify-end space-x-4">
                 <button id="closeDeleteModal"
                         class="bg-gray-100 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200">
@@ -154,177 +181,378 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
     <script>
-        // Edit Modal Logic
-        const editModal = document.getElementById('editModal');
-        const openEditModal = document.getElementById('openEditModal');
-        const closeEditModal = document.getElementById('closeEditModal');
+        document.addEventListener("DOMContentLoaded", function() {
+            let currentProduct = null;
+            let categoriesData = [];
+            let dataCentersData = [];
+            const productId = getProductIdFromUrl();
 
-        openEditModal.addEventListener('click', () => {
-            editModal.classList.remove('hidden');
+            // ========================
+            // INITIALIZE PAGE
+            // ========================
+            if (!productId) {
+                showError("Invalid Product ID", "Please provide a valid Product ID.");
+                return;
+            }
+
+            // Load data in sequence
+            initializePage();
+
+            async function initializePage() {
+                try {
+                    // Load dropdown data first
+                    await loadDropdownData();
+                    // Then load product details
+                    await loadProductDetails(productId);
+                } catch (error) {
+                    console.error("Error initializing page:", error);
+                    showError("Initialization Error", "Failed to load page data.");
+                }
+            }
+
+            // ========================
+            // GET PRODUCT ID FROM URL
+            // ========================
+            function getProductIdFromUrl() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get("id");
+            }
+
+            // ========================
+            // LOAD DROPDOWN DATA
+            // ========================
+            async function loadDropdownData() {
+                try {
+                    console.log("Loading dropdown data...");
+
+                    const [categoriesRes, dataCentersRes] = await Promise.all([
+                        fetch("/api/Category/dropdown"),
+                        fetch("/api/DataCenters/dropdown")
+                    ]);
+
+                    console.log("Categories response:", categoriesRes.status);
+                    console.log("DataCenters response:", dataCentersRes.status);
+
+                    if (categoriesRes.ok) {
+                        categoriesData = await categoriesRes.json();
+                        console.log("Categories loaded:", categoriesData);
+                        populateSelect("editCategory", categoriesData, "id", "categoryName");
+                    } else {
+                        console.error("Failed to load categories:", categoriesRes.status);
+                    }
+
+                    if (dataCentersRes.ok) {
+                        dataCentersData = await dataCentersRes.json();
+                        console.log("Data centers loaded:", dataCentersData);
+                        populateSelect("editLocation", dataCentersData, "id", "name");
+                    } else {
+                        console.error("Failed to load data centers:", dataCentersRes.status);
+                    }
+
+                } catch (error) {
+                    console.error("Error loading dropdown data:", error);
+                    // Don't show error for dropdowns, continue loading product
+                }
+            }
+
+            // ========================
+            // POPULATE SELECT ELEMENT
+            // ========================
+            function populateSelect(selectId, data, valueField, textField) {
+                const select = document.getElementById(selectId);
+                if (!select) {
+                    console.error(`Select element ${selectId} not found`);
+                    return;
+                }
+
+                // Clear existing options except the first one
+                const firstOption = select.firstElementChild;
+                select.innerHTML = '';
+                if (firstOption) {
+                    select.appendChild(firstOption);
+                }
+
+                // Add new options
+                data.forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item[valueField];
+                    option.textContent = item[textField];
+                    select.appendChild(option);
+                });
+
+                console.log(`Populated ${selectId} with ${data.length} options`);
+            }
+
+            // ========================
+            // LOAD PRODUCT DETAILS
+            // ========================
+            async function loadProductDetails(id) {
+                try {
+                    showLoading(true);
+                    console.log(`Loading product details for ID: ${id}`);
+
+                    const response = await fetch(`/api/items/${id}`);
+
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error("Product not found");
+                        }
+                        throw new Error(`Failed to fetch product details: ${response.status}`);
+                    }
+
+                    currentProduct = await response.json();
+                    console.log("Product loaded:", currentProduct);
+
+                    displayProductDetails(currentProduct);
+                    showLoading(false);
+
+                } catch (error) {
+                    console.error("Error loading product:", error);
+                    showError("Failed to Load Product Details", error.message);
+                    showLoading(false);
+                }
+            }
+
+            // ========================
+            // DISPLAY PRODUCT DETAILS
+            // ========================
+            function displayProductDetails(product) {
+                const detailList = document.getElementById("detailList");
+
+                detailList.innerHTML = `
+                    <li><span class="font-semibold text-gray-700">Product Name:</span> ${product.itemName || 'N/A'}</li>
+                    <li><span class="font-semibold text-gray-700">Item Code:</span> ${product.itemCode || 'N/A'}</li>
+                    <li><span class="font-semibold text-gray-700">Asset Number:</span> ${product.assetNumber || 'N/A'}</li>
+                    <li><span class="font-semibold text-gray-700">Serial Number:</span> ${product.serialNumber || 'N/A'}</li>
+                    <li><span class="font-semibold text-gray-700">Product Category:</span>
+                        <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">${product.categoryName || 'N/A'}</span>
+                    </li>
+                    <li><span class="font-semibold text-gray-700">Buying Price:</span> $${product.buyingPrice ? product.buyingPrice.toFixed(2) : '0.00'}</li>
+                    <li><span class="font-semibold text-gray-700">Quantity:</span> ${product.quantity || 0}</li>
+                    <li><span class="font-semibold text-gray-700">Location:</span> ${product.dataCenterName || 'N/A'}</li>
+                    <li><span class="font-semibold text-gray-700">Status:</span>
+                        <span class="px-3 py-1 rounded-full text-xs ${getStatusColor(product.status)}">${product.status || 'N/A'}</span>
+                    </li>
+                    <li><span class="font-semibold text-gray-700">Date of Purchase:</span>
+                        ${product.dateOfPurchase ? new Date(product.dateOfPurchase).toLocaleDateString() : 'N/A'}
+                    </li>
+                `;
+
+                document.getElementById("productDetails").classList.remove("hidden");
+            }
+
+            // ========================
+            // GET STATUS COLOR
+            // ========================
+            function getStatusColor(status) {
+                switch(status) {
+                    case 'Arrived': return 'bg-green-200 text-green-800';
+                    case 'Pending': return 'bg-yellow-200 text-yellow-800';
+                    default: return 'bg-gray-200 text-gray-800';
+                }
+            }
+
+            // ========================
+            // SHOW/HIDE LOADING
+            // ========================
+            function showLoading(show) {
+                document.getElementById("loadingState").classList.toggle("hidden", !show);
+            }
+
+            // ========================
+            // SHOW ERROR
+            // ========================
+            function showError(title, message) {
+                document.getElementById("errorMessage").textContent = message;
+                document.getElementById("errorState").classList.remove("hidden");
+                document.getElementById("loadingState").classList.add("hidden");
+            }
+
+            // ========================
+            // MODAL HANDLERS
+            // ========================
+
+            // Edit Modal
+            document.getElementById("openEditModal").addEventListener("click", async () => {
+                if (currentProduct) {
+                    // Ensure dropdown data is loaded
+                    if (categoriesData.length === 0 || dataCentersData.length === 0) {
+                        console.log("Reloading dropdown data...");
+                        await loadDropdownData();
+                    }
+
+                    populateEditForm(currentProduct);
+                    document.getElementById("editModal").classList.remove("hidden");
+                }
+            });
+
+            document.getElementById("closeEditModal").addEventListener("click", () => {
+                document.getElementById("editModal").classList.add("hidden");
+            });
+
+            // Delete Modal
+            document.getElementById("openDeleteModal").addEventListener("click", () => {
+                if (currentProduct) {
+                    document.getElementById("deleteProductName").textContent = currentProduct.itemName;
+                    document.getElementById("deleteModal").classList.remove("hidden");
+                }
+            });
+
+            document.getElementById("closeDeleteModal").addEventListener("click", () => {
+                document.getElementById("deleteModal").classList.add("hidden");
+            });
+
+            // ========================
+            // POPULATE EDIT FORM
+            // ========================
+            function populateEditForm(product) {
+                console.log("Populating edit form with product:", product);
+
+                document.getElementById("editProductId").value = product.id || '';
+                document.getElementById("editProductName").value = product.itemName || '';
+                document.getElementById("editItemCode").value = product.itemCode || '';
+                document.getElementById("editAssetNumber").value = product.assetNumber || '';
+                document.getElementById("editSerialNumber").value = product.serialNumber || '';
+                document.getElementById("editBuyingPrice").value = product.buyingPrice || '';
+                document.getElementById("editQuantity").value = product.quantity || '';
+                document.getElementById("editStatus").value = product.status || 'Pending';
+
+                if (product.dateOfPurchase) {
+                    const date = new Date(product.dateOfPurchase);
+                    document.getElementById("editDateOfPurchase").value = date.toISOString().split('T')[0];
+                }
+
+                // Set category - need to find the categoryId from categoryName
+                if (product.categoryName && categoriesData.length > 0) {
+                    const category = categoriesData.find(cat => cat.categoryName === product.categoryName);
+                    if (category) {
+                        document.getElementById("editCategory").value = category.id;
+                        console.log("Set category to:", category.id, category.categoryName);
+                    }
+                }
+
+                // Set location - need to find the dataCenterId from dataCenterName
+                if (product.dataCenterName && dataCentersData.length > 0) {
+                    const dataCenter = dataCentersData.find(dc => dc.name === product.dataCenterName);
+                    if (dataCenter) {
+                        document.getElementById("editLocation").value = dataCenter.id;
+                        console.log("Set location to:", dataCenter.id, dataCenter.name);
+                    }
+                }
+            }
+
+            // ========================
+            // EDIT FORM SUBMISSION
+            // ========================
+            document.getElementById("editForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const saveButton = document.getElementById("saveEditButton");
+                const originalText = saveButton.textContent;
+                saveButton.textContent = "Saving...";
+                saveButton.disabled = true;
+
+                const updatedData = {
+                    itemName: document.getElementById("editProductName").value,
+                    itemCode: document.getElementById("editItemCode").value,
+                    assetNumber: document.getElementById("editAssetNumber").value,
+                    serialNumber: document.getElementById("editSerialNumber").value,
+                    categoryId: parseInt(document.getElementById("editCategory").value),
+                    dataCenterId: parseInt(document.getElementById("editLocation").value),
+                    buyingPrice: parseFloat(document.getElementById("editBuyingPrice").value) || 0,
+                    quantity: parseInt(document.getElementById("editQuantity").value) || 0,
+                    status: document.getElementById("editStatus").value,
+                    dateOfPurchase: document.getElementById("editDateOfPurchase").value
+                };
+
+                console.log("Updating product with data:", updatedData);
+
+                try {
+                    const response = await fetch(`/api/items/${productId}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(updatedData)
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Failed to update product: ${response.status} - ${errorText}`);
+                    }
+
+                    alert("Product updated successfully!");
+                    document.getElementById("editModal").classList.add("hidden");
+                    await loadProductDetails(productId); // Reload product details
+
+                } catch (error) {
+                    console.error("Error updating product:", error);
+                    alert(`Failed to update product: ${error.message}`);
+                } finally {
+                    saveButton.textContent = originalText;
+                    saveButton.disabled = false;
+                }
+            });
+
+            // ========================
+            // DELETE CONFIRMATION
+            // ========================
+            document.getElementById("confirmDeleteButton").addEventListener("click", async () => {
+                const deleteButton = document.getElementById("confirmDeleteButton");
+                const originalText = deleteButton.textContent;
+                deleteButton.textContent = "Deleting...";
+                deleteButton.disabled = true;
+
+                try {
+                    const response = await fetch(`/api/items/${productId}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to delete product");
+                    }
+
+                    alert("Product deleted successfully!");
+                    goBack(); // Redirect back after successful deletion
+
+                } catch (error) {
+                    console.error("Error deleting product:", error);
+                    alert("Failed to delete product. Please try again.");
+                    deleteButton.textContent = originalText;
+                    deleteButton.disabled = false;
+                }
+            });
+
+            // ========================
+            // CLOSE MODALS ON BACKGROUND CLICK
+            // ========================
+            document.getElementById("editModal").addEventListener("click", (e) => {
+                if (e.target === e.currentTarget) {
+                    document.getElementById("editModal").classList.add("hidden");
+                }
+            });
+
+            document.getElementById("deleteModal").addEventListener("click", (e) => {
+                if (e.target === e.currentTarget) {
+                    document.getElementById("deleteModal").classList.add("hidden");
+                }
+            });
         });
 
-        closeEditModal.addEventListener('click', () => {
-            editModal.classList.add('hidden');
-        });
-
-        // Delete Modal Logic
-        const deleteModal = document.getElementById('deleteModal');
-        const openDeleteModal = document.getElementById('openDeleteModal');
-        const closeDeleteModal = document.getElementById('closeDeleteModal');
-        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
-
-        openDeleteModal.addEventListener('click', () => {
-            deleteModal.classList.remove('hidden');
-        });
-
-        closeDeleteModal.addEventListener('click', () => {
-            deleteModal.classList.add('hidden');
-        });
-
-        confirmDeleteButton.addEventListener('click', () => {
-            alert('Product has been deleted');
-            deleteModal.classList.add('hidden');
-        });
+        // ========================
+        // GO BACK FUNCTION
+        // ========================
+        function goBack() {
+            if (document.referrer) {
+                window.history.back();
+            } else {
+                window.location.href = "/Products"; // Default fallback
+            }
+        }
     </script>
 </body>
-<script>
-    document.addEventListener("DOMContentLoaded", async function () {
-
-        const params = new URLSearchParams(window.location.search);
-        const productId = params.get("id");
-
-        if (!productId) {
-            document.querySelector("main").innerHTML = `
-                <div class="text-center mt-20">
-                    <h1 class="text-2xl font-bold text-red-500">Invalid Product ID</h1>
-                    <p class="text-gray-600 mt-2">Please provide a valid Product ID.</p>
-                    <a href="/datacenter1" class="mt-4 inline-block text-teal-600 underline">Go Back</a>
-                </div>
-            `;
-            return;
-        }
-
-        try {
-
-            const response = await fetch(`/api/items/${productId}`);
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch product details.");
-            }
-
-            const product = await response.json();
-
-            const detailList = document.querySelector("ul.space-y-4");
-
-            detailList.innerHTML = `
-                <li><span class="font-semibold text-gray-700">Product Name:</span> ${product.itemName}</li>
-                <li><span class="font-semibold text-gray-700">PO Number:</span> ${product.itemCode}</li>
-                <li><span class="font-semibold text-gray-700">Asset Number:</span> ${product.assetNumber || "N/A"}</li>
-                <li><span class="font-semibold text-gray-700">Serial Number:</span> ${product.serialNumber || "N/A"}</li>
-                <li><span class="font-semibold text-gray-700">Product Category:</span><span class="bg-gray-200 px-3 py-1 rounded-full text-md"> ${product.categoryName}</span></li>
-                <li><span class="font-semibold text-gray-700">Buying Price:</span> $${product.buyingPrice ? product.buyingPrice.toFixed(2) : "0.00"}</li>
-                <li><span class="font-semibold text-gray-700">Quantity:</span> ${product.quantity}</li>
-                <li><span class="font-semibold text-gray-700">Location:</span> ${product.dataCenterName}</li>
-                <li><span class="font-semibold text-gray-700">Status:</span> ${product.status}</li>
-                <li><span class="font-semibold text-gray-700">Date of Purchase:</span>
-                    ${product.dateOfPurchase ? new Date(product.dateOfPurchase).toLocaleDateString() : "N/A"}
-                </li>
-            `;
-
-            // Set gambar default
-            const imageElement = document.querySelector(".flex img");
-            if (imageElement) {
-                imageElement.src = "/images/default-product.png";
-            }
-
-        } catch (error) {
-
-            console.error("Error:", error);
-
-            document.querySelector("main").innerHTML = `
-                <div class="text-center mt-20">
-                    <h1 class="text-2xl font-bold text-red-500">Failed to Load Product Details</h1>
-                    <p class="text-gray-600 mt-2">Please try again later.</p>
-                    <a href="/datacenter1" class="mt-4 inline-block text-teal-600 underline">Go Back</a>
-                </div>
-            `;
-        }
-    });
-</script>
-
-    @* <script> *@
-    @*           document.addEventListener("DOMContentLoaded", async function () { *@
-    @*     // Ambil parameter id dari URL *@
-    @*     const params = new URLSearchParams(window.location.search); *@
-    @*     const productId = params.get("id"); *@
-
-    @*     // Validasi productId *@
-    @*     if (!productId) { *@
-    @*         document.querySelector("main").innerHTML = ` *@
-    @*             <div class="text-center mt-20"> *@
-    @*                 <h1 class="text-2xl font-bold text-red-500">Invalid Product ID</h1> *@
-    @*                 <p class="text-gray-600 mt-2">Please provide a valid product ID to view details.</p> *@
-    @*                 <a href="/datacenter1" class="mt-4 inline-block text-teal-600 underline">Go Back to Data Center 1</a> *@
-    @*             </div> *@
-    @*         `; *@
-    @*         return; *@
-    @*     } *@
-
-    @*     try { *@
-    @*         // Fetch detail produk dari backend *@
-    @*         const response = await fetch(`/api/items/${productId}`, { *@
-    @*             method: "GET", *@
-    @*             headers: { *@
-    @*                 "Content-Type": "application/json" *@
-    @*             } *@
-    @*         }); *@
-
-    @*         if (!response.ok) { *@
-    @*             if (response.status === 404) { *@
-    @*                 document.querySelector("main").innerHTML = ` *@
-    @*                     <div class="text-center mt-20"> *@
-    @*                         <h1 class="text-2xl font-bold text-red-500">Product Not Found</h1> *@
-    @*                         <p class="text-gray-600 mt-2">The product you are looking for could not be found.</p> *@
-    @*                         <a href="/datacenter1" class="mt-4 inline-block text-teal-600 underline">Go Back to Data Center 1</a> *@
-    @*                     </div> *@
-    @*                 `; *@
-    @*             } else { *@
-    @*                 throw new Error(`Failed to fetch product details. Status: ${response.status}`); *@
-    @*             } *@
-    @*             return; *@
-    @*         } *@
-
-    @*         const product = await response.json(); *@
-
-    @*         // Render data ke halaman *@
-    @*         document.querySelector("ul.space-y-4").innerHTML = ` *@
-    @*             <li><span class="font-semibold text-gray-700">Product Name:</span> ${product.itemName}</li> *@
-    @*             <li><span class="font-semibold text-gray-700">PO Number:</span> ${product.itemCode}</li> *@
-    @*             <li><span class="font-semibold text-gray-700">Asset Number:</span> ${product.assetNumber || "N/A"}</li> *@
-    @*             <li><span class="font-semibold text-gray-700">Serial Number:</span> ${product.serialNumber || "N/A"}</li> *@
-    @*             <li><span class="font-semibold text-gray-700">Product Category:</span> ${product.categoryName}</li> *@
-    @*             <li><span class="font-semibold text-gray-700">Buying Price:</span> $${product.buyingPrice}</li> *@
-    @*             <li><span class="font-semibold text-gray-700">Quantity:</span> ${product.quantity}</li> *@
-    @*             <li><span class="font-semibold text-gray-700">Location:</span> ${product.dataCenterName}</li> *@
-    @*             <li><span class="font-semibold text-gray-700">Date of Purchase:</span> ${new Date(product.dateOfPurchase).toLocaleDateString()}</li> *@
-    @*             <li><span class="font-semibold text-gray-700">Status:</span> ${product.status}</li> *@
-    @*         `; *@
-
-    @*         document.querySelector(".flex img").src = product.imageUrl || "~/images/default-product.png"; *@
-
-    @*     } catch (error) { *@
-    @*         console.error("Error fetching product details:", error); *@
-    @*         document.querySelector("main").innerHTML = ` *@
-    @*             <div class="text-center mt-20"> *@
-    @*                 <h1 class="text-2xl font-bold text-red-500">Failed to Load Product Details</h1> *@
-    @*                 <p class="text-gray-600 mt-2">Please try again later.</p> *@
-    @*                 <a href="/datacenter1" class="mt-4 inline-block text-teal-600 underline">Go Back</a> *@
-    @*             </div> *@
-    @*         `; *@
-    @*     } *@
-    @* }); *@
-    @* </script> *@
-
 </html>

@@ -88,38 +88,7 @@ namespace bth_dc_inventory.Controllers
             // Jika ditemukan, kembalikan hasil
             return Ok(item);
         }
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<ItemReadDto>> GetItem(int id)
-        //{
-        //    var item = await _context.Items
-        //        .Include(i => i.Category)
-        //        .Include(i => i.DataCenter)
-        //        .Where(i => i.Id == id)
-        //        .Select(i => new ItemReadDto
-        //        {
-        //            Id = i.Id,
-        //            ItemCode = i.ItemCode,
-        //            ItemName = i.ItemName,
-
-        //            AssetNumber = i.AssetNumber,
-        //            SerialNumber = i.SerialNumber,
-        //            //PONumber = i.PONumber,
-
-        //            CategoryName = i.Category.CategoryName,
-        //            DataCenterName = i.DataCenter.Name,
-        //            BuyingPrice = i.BuyingPrice,
-        //            Quantity = i.Quantity,
-        //            Status = i.Status,
-        //            DateOfPurchase = i.DateOfPurchase,
-        //            UpdatedAt = i.UpdatedAt
-        //        })
-        //        .FirstOrDefaultAsync();
-
-        //    if (item == null)
-        //        return NotFound();
-
-        //    return Ok(item);
-        //}
+   
 
         // =====================================
         // POST: api/items

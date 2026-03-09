@@ -1,690 +1,638 @@
 ﻿@{
-    ViewData["Title"] = "Category ";
+    ViewData["Title"] = "Category";
 }
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Category Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="bg-gray-50 min-h-screen font-sans">
     <div class="container mx-auto p-6">
         <!-- Header -->
-        <div class="items-center justify-center">
-            <header class="mb-6">
+        <div class="flex items-center justify-between mb-6">
+            <header>
                 <h1 class="text-3xl font-bold text-gray-700">Category Management</h1>
                 <p class="text-gray-400 text-sm">Manage product categories and classifications</p>
             </header>
             <!-- Add Category Button -->
             <button id="addCategoryButton"
-                    class="hover:bg-teal-700  bg-teal-600 text-white px-4 py-2 rounded-md shadow  float-right">
+                    class="hover:bg-teal-700 bg-teal-600 text-white px-4 py-2 rounded-md shadow">
                 + Add Category
             </button>
         </div>
- 
 
         <!-- Stats -->
-        <section id="categoriesGrid" class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-6">
+        <section class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-6">
             <div class="bg-white shadow-md rounded-lg p-6">
                 <p class="text-sm text-gray-400">Total Categories</p>
-                <p class="text-3xl font-bold text-purple-600">6</p>
+                <p id="totalCategories" class="text-3xl font-bold text-purple-600">Loading...</p>
             </div>
             <div class="bg-white shadow-md rounded-lg p-6">
                 <p class="text-sm text-gray-400">Active Categories</p>
-                <p class="text-3xl font-bold text-green-600">6</p>
-            </div>
-            <div class="bg-white shadow-md rounded-lg p-6">
-                <p class="text-sm text-gray-400">Inactive</p>
-                <p class="text-3xl font-bold text-gray-500">0</p>
+                <p id="activeCategories" class="text-3xl font-bold text-green-600">Loading...</p>
             </div>
             <div class="bg-white shadow-md rounded-lg p-6">
                 <p class="text-sm text-gray-400">Total Products</p>
-                <p class="text-3xl font-bold text-blue-600">303</p>
+                <p id="totalProducts" class="text-3xl font-bold text-blue-600">Loading...</p>
             </div>
-
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <p class="text-sm text-gray-400">Average Items</p>
+                <p id="averageItems" class="text-3xl font-bold text-orange-600">Loading...</p>
+            </div>
         </section>
 
+        <!-- Categories Grid -->
+        <section id="categoriesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Categories will be loaded here -->
+        </section>
 
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+            <p class="text-gray-600">Loading categories...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-8 hidden">
+            <div class="text-gray-400 text-6xl mb-4">📦</div>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">No Categories Found</h3>
+            <p class="text-gray-500 mb-4">Start by creating your first category</p>
+            <button onclick="document.getElementById('addCategoryButton').click()"
+                    class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">
+                Add Category
+            </button>
+        </div>
     </div>
 
-    <!-- Modal Edit -->
+    <!-- Modal Add Category -->
+    <div id="addCategoryModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-8 max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-700">Add New Category</h2>
+                <button id="closeAddModal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+
+            <form id="addCategoryForm" class="space-y-4">
+                <!-- Image Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category Image</label>
+                    <div id="imagePreview"
+                         class="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg text-gray-400 bg-gray-50 hover:bg-gray-100 transition">
+                        <div class="text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <p id="defaultText" class="mt-2 text-sm">Upload an image or select a file</p>
+                        </div>
+                        <img id="uploadedImage" class="hidden w-full h-full object-cover rounded-lg" />
+                    </div>
+                    <input type="file" id="uploadImage" accept="image/*"
+                           class="mt-3 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100" />
+                </div>
+
+                <!-- Category Name & Description -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Category Name <span class="text-red-500">*</span></label>
+                        <input id="categoryName" type="text"
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                               placeholder="e.g., Server Equipment"
+                               required />
+                        <div id="categoryNameError" class="text-red-500 text-xs mt-1 hidden"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea id="description" rows="3"
+                                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                  placeholder="Describe this category..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex justify-end space-x-4 mt-6">
+                    <button type="button" id="cancelAddModal"
+                            class="text-gray-500 border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100">
+                        Cancel
+                    </button>
+                    <button type="submit" id="submitAddButton"
+                            class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 disabled:opacity-50">
+                        Add Category
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Edit Category -->
     <div id="editCategoryModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-8">
-            <!-- Header -->
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-8 max-h-screen overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold text-gray-700">Edit Category</h2>
                 <button id="closeEditModal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
-            <!-- Form -->
+
             <form id="editCategoryForm" class="space-y-4">
+                <input type="hidden" id="editCategoryId">
+
                 <!-- Image Upload -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Category Image</label>
-                    <!-- Image Preview -->
                     <div id="editImagePreview"
-                         class="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg text-gray-400 bg-gray-50">
-                        <span id="defaultEditText">Upload an image or update current image</span>
+                         class="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg text-gray-400 bg-gray-50">
+                        <div class="text-center">
+                            <p id="defaultEditText">Upload an image or update current image</p>
+                        </div>
                         <img id="editedUploadedImage" class="hidden w-full h-full object-cover rounded-lg" />
                     </div>
                     <input type="file" id="editUploadImage" accept="image/*"
-                           class="mt-3 w-full text-sm file:bg-teal-600 file:border-0 file:px-4 file:py-2 file:rounded-md file:text-white focus:outline-none">
+                           class="mt-3 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
                 </div>
-                <!-- Category Name -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Category Name</label>
-                    <input id="editCategoryName" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="e.g., Server Equipment">
-                </div>
-                <!-- Description -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Description</label>
-                    <textarea id="editCategoryDescription" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Describe this category..."></textarea>
-                </div>
-                <!-- Status Toggle -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Status</label>
-                    <div class="flex items-center space-x-4">
-                        <label><input type="radio" name="status" value="active" class="mr-2"> Active</label>
-                        <label><input type="radio" name="status" value="inactive" class="mr-2"> Inactive</label>
+
+                <!-- Category Name & Description -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Category Name <span class="text-red-500">*</span></label>
+                        <input id="editCategoryName" type="text"
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                               placeholder="e.g., Server Equipment"
+                               required />
+                        <div id="editCategoryNameError" class="text-red-500 text-xs mt-1 hidden"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea id="editCategoryDescription" rows="3"
+                                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                  placeholder="Describe this category..."></textarea>
                     </div>
                 </div>
+
                 <!-- Buttons -->
-                <div class="flex justify-end space-x-4">
-                    <button type="button" id="cancelEditModal" class="px-4 py-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-100">
+                <div class="flex justify-end space-x-4 mt-6">
+                    <button type="button" id="cancelEditModal"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-100">
                         Cancel
                     </button>
-                    <button type="submit" class=" text-white px-4 py-2 rounded-md hover:bg-teal-700  bg-teal-600">
+                    <button type="submit" id="submitEditButton"
+                            class="text-white px-4 py-2 rounded-md hover:bg-teal-700 bg-teal-600 disabled:opacity-50">
                         Save Changes
                     </button>
                 </div>
             </form>
         </div>
     </div>
-    <!-- Modal Delete -->
+
+    <!-- Modal Delete Category -->
     <div id="deleteCategoryModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-8">
-            <!-- Header -->
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold text-gray-700">Delete Category</h2>
-                <button id="closeDeleteModal" class="text-gray-500 hover:text-gray-700">&times;</button>
+                <button id="closeDeleteModal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
-            <!-- Message -->
-            <p class="text-sm text-gray-500 mb-6">
-                Are you sure you want to delete this category? This action cannot be undone.
-            </p>
-            <!-- Buttons -->
-            <div class="flex justify-end space-x-4">
-                <button id="cancelDelete" type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-100">
+
+            <div class="text-center mb-6">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Delete Category</h3>
+                <p class="text-sm text-gray-500">
+                    Are you sure you want to delete <span id="deleteCategoryName" class="font-semibold"></span>?
+                    This action cannot be undone and will affect <span id="deleteProductCount" class="font-semibold">0</span> products.
+                </p>
+            </div>
+
+            <div class="flex justify-center space-x-4">
+                <button id="cancelDelete" type="button"
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-100">
                     Cancel
                 </button>
-                <button id="confirmDelete" type="button" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
-                    Delete
+                <button id="confirmDelete" type="button"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50">
+                    Delete Category
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Add Category -->
-    <div id="addCategoryModal"
-         class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-700">Add New Category</h2>
-                <button id="closeModalButton" class="text-gray-500 hover:text-gray-700">&times;</button>
-            </div>
-            <form id="addCategoryForm" class="space-y-4">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const API_URL = "/api/Category";
+            let categoriesData = [];
+            let selectedCategoryId = null;
 
-                <!-- Image Upload -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Category Image</label>
-                    <div id="imagePreview"
-                         class="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg text-gray-400 bg-gray-50">
-                        <span id="defaultText">Upload an image or select a file</span>
-                        <img id="uploadedImage" class="hidden w-full h-full object-cover rounded-lg" />
+            // ========================
+            // INITIALIZE PAGE
+            // ========================
+            loadCategories();
+            initializeModals();
+            initializeImageHandlers();
+
+            // ========================
+            // LOAD CATEGORIES
+            // ========================
+            async function loadCategories() {
+                try {
+                    showLoading(true);
+                    const response = await fetch(API_URL);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    categoriesData = await response.json();
+                    renderCategories(categoriesData);
+                    updateStats(categoriesData);
+                    showLoading(false);
+
+                } catch (error) {
+                    console.error("Error loading categories:", error);
+                    showError("Failed to load categories. Please refresh the page.");
+                    showLoading(false);
+                }
+            }
+
+            // ========================
+            // RENDER CATEGORIES
+            // ========================
+            function renderCategories(categories) {
+                const container = document.getElementById("categoriesGrid");
+
+                if (!categories || categories.length === 0) {
+                    container.innerHTML = "";
+                    document.getElementById("emptyState").classList.remove("hidden");
+                    return;
+                }
+
+                document.getElementById("emptyState").classList.add("hidden");
+
+                container.innerHTML = categories.map(category => `
+                    <div class="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                        <div class="aspect-w-16 aspect-h-9 bg-gray-200">
+                            <img src="/images/dummy_picture.png"
+                                 alt="${category.categoryName}"
+                                 class="w-full h-32 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">
+                                    ${category.totalItems || 0} products
+                                </span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-700 mb-2">${category.categoryName}</h3>
+                            <p class="text-sm text-gray-500 mb-4 line-clamp-2">
+                                ${category.description || "No description available"}
+                            </p>
+                            <div class="flex justify-between">
+                                <button class="editCategoryButton text-blue-600 hover:text-blue-800 font-medium text-sm"
+                                        data-id="${category.id}">
+                                    Edit
+                                </button>
+                                <button class="deleteCategoryButton text-red-600 hover:text-red-800 font-medium text-sm"
+                                        data-id="${category.id}">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <input type="file"
-                           id="uploadImage"
-                           accept="image/*"
-                           class="mt-3 w-full text-sm file:bg-teal-100 file:border-0 file:px-4 file:py-2 file:rounded-md focus:outline-none" />
-                </div>
+                `).join("");
 
-                <!-- Category Name & Description -->
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Category Name</label>
-                        <input id="categoryName"
-                               type="text"
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-                               placeholder="e.g., Server Equipment"
-                               required />
-                    </div>
+                // Bind event listeners
+                bindCategoryEvents();
+            }
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea id="description"
-                                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-                                  placeholder="Describe this category..."></textarea>
-                    </div>
-                </div>
+            // ========================
+            // UPDATE STATS
+            // ========================
+            function updateStats(categories) {
+                const totalCategories = categories.length;
+                const totalProducts = categories.reduce((sum, cat) => sum + (cat.totalItems || 0), 0);
+                const averageItems = totalCategories > 0 ? Math.round(totalProducts / totalCategories) : 0;
 
-                <!-- Status -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Status</label>
-                    <select id="status"
-                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm mt-2">
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-                </div>
+                document.getElementById("totalCategories").textContent = totalCategories;
+                document.getElementById("activeCategories").textContent = totalCategories;
+                document.getElementById("totalProducts").textContent = totalProducts;
+                document.getElementById("averageItems").textContent = averageItems;
+            }
 
-                <!-- Buttons -->
-                <div class="flex justify-end space-x-4 mt-6">
-                    <button type="button"
-                            id="closeModalButton_2"
-                            class="text-gray-500 border border-gray-300 px-4 py-2 rounded-md">
-                        Cancel
-                    </button>
+            // ========================
+            // BIND CATEGORY EVENTS
+            // ========================
+            function bindCategoryEvents() {
+                // Edit buttons
+                document.querySelectorAll(".editCategoryButton").forEach(button => {
+                    button.addEventListener("click", function() {
+                        selectedCategoryId = this.getAttribute("data-id");
+                        openEditModal(selectedCategoryId);
+                    });
+                });
 
-                    <button type="submit"
-                            class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">
-                        Add Category
-                    </button>
-                </div>
+                // Delete buttons
+                document.querySelectorAll(".deleteCategoryButton").forEach(button => {
+                    button.addEventListener("click", function() {
+                        selectedCategoryId = this.getAttribute("data-id");
+                        openDeleteModal(selectedCategoryId);
+                    });
+                });
+            }
 
-            </form>
-            @* <form class="space-y-4"> *@
-            @*     <!-- Image Upload --> *@
-            @*     <div> *@
-            @*         <label class="block text-sm font-medium text-gray-700 mb-2">Category Image</label> *@
-            @*         <div id="imagePreview" *@
-            @*              class="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg text-gray-400 bg-gray-50"> *@
-            @*             <span id="defaultText">Upload an image or select a file</span> *@
-            @*             <img id="uploadedImage" class="hidden w-full h-full object-cover rounded-lg" /> *@
-            @*         </div> *@
-            @*         <input type="file" id="uploadImage" accept="image/*" *@
-            @*                class="mt-3 w-full text-sm file:bg-teal-100 file:border-0 file:px-4 file:py-2 file:rounded-md file:text-grey-300  focus:outline-none" /> *@
-            @*     </div> *@
-           
-            @*     <!-- Category Name --> *@
-            @*     <div class="grid grid-cols-2 gap-6"> *@
-            @*         <div> *@
-            @*             <label class="block text-sm font-medium text-gray-700">Category Name</label> *@
-            @*             <input class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" *@
-            @*                    placeholder="e.g., Server Equipment"> *@
-            @*         </div> *@
-            @*         <!-- Description --> *@
-            @*         <div> *@
-            @*             <label class="block text-sm font-medium text-gray-700">Description</label> *@
-            @*             <textarea class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" *@
-            @*                       placeholder="Describe this category..."></textarea> *@
-            @*         </div> *@
-            @*     </div> *@
-            @*     <div> *@
-            @*         <!-- Status --> *@
-            @*         <label class="block text-sm font-medium text-gray-700">Status</label> *@
-            @*         <div class="flex space-x-4 mt-2"> *@
-            @*             <button class="px-4 py-2 border border-teal-500 rounded-md hover:bg-teal-700  bg-teal-600 text-white"> *@
-            @*                 Active *@
-            @*             </button> *@
-            @*             <button class="px-4 py-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-100"> *@
-            @*                 Inactive *@
-            @*             </button> *@
-            @*         </div> *@
-            @*     </div> *@
-            @*     <!-- Buttons --> *@
-            @*     <div class="flex justify-end space-x-4 mt-6"> *@
-            @*         <button type="button" id="closeModalButton_2" *@
-            @*                 class="text-gray-500 border border-gray-300 px-4 py-2 rounded-md"> *@
-            @*             Cancel *@
-            @*         </button> *@
-            @*         <button type="submit" *@
-            @*                 class=" text-white px-4 py-2 rounded-md hover:bg-teal-700  bg-teal-600"> *@
-            @*             Add Category *@
-            @*         </button> *@
-            @*     </div> *@
-            @* </form> *@
-        </div>
-    </div>
-    <!-- Modal Add Category -->
-    <script>
-        // Referensi elemen
-        const uploadImageInput = document.getElementById("uploadImage");
-        const imagePreview = document.getElementById("imagePreview");
-        const uploadedImage = document.getElementById("uploadedImage");
-        const defaultText = document.getElementById("defaultText");
+            // ========================
+            // MODAL INITIALIZATION
+            // ========================
+            function initializeModals() {
+                // Add Category Modal
+                document.getElementById("addCategoryButton").addEventListener("click", () => {
+                    document.getElementById("addCategoryModal").classList.remove("hidden");
+                });
 
-        // Saat pengguna memilih file
-        uploadImageInput.addEventListener("change", () => {
-          const file = uploadImageInput.files[0];
+                // Close modals
+                ["closeAddModal", "cancelAddModal"].forEach(id => {
+                    document.getElementById(id).addEventListener("click", () => {
+                        document.getElementById("addCategoryModal").classList.add("hidden");
+                        resetAddForm();
+                    });
+                });
 
-          if (file) {
-            const reader = new FileReader();
+                ["closeEditModal", "cancelEditModal"].forEach(id => {
+                    document.getElementById(id).addEventListener("click", () => {
+                        document.getElementById("editCategoryModal").classList.add("hidden");
+                        resetEditForm();
+                    });
+                });
 
-            // Ketika file berhasil dibaca
-            reader.onload = function (event) {
-              uploadedImage.setAttribute("src", event.target.result);
-              uploadedImage.classList.remove("hidden");
-              defaultText.classList.add("hidden");
-            };
+                ["closeDeleteModal", "cancelDelete"].forEach(id => {
+                    document.getElementById(id).addEventListener("click", () => {
+                        document.getElementById("deleteCategoryModal").classList.add("hidden");
+                    });
+                });
 
-            // Baca file sebagai URL data
-            reader.readAsDataURL(file);
-          } else {
-            // Kembalikan ke state awal jika tidak ada file
-            uploadedImage.classList.add("hidden");
-            defaultText.classList.remove("hidden");
-            uploadedImage.setAttribute("src", "");
-          }
-        });
-    </script>
-    <!-- Modal Add Category -->
-    <script>
-        // Modal Logic
-        const addCategoryButton = document.getElementById("addCategoryButton");
-        const addCategoryModal = document.getElementById("addCategoryModal");
-        const closeModalButtons = document.querySelectorAll("#closeModalButton, #closeModalButton_2");
+                // Form submissions
+                document.getElementById("addCategoryForm").addEventListener("submit", handleAddCategory);
+                document.getElementById("editCategoryForm").addEventListener("submit", handleEditCategory);
+                document.getElementById("confirmDelete").addEventListener("click", handleDeleteCategory);
+            }
 
-        // Show Modal
-        addCategoryButton.addEventListener("click", () => {
-          addCategoryModal.classList.remove("hidden");
-        });
+            // ========================
+            // IMAGE HANDLERS
+            // ========================
+            function initializeImageHandlers() {
+                // Add modal image handler
+                const uploadInput = document.getElementById("uploadImage");
+                const imagePreview = document.getElementById("uploadedImage");
+                const defaultText = document.getElementById("defaultText");
 
-        // Close Modal
-        closeModalButtons.forEach((button) => {
-          button.addEventListener("click", () => {
-            addCategoryModal.classList.add("hidden");
-          });
-        });
-    </script>
+                uploadInput.addEventListener("change", function() {
+                    handleImagePreview(this, imagePreview, defaultText);
+                });
 
-    <script>
-        // Reference elements
-        const editButtons = document.querySelectorAll('.editCategoryButton');
-        const deleteButtons = document.querySelectorAll('.deleteCategoryButton');
+                // Edit modal image handler
+                const editUploadInput = document.getElementById("editUploadImage");
+                const editImagePreview = document.getElementById("editedUploadedImage");
+                const editDefaultText = document.getElementById("defaultEditText");
 
-        const editModal = document.getElementById('editCategoryModal');
-        const deleteModal = document.getElementById('deleteCategoryModal');
+                editUploadInput.addEventListener("change", function() {
+                    handleImagePreview(this, editImagePreview, editDefaultText);
+                });
+            }
 
-        const closeEditModal = document.getElementById('closeEditModal');
-        const closeDeleteModal = document.getElementById('closeDeleteModal');
+            function handleImagePreview(input, imgElement, textElement) {
+                const file = input.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imgElement.src = e.target.result;
+                        imgElement.classList.remove("hidden");
+                        textElement.classList.add("hidden");
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    imgElement.classList.add("hidden");
+                    textElement.classList.remove("hidden");
+                    imgElement.src = "";
+                }
+            }
 
-        const cancelEditModal = document.getElementById('cancelEditModal');
-        const cancelDelete = document.getElementById('cancelDelete');
-        const confirmDelete = document.getElementById('confirmDelete');
+            // ========================
+            // ADD CATEGORY
+            // ========================
+            async function handleAddCategory(e) {
+                e.preventDefault();
 
-        // Show Edit Modal
-        editButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                editModal.classList.remove('hidden');
-            });
-        });
+                const submitButton = document.getElementById("submitAddButton");
+                const originalText = submitButton.textContent;
 
-        // Show Delete Modal
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                deleteModal.classList.remove('hidden');
-            });
-        });
+                try {
+                    submitButton.disabled = true;
+                    submitButton.textContent = "Creating...";
 
-        // Close Edit Modal
-        closeEditModal.addEventListener('click', () => {
-            editModal.classList.add('hidden');
-        });
-        cancelEditModal.addEventListener('click', () => {
-            editModal.classList.add('hidden');
-        });
+                    const categoryData = {
+                        categoryName: document.getElementById("categoryName").value.trim(),
+                        description: document.getElementById("description").value.trim()
+                    };
 
-        // Close Delete Modal
-        closeDeleteModal.addEventListener('click', () => {
-            deleteModal.classList.add('hidden');
-        });
-        cancelDelete.addEventListener('click', () => {
-            deleteModal.classList.add('hidden');
-        });
+                    if (!categoryData.categoryName) {
+                        showFieldError("categoryNameError", "Category name is required");
+                        return;
+                    }
 
-        // Confirm Deletion (Add specific logic here)
-        confirmDelete.addEventListener('click', () => {
-            alert('Category has been deleted.');
-            deleteModal.classList.add('hidden');
-        });
-    </script>
+                    const response = await fetch(API_URL, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(categoryData)
+                    });
 
-    <script>
-        // Referensi elemen untuk modal edit
-        const editUploadImageInput = document.getElementById("editUploadImage");
-        const editImagePreview = document.getElementById("editImagePreview");
-        const editedUploadedImage = document.getElementById("editedUploadedImage");
-        const defaultEditText = document.getElementById("defaultEditText");
+                    if (!response.ok) {
+                        const errorData = await response.text();
+                        throw new Error(errorData || "Failed to create category");
+                    }
 
-        // Saat pengguna memilih file di modal Edit
-        editUploadImageInput.addEventListener("change", () => {
-            const file = editUploadImageInput.files[0];
+                    showSuccess("Category created successfully!");
+                    document.getElementById("addCategoryModal").classList.add("hidden");
+                    resetAddForm();
+                    loadCategories(); // Refresh the list
 
-            if (file) {
-                const reader = new FileReader();
+                } catch (error) {
+                    console.error("Error creating category:", error);
+                    showError("Failed to create category. Please try again.");
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                }
+            }
 
-                // Ketika file berhasil dibaca
-                reader.onload = function (event) {
-                    editedUploadedImage.setAttribute("src", event.target.result);
-                    editedUploadedImage.classList.remove("hidden"); // Tampilkan gambar
-                    defaultEditText.classList.add("hidden"); // Sembunyikan placeholder
-                };
+            // ========================
+            // EDIT CATEGORY
+            // ========================
+            async function openEditModal(categoryId) {
+                try {
+                    const response = await fetch(`${API_URL}/${categoryId}`);
 
-                // Baca file sebagai URL data
-                reader.readAsDataURL(file);
-            } else {
-                // Reset ke keadaan awal
-                editedUploadedImage.classList.add("hidden");
-                defaultEditText.classList.remove("hidden");
-                editedUploadedImage.setAttribute("src", "");
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch category details");
+                    }
+
+                    const category = await response.json();
+
+                    document.getElementById("editCategoryId").value = category.id;
+                    document.getElementById("editCategoryName").value = category.categoryName || "";
+                    document.getElementById("editCategoryDescription").value = category.description || "";
+
+                    document.getElementById("editCategoryModal").classList.remove("hidden");
+
+                } catch (error) {
+                    console.error("Error loading category for edit:", error);
+                    showError("Failed to load category details.");
+                }
+            }
+
+            async function handleEditCategory(e) {
+                e.preventDefault();
+
+                const submitButton = document.getElementById("submitEditButton");
+                const originalText = submitButton.textContent;
+
+                try {
+                    submitButton.disabled = true;
+                    submitButton.textContent = "Saving...";
+
+                    const categoryData = {
+                        id: parseInt(document.getElementById("editCategoryId").value),
+                        categoryName: document.getElementById("editCategoryName").value.trim(),
+                        description: document.getElementById("editCategoryDescription").value.trim()
+                    };
+
+                    if (!categoryData.categoryName) {
+                        showFieldError("editCategoryNameError", "Category name is required");
+                        return;
+                    }
+
+                    const response = await fetch(`${API_URL}/${selectedCategoryId}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(categoryData)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to update category");
+                    }
+
+                    showSuccess("Category updated successfully!");
+                    document.getElementById("editCategoryModal").classList.add("hidden");
+                    resetEditForm();
+                    loadCategories(); // Refresh the list
+
+                } catch (error) {
+                    console.error("Error updating category:", error);
+                    showError("Failed to update category. Please try again.");
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                }
+            }
+
+            // ========================
+            // DELETE CATEGORY
+            // ========================
+            function openDeleteModal(categoryId) {
+                const category = categoriesData.find(cat => cat.id == categoryId);
+                if (category) {
+                    document.getElementById("deleteCategoryName").textContent = category.categoryName;
+                    document.getElementById("deleteProductCount").textContent = category.totalItems || 0;
+                    document.getElementById("deleteCategoryModal").classList.remove("hidden");
+                }
+            }
+
+            async function handleDeleteCategory() {
+                const confirmButton = document.getElementById("confirmDelete");
+                const originalText = confirmButton.textContent;
+
+                try {
+                    confirmButton.disabled = true;
+                    confirmButton.textContent = "Deleting...";
+
+                    const response = await fetch(`${API_URL}/${selectedCategoryId}`, {
+                        method: "DELETE"
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to delete category");
+                    }
+
+                    showSuccess("Category deleted successfully!");
+                    document.getElementById("deleteCategoryModal").classList.add("hidden");
+                    loadCategories(); // Refresh the list
+
+                } catch (error) {
+                    console.error("Error deleting category:", error);
+                    showError("Failed to delete category. Please try again.");
+                } finally {
+                    confirmButton.disabled = false;
+                    confirmButton.textContent = originalText;
+                }
+            }
+
+            // ========================
+            // UTILITY FUNCTIONS
+            // ========================
+            function showLoading(show) {
+                document.getElementById("loadingState").classList.toggle("hidden", !show);
+                document.getElementById("categoriesGrid").classList.toggle("hidden", show);
+            }
+
+            function showError(message) {
+                // Create a toast notification
+                const toast = createToast(message, 'error');
+                document.body.appendChild(toast);
+            }
+
+            function showSuccess(message) {
+                const toast = createToast(message, 'success');
+                document.body.appendChild(toast);
+            }
+
+            function createToast(message, type) {
+                const toast = document.createElement('div');
+                toast.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
+                    type === 'success' ? 'bg-green-500' : 'bg-red-500'
+                } text-white`;
+                toast.textContent = message;
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+
+                return toast;
+            }
+
+            function showFieldError(fieldId, message) {
+                const errorElement = document.getElementById(fieldId);
+                errorElement.textContent = message;
+                errorElement.classList.remove("hidden");
+
+                setTimeout(() => {
+                    errorElement.classList.add("hidden");
+                }, 3000);
+            }
+
+            function resetAddForm() {
+                document.getElementById("addCategoryForm").reset();
+                document.getElementById("uploadedImage").classList.add("hidden");
+                document.getElementById("defaultText").classList.remove("hidden");
+            }
+
+            function resetEditForm() {
+                document.getElementById("editCategoryForm").reset();
+                document.getElementById("editedUploadedImage").classList.add("hidden");
+                document.getElementById("defaultEditText").classList.remove("hidden");
             }
         });
     </script>
 </body>
-
-<!--GET ALL DATA-->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-        const categoryContainer = document.querySelector(".grid");
-        const apiUrl = "https://localhost:7035/api/Category";
-
-        // =========================
-        // FETCH DATA
-        // =========================
-        fetch(apiUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Network error: " + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-
-                categoryContainer.innerHTML = "";
-
-                if (!data || data.length === 0) {
-                    categoryContainer.innerHTML = "<p>No categories found.</p>";
-                    return;
-                }
-
-                data.forEach(category => {
-
-                    const categoryCard = `
-                        <div class="bg-white shadow-md rounded-lg overflow-hidden p-4">
-
-                            <img src="${category.imageUrl}"
-                                 alt="${category.categoryName}"
-                                 class="rounded-lg mb-4">
-
-                            <span class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">
-                                ${category.totalItems ?? 0} products
-                            </span>
-
-                            <h2 class="text-lg font-bold text-gray-700 mt-2">
-                                ${category.categoryName}
-                            </h2>
-
-                            <p class="text-sm text-gray-500">
-                                ${category.description ?? "-"}
-                            </p>
-
-                            <div class="mt-4 flex justify-between text-sm">
-                                <button class="text-blue-500 hover:underline editCategoryButton"
-                                        data-id="${category.id}">
-                                    Edit
-                                </button>
-
-                                <button class="text-red-500 hover:underline deleteCategoryButton"
-                                        data-id="${category.id}">
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    `;
-
-                    categoryContainer.insertAdjacentHTML("beforeend", categoryCard);
-                });
-
-            })
-            .catch(error => {
-                console.error("Error fetching categories:", error);
-                categoryContainer.innerHTML = "<p class='text-red-500'>Failed to load categories.</p>";
-            });
-
-
-       
-
-    });
-</script>
-
-<!--EDIT MODAL-->
-<script>
-        document.addEventListener("DOMContentLoaded", function () {
-        const editModal = document.getElementById("editCategoryModal");
-        const deleteModal = document.getElementById("deleteCategoryModal");
-        const closeEditModal = document.getElementById("closeEditModal");
-        const closeDeleteModal = document.getElementById("closeDeleteModal");
-        const confirmDeleteButton = document.getElementById("confirmDelete");
-        const apiUrl = "https://localhost:7035/api/Category"; // Sesuaikan dengan URL API Anda
-
-        let selectedCategoryId = null; // Untuk menyimpan ID kategori yang sedang diedit/dihapus
-
-        // Fetch dan render semua kategori
-        function fetchCategories() {
-            fetch(apiUrl)
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch categories.");
-                    }
-                    return response.json();
-                })
-                .then((categories) => {
-                    renderCategoryTable(categories);
-                })
-                .catch((error) => {
-                    console.error("Error fetching categories:", error);
-                    alert("Failed to load categories. Please try again.");
-                });
-        }
-
-
-        // Render kategori ke dalam HTML
-        function renderCategoryTable(categories) {
-            const categoryContainer = document.querySelector(".grid");
-            categoryContainer.innerHTML = ""; // Kosongkan tabel sebelumnya
-            categories.forEach((category) => {
-                const categoryCard = `
-                    <a href="#" class="p-4 hover: transition">
-                        <div class="bg-white shadow-md rounded-lg overflow-hidden p-4">
-                            <img src="/images/dummy_picture.png" alt="${category.categoryName}" class="rounded-lg mb-4">
-                            <span class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">${category.totalItems} products</span>
-                            <h2 class="text-lg font-bold text-gray-700 mt-2">${category.categoryName}</h2>
-                            <p class="text-sm text-gray-500">${category.description}</p>
-                            <div class="mt-4 flex justify-between text-sm">
-                                <button class="text-blue-500 hover:underline editCategoryButton" data-id="${category.id}">
-                                    Edit
-                                </button>
-                                <button class="text-red-500 hover:underline deleteCategoryButton" data-id="${category.id}">
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    </a>`;
-                categoryContainer.insertAdjacentHTML("beforeend", categoryCard);
-            });
-
-            // Bind event listeners untuk tombol edit dan delete
-            bindEditButtons();
-            bindDeleteButtons();
-        }
-
-        // Bind tombol edit kategori
-        function bindEditButtons() {
-            const editButtons = document.querySelectorAll(".editCategoryButton");
-            editButtons.forEach((button) => {
-                button.addEventListener("click", function () {
-                    selectedCategoryId = this.dataset.id; // Tangkap ID kategori
-                    openEditModal(selectedCategoryId);
-                });
-            });
-        }
-
-        // Bind tombol delete kategori
-        function bindDeleteButtons() {
-            const deleteButtons = document.querySelectorAll(".deleteCategoryButton");
-            deleteButtons.forEach((button) => {
-                button.addEventListener("click", function () {
-                    selectedCategoryId = this.dataset.id; // Tangkap ID kategori
-                    openDeleteModal();
-                });
-            });
-        }
-
-        // Fungsi untuk membuka modal Edit
-        function openEditModal(categoryId) {
-            fetch(`${apiUrl}/${categoryId}`)
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch category details.");
-                    }
-                    return response.json();
-                })
-                .then((category) => {
-                    // Isi modal edit dengan data kategori
-                    document.getElementById("editCategoryName").value = category.categoryName;
-                    document.getElementById("editCategoryDescription").value = category.description;
-                    editModal.classList.remove("hidden"); // Tampilkan modal edit
-                })
-                .catch((error) => {
-                    console.error("Error fetching category details:", error);
-                    alert("Failed to load category details. Please try again.");
-                });
-        }
-
-        // Handle form submit untuk update kategori
-        document.getElementById("editCategoryForm").addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            const updatedCategory = {
-                id: selectedCategoryId,
-                categoryName: document.getElementById("editCategoryName").value,
-                description: document.getElementById("editCategoryDescription").value,
-            };
-
-            // Kirim permintaan PUT untuk memperbarui kategori
-            fetch(`${apiUrl}/${selectedCategoryId}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(updatedCategory),
-            })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("Failed to update category.");
-                    }
-                    return response.json();
-                })
-                .then(() => {
-                    alert("Category successfully updated.");
-                    fetchCategories(); // Refresh daftar kategori
-                    editModal.classList.add("hidden"); // Tutup modal
-                })
-                .catch((error) => {
-                    console.error("Error updating category:", error);
-                    alert("Failed to update category. Please try again.");
-                });
-        });
-
-        // Fungsi untuk membuka modal Delete
-        function openDeleteModal() {
-            deleteModal.classList.remove("hidden"); // Tampilkan modal delete
-        }
-
-        // Handle konfirmasi penghapusan kategori
-        confirmDeleteButton.addEventListener("click", function () {
-            fetch(`${apiUrl}/${selectedCategoryId}`, {
-                method: "DELETE",
-            })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("Failed to delete category.");
-                    }
-                    fetchCategories(); // Refresh daftar kategori
-                    deleteModal.classList.add("hidden"); // Tutup modal
-                    alert("Category successfully deleted.");
-                })
-                .catch((error) => {
-                    console.error("Error deleting category:", error);
-                    alert("Failed to delete category. Please try again.");
-                });
-        });
-
-        // Close Modals
-        [closeEditModal, cancelEditModal].forEach((button) => {
-            button.addEventListener("click", () => editModal.classList.add("hidden"));
-        });
-        [closeDeleteModal, cancelDelete].forEach((button) => {
-            button.addEventListener("click", () => deleteModal.classList.add("hidden"));
-        });
-
-        // Fetch dan render kategori saat halaman dimuat
-        fetchCategories();
-    });
-</script>
-
-<!--ADD MODAL-->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-        const form = document.getElementById("addCategoryForm");
-        const modal = document.getElementById("addCategoryModal");
-
-        form.addEventListener("submit", async function (e) {
-            e.preventDefault();
-
-            const categoryName = document.getElementById("categoryName").value.trim();
-            const description = document.getElementById("description").value.trim();
-
-            try {
-
-                const response = await fetch("/api/category", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        categoryName: categoryName,
-                        description: description
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.log(errorData);
-                    alert("Failed to create category.");
-                    return;
-                }
-
-                alert("Category created successfully!");
-
-                form.reset();
-                modal.classList.add("hidden");
-
-                location.reload(); // optional refresh
-
-            } catch (error) {
-                console.error(error);
-                alert("Something went wrong.");
-            }
-        });
-
-    });
-</script>
-
 </html>

@@ -1,429 +1,564 @@
 ﻿@{
     ViewData["Title"] = "Data Center 3";
 }
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+<body>
     <div class="space-y-6">
-
-    <!-- Header -->
-    <div class="flex items-center justify-between my-8">
-        <div>
-            <h1 class="text-2xl font-semibold">Data Center 3</h1>
-            <p class="text-gray-500">Manage Data Center Products</p>
+        <!-- Header -->
+        <div class="flex items-center justify-between my-8">
+            <div>
+                <h1 class="text-2xl font-semibold">Data Center 3</h1>
+                <p class="text-gray-500">Manage Data Center Products</p>
+            </div>
+            <button id="openModal" class="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700">
+                <span class="text-xl">+</span>
+                Add Product
+            </button>
         </div>
 
-        <button id="openModal" class="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700">
-            <span class="text-xl">+</span>
-            Add Product
-        </button>
-    </div>
+        <!-- Add Product Modal -->
+        <div id="addProductModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+            <div class="bg-white max-w-lg w-full mx-auto rounded-lg p-6 shadow-lg">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">New Product</h2>
+                <form id="addProductForm" class="space-y-4">
+                    <!-- Product Name -->
+                    <div>
+                        <label for="productName" class="text-sm font-medium text-gray-700">Product Name</label>
+                        <input type="text" id="productName" placeholder="Enter product name"
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                               required />
+                    </div>
 
-    <!-- Modal -->
-    <div id="addProductModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
-        <div class="bg-white max-w-lg w-full mx-auto rounded-lg p-6 shadow-lg">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">New Product</h2>
-            <form id="addProductForm" class="space-y-4">
-                <!-- Product Name -->
-                <div>
-                    <label for="productName" class="text-sm font-medium text-gray-700">Product Name</label>
-                    <input type="text"
-                           id="productName"
-                           placeholder="Enter product name"
-                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                           required />
-                </div>
+                    <!-- Product ID -->
+                    <div>
+                        <label for="productId" class="text-sm font-medium text-gray-700">Product ID</label>
+                        <input type="text" id="productId" placeholder="Enter product ID"
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                               required />
+                    </div>
 
-                <!-- Product ID -->
-                <div>
-                    <label for="productId" class="text-sm font-medium text-gray-700">Product ID</label>
-                    <input type="text"
-                           id="productId"
-                           placeholder="Enter product ID"
-                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                           required />
-                </div>
+                    <!-- Category -->
+                    <div>
+                        <label for="category" class="text-sm font-medium text-gray-700">Category</label>
+                        <select id="category"
+                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                required>
+                            <option value="">Select product category</option>
+                        </select>
+                    </div>
 
-                <!-- Category -->
-                <div>
-                    <label for="category" class="text-sm font-medium text-gray-700">Category</label>
-                    <select id="category"
-                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            required>
-                        <option>Select product category</option>
-                        <option value="Server">Server</option>
-                        <option value="Cable">Cable</option>
-                        <option value="PDU">PDU</option>
-                    </select>
-                </div>
+                    <!-- Buying Price -->
+                    <div>
+                        <label for="buyingPrice" class="text-sm font-medium text-gray-700">Buying Price $</label>
+                        <input type="number" id="buyingPrice" placeholder="Enter buying price"
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                               required />
+                    </div>
 
-                <!-- Buying Price -->
-                <div>
-                    <label for="buyingPrice" class="text-sm font-medium text-gray-700">Buying Price $ </label>
-                    <input type="number"
-                           id="buyingPrice"
-                           placeholder="Enter buying price"
-                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                           required />
-                </div>
+                    <!-- Quantity -->
+                    <div>
+                        <label for="quantity" class="text-sm font-medium text-gray-700">Quantity</label>
+                        <input type="number" id="quantity" placeholder="Enter product quantity"
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                               required />
+                    </div>
 
-                <!-- Quantity -->
-                <div>
-                    <label for="quantity" class="text-sm font-medium text-gray-700">Quantity</label>
-                    <input type="number"
-                           id="quantity"
-                           placeholder="Enter product quantity"
-                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                           required />
-                </div>
+                    <!-- Location -->
+                    <div>
+                        <label for="location" class="text-sm font-medium text-gray-700">Location</label>
+                        <select id="location"
+                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                required>
+                            <option value="">Select Location</option>
+                        </select>
+                    </div>
 
-                <!-- Location -->
-                <div>
-                    <label for="location" class="text-sm font-medium text-gray-700">Location</label>
-                    <select id="location"
-                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            required>
-                        <option>Select Location</option>
-                        <option value="Data Center 1">Data Center 1</option>
-                        <option value="Data Center 2">Data Center 2</option>
-                        <option value="Data Center 3">Data Center 3</option>
-                    </select>
-                </div>
+                    <!-- Date of Purchase -->
+                    <div>
+                        <label for="dateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
+                        <input type="date" id="dateOfPurchase"
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                               required />
+                    </div>
 
-                <!-- Date of Purchase -->
-                <div>
-                    <label for="dateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
-                    <input type="date"
-                           id="dateOfPurchase"
-                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                           required />
-                </div>
+                    <!-- Status -->
+                    <div>
+                        <label for="status" class="text-sm font-medium text-gray-700">Status</label>
+                        <select id="status"
+                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                required>
+                            <option value="">Select Status Product</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Arrived">Arrived</option>
+                        </select>
+                    </div>
 
-                <!-- Status -->
-                <div>
-                    <label for="status" class="text-sm font-medium text-gray-700">Status</label>
-                    <select id="status"
-                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            required>
-                        <option>Select Status Product</option>
-                        <option value="Pending">Pending</option>
-                        <option value="arrived">arrived</option>
-                    </select>
-                </div>
-
-                <!-- Buttons -->
-                <div class="flex justify-end space-x-4">
-                    <button type="button" id="closeModal" class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-md hover:bg-gray-100">Discard</button>
-                    <button type="submit" class="px-4 py-2 text-sm bg-teal-600 text-white rounded-md hover:bg-teal-700">Add Product</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <!-- Edit Product Modal -->
-    <div id="editProductModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
-        <div class="bg-white max-w-lg w-full mx-auto rounded-lg p-6 shadow-lg">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Edit Product</h2>
-            <form id="editProductForm" class="space-y-4">
-                <!-- Product Name -->
-                <div>
-                    <label for="editProductName" class="text-sm font-medium text-gray-700">Product Name</label>
-                    <input type="text"
-                           id="editProductName"
-                           placeholder="Enter product name"
-                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                           required />
-                </div>
-                <!-- Product ID -->
-                <div>
-                    <label for="editProductId" class="text-sm font-medium text-gray-700">Product ID</label>
-                    <input type="text"
-                           id="editProductId"
-                           placeholder="Enter product ID"
-                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                           required />
-                </div>
-                <!-- Category -->
-                <div>
-                    <label for="editCategory" class="text-sm font-medium text-gray-700">Category</label>
-                    <select id="editCategory"
-                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            required>
-                        <option>Select product category</option>
-                        <option value="Server">Server</option>
-                        <option value="Cable">Cable</option>
-                        <option value="PDU">PDU</option>
-                    </select>
-                </div>
-                <!-- Buying Price -->
-                <div>
-                    <label for="editBuyingPrice" class="text-sm font-medium text-gray-700">Buying Price $</label>
-                    <input type="number"
-                           id="editBuyingPrice"
-                           placeholder="Enter buying price"
-                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                           required />
-                </div>
-                <!-- Quantity -->
-                <div>
-                    <label for="editQuantity" class="text-sm font-medium text-gray-700">Quantity</label>
-                    <input type="number"
-                           id="editQuantity"
-                           placeholder="Enter product quantity"
-                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                           required />
-                </div>
-                <!-- Location -->
-                <div>
-                    <label for="editLocation" class="text-sm font-medium text-gray-700">Location</label>
-                    <select id="editLocation"
-                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            required>
-                        <option>Select Location</option>
-                        <option value="Data Center 1">Data Center 1</option>
-                        <option value="Data Center 2">Data Center 2</option>
-                        <option value="Data Center 3">Data Center 3</option>
-                    </select>
-                </div>
-                <!-- Date of Purchase -->
-                <div>
-                    <label for="editDateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
-                    <input type="date"
-                           id="editDateOfPurchase"
-                           class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                           required />
-                </div>
-                <!-- Status -->
-                <div>
-                    <label for="editStatus" class="text-sm font-medium text-gray-700">Status</label>
-                    <select id="editStatus"
-                            class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            required>
-                        <option>Select Status Product</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Arrived">Arrived</option>
-                    </select>
-                </div>
-                <!-- Buttons -->
-                <div class="flex justify-end space-x-4">
-                    <button type="button" id="closeEditModal" class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-md hover:bg-gray-100">Cancel</button>
-                    <button type="submit" class="px-4 py-2 text-sm bg-teal-600 text-white rounded-md hover:bg-teal-700">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <!-- Search & Filter -->
-    <!-- Modal Delete -->
-    <div id="deleteModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
-        <div class="bg-white w-96 rounded-lg p-6 shadow-lg">
-            <!-- Title -->
-            <h2 class="text-lg font-semibold text-gray-700 text-center mb-4">Delete Product</h2>
-            <!-- Message -->
-            <p class="text-sm text-gray-500 text-center mb-6">
-                Are you sure you want to delete
-                <span id="deleteProductName" class="font-medium text-gray-800"></span>?
-                This action cannot be undone.
-            </p>
-            <!-- Buttons -->
-            <div class="flex justify-center space-x-4">
-                <button type="button" id="closeDeleteModal"
-                        class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-100">
-                    Cancel
-                </button>
-                <button type="button" id="confirmDeleteButton"
-                        class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">
-                    Yes
-                </button>
+                    <!-- Buttons -->
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" id="closeModal" class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-md hover:bg-gray-100">Discard</button>
+                        <button type="submit" class="px-4 py-2 text-sm bg-teal-600 text-white rounded-md hover:bg-teal-700">Add Product</button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
 
+        <!-- Edit Product Modal -->
+        <div id="editProductModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+            <div class="bg-white max-w-lg w-full mx-auto rounded-lg p-6 shadow-lg">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Edit Product</h2>
+                <form id="editProductForm" class="space-y-4">
+                    <input type="hidden" id="editItemId">
 
-    <div class="bg-white p-4 rounded-xl shadow-sm flex items-center m-1 mb-10 ">
-        <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2 flex-1 me-4  ">
-            <input type="text" placeholder="Search products..."
-                   class="bg-transparent outline-none flex-1 text-sm" />
+                    <!-- Product Name -->
+                    <div>
+                        <label for="editProductName" class="text-sm font-medium text-gray-700">Product Name</label>
+                        <input type="text" id="editProductName" placeholder="Enter product name"
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                               required />
+                    </div>
+
+                    <!-- Product ID -->
+                    <div>
+                        <label for="editProductId" class="text-sm font-medium text-gray-700">Product ID</label>
+                        <input type="text" id="editProductId" placeholder="Enter product ID"
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                               required />
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label for="editCategory" class="text-sm font-medium text-gray-700">Category</label>
+                        <select id="editCategory"
+                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                required>
+                            <option value="">Select product category</option>
+                        </select>
+                    </div>
+
+                    <!-- Buying Price -->
+                    <div>
+                        <label for="editBuyingPrice" class="text-sm font-medium text-gray-700">Buying Price $</label>
+                        <input type="number" id="editBuyingPrice" placeholder="Enter buying price"
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                               required />
+                    </div>
+
+                    <!-- Quantity -->
+                    <div>
+                        <label for="editQuantity" class="text-sm font-medium text-gray-700">Quantity</label>
+                        <input type="number" id="editQuantity" placeholder="Enter product quantity"
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                               required />
+                    </div>
+
+                    <!-- Location -->
+                    <div>
+                        <label for="editLocation" class="text-sm font-medium text-gray-700">Location</label>
+                        <select id="editLocation"
+                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                required>
+                            <option value="">Select Location</option>
+                        </select>
+                    </div>
+
+                    <!-- Date of Purchase -->
+                    <div>
+                        <label for="editDateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
+                        <input type="date" id="editDateOfPurchase"
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                               required />
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label for="editStatus" class="text-sm font-medium text-gray-700">Status</label>
+                        <select id="editStatus"
+                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                required>
+                            <option value="">Select Status Product</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Arrived">Arrived</option>
+                        </select>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" id="closeEditModal" class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-md hover:bg-gray-100">Cancel</button>
+                        <button type="submit" class="px-4 py-2 text-sm bg-teal-600 text-white rounded-md hover:bg-teal-700">Save Changes</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
-        <select class="bg-gray-100 px-4 py-2 rounded-lg text-sm outline-none">
-            <option>All Categories</option>
-            <option>Server</option>
-            <option>Cable</option>
-            <option>PDU</option>
-        </select>
+        <!-- Delete Modal -->
+        <div id="deleteModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
+            <div class="bg-white w-96 rounded-lg p-6 shadow-lg">
+                <h2 class="text-lg font-semibold text-gray-700 text-center mb-4">Delete Product</h2>
+                <p class="text-sm text-gray-500 text-center mb-6">
+                    Are you sure you want to delete
+                    <span id="deleteProductName" class="font-medium text-gray-800"></span>?
+                    This action cannot be undone.
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <button type="button" id="closeDeleteModal"
+                            class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-100">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirmDeleteButton"
+                            class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">
+                        Yes
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="bg-white p-4 rounded-xl shadow-sm flex items-center m-1 mb-10">
+            <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2 flex-1 me-4">
+                <input type="text" id="search" placeholder="Search products..."
+                       class="bg-transparent outline-none flex-1 text-sm" />
+            </div>
+            <select id="categoryFilter" class="bg-gray-100 px-4 py-2 rounded-lg text-sm outline-none">
+                <option value="">All Categories</option>
+            </select>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600">
+                    <tr>
+                        <th class="text-left px-4 py-3">PO Number</th>
+                        <th class="text-left px-4 py-3">Product Name</th>
+                        <th class="text-left px-4 py-3">Asset Number</th>
+                        <th class="text-left px-4 py-3">Category</th>
+                        <th class="text-left px-4 py-3">Location</th>
+                        <th class="text-left px-4 py-3">Detail Product</th>
+                        <th class="text-left px-4 py-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody" class="divide-y">
+                    <!-- Dynamic content will be loaded here -->
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div id="pagination" class="flex justify-center gap-2 mt-4 p-4"></div>
+        </div>
+
+        <div id="loader" class="hidden text-center py-4">🔄 Loading...</div>
     </div>
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table class="w-full text-sm">
-            <thead class="bg-gray-50 text-gray-600">
-                <tr>
-                    <th class="text-left px-4 py-3">PO Number</th>
-                    <th class="text-left px-4 py-3">Product Name</th>
-                    <th class="text-left px-4 py-3">Asset Number</th>
-                    <th class="text-left px-4 py-3">Category</th>
-                    <th class="text-left px-4 py-3">Location</th>
-                    <th class="text-left px-4 py-3">Detail Product</th>
-                    <th class="text-left px-4 py-3">Action</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y">
 
-                <!-- Row 1 -->
-                <tr>
-                    <td class="px-4 py-3">PO-2025-001</td>
-                    <td class="px-4 py-3">Server Dell PowerEdge R550</td>
-                    <td class="px-4 py-3">AST-0001</td>
-                    <td class="px-4 py-3">
-                        <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">Server</span>
-                    </td>
-                    <td class="px-4 py-3">DC 1</td>
-                    <td class="px-4 py-3">
-                        <a asp-controller="Products" asp-action="Detail" class="text-teal-600 bg-teal-50 px-3 py-1 rounded-full text-xs hover:bg-teal-700 hover:text-white transition ease-in-out duration-500">
-                            Detail Product
-                        </a>
-                    </td>
-                    <td class="px-4 py-3 flex gap-2">
-                        <button class="editProductButton border p-2 rounded hover:bg-gray-100">✏️</button>
-                        <button class=" deleteProductButton border p-2 rounded text-red-500 hover:bg-red-50">🗑️</button>
-                    </td>
-                </tr>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const DATA_CENTER_ID = 6; // Data Center 3 ID
+            const productTableBody = document.getElementById("productTableBody");
+            const paginationDiv = document.getElementById("pagination");
+            const searchInput = document.querySelector("#search");
+            const categoryFilter = document.getElementById("categoryFilter");
+            const pageSize = 10;
+            let currentPage = 1;
+            let totalPages = 0;
+            let currentSearchQuery = "";
+            let currentCategoryFilter = "";
 
-                <!-- Row 2 -->
-                <tr>
-                    <td class="px-4 py-3">PO-2025-002</td>
-                    <td class="px-4 py-3">Cisco Network Switch</td>
-                    <td class="px-4 py-3">AST-0002</td>
-                    <td class="px-4 py-3">
-                        <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">Network</span>
-                    </td>
-                    <td class="px-4 py-3">DC 2</td>
-                    <td class="px-4 py-3">
-                        <a asp-controller="Products" asp-action="Detail" class="text-teal-600 bg-teal-50 px-3 py-1 rounded-full text-xs hover:bg-teal-700 hover:text-white transition ease-in-out duration-500">
-                            Detail Product
-                        </a>
-                    </td>
-                    <td class="px-4 py-3 flex gap-2">
-                        <button class=" editProductButton border p-2 rounded hover:bg-gray-100">✏️</button>
-                        <button class="deleteProductButton border p-2 rounded text-red-500 hover:bg-red-50">🗑️</button>
-                    </td>
-                </tr>
+            // ========================
+            // LOAD INITIAL DATA
+            // ========================
+            loadDataCenter3Products();
+            loadCategoryFilter();
+            loadDropdowns();
 
-                <script>
-                    const openModal = document.getElementById("openModal");
-                    const closeModal = document.getElementById("closeModal");
-                    const addProductModal = document.getElementById("addProductModal");
+            // ========================
+            // ADD PRODUCT MODAL
+            // ========================
+            const addProductForm = document.getElementById("addProductForm");
+            const openModal = document.getElementById("openModal");
+            const closeModal = document.getElementById("closeModal");
+            const addProductModal = document.getElementById("addProductModal");
 
-                    // Open Modal
-                    openModal.addEventListener("click", () => addProductModal.classList.remove("hidden"));
+            openModal.addEventListener("click", () => {
+                addProductModal.classList.remove("hidden");
+            });
 
-                    // Close Modal
-                    closeModal.addEventListener("click", () => addProductModal.classList.add("hidden"));
+            closeModal.addEventListener("click", () => {
+                addProductModal.classList.add("hidden");
+                addProductForm.reset();
+            });
 
-                    // Close Modal on Background Click
-                    addProductModal.addEventListener("click", (e) => {
-                      if (e.target === addProductModal) {
-                        addProductModal.classList.add("hidden");
-                      }
+            // Close modal on background click
+            addProductModal.addEventListener("click", (e) => {
+                if (e.target === addProductModal) {
+                    addProductModal.classList.add("hidden");
+                }
+            });
+
+            // ========================
+            // LOAD DROPDOWNS
+            // ========================
+            async function loadDropdowns() {
+                try {
+                    const [catRes, dcRes] = await Promise.all([
+                        fetch("/api/Category/dropdown"),
+                        fetch("/api/DataCenters/dropdown")
+                    ]);
+
+                    if (!catRes.ok || !dcRes.ok) {
+                        throw new Error("Failed to fetch dropdown data");
+                    }
+
+                    const categories = await catRes.json();
+                    const dataCenters = await dcRes.json();
+
+                    // Load categories for add form
+                    const categorySelect = document.getElementById("category");
+                    const locationSelect = document.getElementById("location");
+
+                    categorySelect.innerHTML = '<option value="">Select Category</option>';
+                    locationSelect.innerHTML = '<option value="">Select Location</option>';
+
+                    categories.forEach(cat => {
+                        const option = document.createElement("option");
+                        option.value = cat.id;
+                        option.textContent = cat.categoryName;
+                        categorySelect.appendChild(option);
                     });
-                    //SCRIPT EDIT MODUL
-                </script>
-                <script>
-                    const editButtons = document.querySelectorAll(".editProductButton");
-                    const editModal = document.getElementById("editProductModal");
-                    const closeEditButton = document.getElementById("closeEditModal");
 
-                    // Open Edit Modal
-                    editButtons.forEach((btn) => {
-                        btn.addEventListener("click", function () {
-                            const row = this.closest("tr");
-                            const poNumber = row.querySelector(":nth-child(1)").innerText;
-                            const productName = row.querySelector(":nth-child(2)").innerText;
-                            const productId = row.querySelector(":nth-child(3)").innerText;
-                            const category = row.querySelector(":nth-child(4)").innerText.trim();
-                            const location = row.querySelector(":nth-child(5)").innerText.trim();
+                    dataCenters.forEach(dc => {
+                        const option = document.createElement("option");
+                        option.value = dc.id;
+                        option.textContent = dc.name;
+                        locationSelect.appendChild(option);
+                    });
 
-                            // Fill the form with the row data
-                            document.getElementById("editProductName").value = productName;
-                            document.getElementById("editProductId").value = productId;
-                            document.getElementById("editCategory").value = category;
-                            document.getElementById("editLocation").value = location;
+                    // Load categories for edit form
+                    const editCategorySelect = document.getElementById("editCategory");
+                    const editLocationSelect = document.getElementById("editLocation");
+
+                    editCategorySelect.innerHTML = '<option value="">Select Category</option>';
+                    editLocationSelect.innerHTML = '<option value="">Select Location</option>';
+
+                    categories.forEach(cat => {
+                        const option = document.createElement("option");
+                        option.value = cat.id;
+                        option.textContent = cat.categoryName;
+                        editCategorySelect.appendChild(option);
+                    });
+
+                    dataCenters.forEach(dc => {
+                        const option = document.createElement("option");
+                        option.value = dc.id;
+                        option.textContent = dc.name;
+                        editLocationSelect.appendChild(option);
+                    });
+
+                } catch (error) {
+                    console.error("Dropdown Error:", error);
+                    alert("Failed to load dropdown data");
+                }
+            }
+
+            // ========================
+            // SUBMIT ADD FORM
+            // ========================
+            addProductForm.addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const productData = {
+                    itemCode: document.getElementById("productId").value.trim(),
+                    itemName: document.getElementById("productName").value.trim(),
+                    dataCenterId: parseInt(document.getElementById("location").value),
+                    categoryId: parseInt(document.getElementById("category").value),
+                    buyingPrice: parseFloat(document.getElementById("buyingPrice").value) || 0,
+                    quantity: parseInt(document.getElementById("quantity").value) || 0,
+                    dateOfPurchase: document.getElementById("dateOfPurchase").value,
+                    status: document.getElementById("status").value
+                };
+
+                try {
+                    const response = await fetch("/api/items", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(productData)
+                    });
+
+                    if (response.ok) {
+                        alert("Product successfully added!");
+                        addProductForm.reset();
+                        addProductModal.classList.add("hidden");
+                        loadDataCenter3Products();
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Error: ${errorData.message || "Failed to add product."}`);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert("An error occurred while adding the product.");
+                }
+            });
+
+            // ========================
+            // EDIT PRODUCT
+            // ========================
+            const editModal = document.getElementById("editProductModal");
+            const closeEditModal = document.getElementById("closeEditModal");
+            const editProductForm = document.getElementById("editProductForm");
+            let currentProductId = null;
+
+            // Edit button click handler
+            productTableBody.addEventListener("click", async function (e) {
+                if (e.target.classList.contains("editProductButton")) {
+                    const productRow = e.target.closest("tr");
+                    currentProductId = productRow.dataset.id;
+
+                    try {
+                        const response = await fetch(`/api/items/${currentProductId}`, {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        });
+
+                        if (response.ok) {
+                            const product = await response.json();
+
+                            document.getElementById("editItemId").value = product.id;
+                            document.getElementById("editProductName").value = product.itemName;
+                            document.getElementById("editProductId").value = product.itemCode;
+                            document.getElementById("editCategory").value = product.categoryId;
+                            document.getElementById("editLocation").value = product.dataCenterId;
+                            document.getElementById("editBuyingPrice").value = product.buyingPrice;
+                            document.getElementById("editQuantity").value = product.quantity;
+                            document.getElementById("editStatus").value = product.status;
+
+                            if (product.dateOfPurchase) {
+                                const date = new Date(product.dateOfPurchase);
+                                document.getElementById("editDateOfPurchase").value = date.toISOString().split('T')[0];
+                            }
 
                             editModal.classList.remove("hidden");
-                        });
-                    });
-
-                    // Close Modal
-                    closeEditButton.addEventListener("click", () => {
-                        editModal.classList.add("hidden");
-                    });
-
-                    // Close Modal on Background Click
-                    editModal.addEventListener("click", (e) => {
-                        if (e.target === editModal) {
-                            editModal.classList.add("hidden");
+                        } else {
+                            alert("Failed to load product data for editing.");
                         }
-                    });
-                </script>
+                    } catch (error) {
+                        console.error("Error when fetching product:", error);
+                        alert("An error occurred while fetching product details.");
+                    }
+                }
+            });
 
+            // Close edit modal
+            closeEditModal.addEventListener("click", () => {
+                editModal.classList.add("hidden");
+            });
 
-                <script>
-                    const deleteButtons = document.querySelectorAll(".deleteProductButton");
-                    const deleteModal = document.getElementById("deleteModal");
-                    const closeDeleteModal = document.getElementById("closeDeleteModal");
-                    const confirmDeleteButton = document.getElementById("confirmDeleteButton");
-                    const deleteProductName = document.getElementById("deleteProductName");
+            // Submit edit form
+            editProductForm.addEventListener("submit", async function (e) {
+                e.preventDefault();
 
-                    let currentRow;
+                const updatedData = {
+                    itemName: document.getElementById("editProductName").value,
+                    itemCode: document.getElementById("editProductId").value,
+                    categoryId: parseInt(document.getElementById("editCategory").value),
+                    dataCenterId: parseInt(document.getElementById("editLocation").value),
+                    buyingPrice: parseFloat(document.getElementById("editBuyingPrice").value),
+                    quantity: parseInt(document.getElementById("editQuantity").value),
+                    status: document.getElementById("editStatus").value,
+                    dateOfPurchase: document.getElementById("editDateOfPurchase").value
+                };
 
-                    // Open Delete Modal on delete button click
-                    deleteButtons.forEach((btn) => {
-                        btn.addEventListener("click", function () {
-                            currentRow = this.closest("tr"); // Get the parent row of the clicked delete button
-                            const productName = currentRow.querySelector(":nth-child(2)").innerText; // Get the product name
-                            deleteProductName.textContent = productName; // Display product name in the modal
-                            deleteModal.classList.remove("hidden"); // Show the delete modal
-                        });
-                    });
-
-                    // Close modal
-                    closeDeleteModal.addEventListener("click", () => {
-                        deleteModal.classList.add("hidden"); // Hide the delete modal
-                    });
-
-                    // Confirm delete action
-                    confirmDeleteButton.addEventListener("click", () => {
-                        if (currentRow) {
-                            currentRow.remove(); // Remove the current row from the table
-                            alert("Product has been deleted successfully!");
-                        }
-                        deleteModal.classList.add("hidden"); // Hide the modal after deletion
-                    });
-
-                    // Close modal on background click
-                    deleteModal.addEventListener("click", (e) => {
-                        if (e.target === deleteModal) {
-                            deleteModal.classList.add("hidden");
-                        }
-                    });
-                </script>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- GET DATA FORM DATABASE -->
-    <script>
-                document.addEventListener("DOMContentLoaded", function () {
-            const productTableBody = document.querySelector(".divide-y"); // Tabel body elemen
-
-            // Fungsi untuk memuat data Data Center 1
-            async function loadDataCenter1Products() {
                 try {
-                    const response = await fetch("/api/items/data-center/6", {
+                    const response = await fetch(`/api/items/${currentProductId}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(updatedData)
+                    });
+
+                    if (response.ok) {
+                        alert("Product updated successfully!");
+                        editModal.classList.add("hidden");
+                        loadDataCenter3Products();
+                    } else {
+                        alert("Failed to update product.");
+                    }
+                } catch (error) {
+                    console.error("Error when updating product:", error);
+                    alert("An error occurred. Please try again.");
+                }
+            });
+
+            // ========================
+            // DELETE PRODUCT
+            // ========================
+            const deleteModal = document.getElementById("deleteModal");
+            const closeDeleteModal = document.getElementById("closeDeleteModal");
+            const confirmDeleteButton = document.getElementById("confirmDeleteButton");
+            const deleteProductName = document.getElementById("deleteProductName");
+            let deleteProductId = null;
+
+            productTableBody.addEventListener("click", function (e) {
+                if (e.target.classList.contains("deleteProductButton")) {
+                    const productRow = e.target.closest("tr");
+                    deleteProductId = productRow.dataset.id;
+                    const productName = productRow.querySelector(":nth-child(2)").innerText;
+                    deleteProductName.textContent = productName;
+                    deleteModal.classList.remove("hidden");
+                }
+            });
+
+            closeDeleteModal.addEventListener("click", () => {
+                deleteModal.classList.add("hidden");
+            });
+
+            confirmDeleteButton.addEventListener("click", async function () {
+                if (!deleteProductId) return;
+
+                const originalText = this.textContent;
+                this.textContent = "Deleting...";
+                this.disabled = true;
+
+                try {
+                    const response = await fetch(`/api/items/${deleteProductId}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    if (response.ok) {
+                        alert("Product deleted successfully!");
+                        deleteModal.classList.add("hidden");
+                        loadDataCenter3Products();
+                        deleteProductId = null;
+                    } else {
+                        alert("Failed to delete product.");
+                    }
+                } catch (error) {
+                    console.error("Error when deleting product:", error);
+                    alert("An error occurred while deleting the product.");
+                } finally {
+                    this.textContent = originalText;
+                    this.disabled = false;
+                }
+            });
+
+            // ========================
+            // LOAD DATA CENTER 3 PRODUCTS
+            // ========================
+            async function loadDataCenter3Products() {
+                try {
+                    const response = await fetch(`/api/items/data-center/${DATA_CENTER_ID}`, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json"
@@ -435,42 +570,166 @@
                     }
 
                     const products = await response.json();
+                    updateTable(products);
 
-                    // Kosongkan tabel sebelum menambahkan data baru
-                    productTableBody.innerHTML = "";
-
-                    // Tambahkan data produk ke tabel
-                    products.forEach(product => {
-                        const row = document.createElement("tr");
-                        row.innerHTML = `
-                            <td class="px-4 py-3">${product.itemCode}</td>
-                            <td class="px-4 py-3">${product.itemName}</td>
-                            <td class="px-4 py-3">${product.assetNumber || "N/A"}</td>
-                            <td class="px-4 py-3">
-                                <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">${product.categoryName}</span>
-                            </td>
-                            <td class="px-4 py-3">${product.dataCenterName}</td>
-                            <td class="px-4 py-3">
-                                <a href="/Products/Detail?id=${product.id}" class="text-teal-600 bg-teal-50 px-3 py-1 rounded-full text-xs hover:bg-teal-700 hover:text-white">
-                                    Detail Product
-                                </a>
-                            </td>
-                            <td class="px-4 py-3 flex gap-2">
-                                <button class="editProductButton border p-2 rounded hover:bg-gray-100">✏️</button>
-                                <button class="deleteProductButton border p-2 rounded text-red-500 hover:bg-red-50">🗑️</button>
-                            </td>
-                        `;
-                        productTableBody.appendChild(row);
-                    });
                 } catch (error) {
                     console.error("Error while loading products:", error);
-                    alert("Failed to load products for Data Center 1.");
+                    alert("Failed to load products for Data Center 3.");
                 }
             }
 
-            // Panggil fungsi saat halaman dimuat
-            loadDataCenter1Products();
+            // ========================
+            // UPDATE TABLE
+            // ========================
+            function updateTable(products) {
+                productTableBody.innerHTML = "";
+
+                if (products.length === 0) {
+                    productTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-3">No products found</td>
+                        </tr>`;
+                    return;
+                }
+
+                products.forEach(product => {
+                    const row = document.createElement("tr");
+                    row.dataset.id = product.id;
+                    row.innerHTML = `
+                        <td class="px-4 py-3">${product.itemCode || "-"}</td>
+                        <td class="px-4 py-3">${product.itemName || "-"}</td>
+                        <td class="px-4 py-3">${product.assetNumber || "N/A"}</td>
+                        <td class="px-4 py-3">
+                            <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">${product.categoryName || "-"}</span>
+                        </td>
+                        <td class="px-4 py-3">${product.dataCenterName || "-"}</td>
+                        <td class="px-4 py-3">
+                            <a href="/Products/Detail?id=${product.id}"
+                               class="text-teal-600 bg-teal-50 px-3 py-1 rounded-full text-xs hover:bg-teal-700 hover:text-white">
+                               Detail Product
+                            </a>
+                        </td>
+                        <td class="px-4 py-3 flex gap-2">
+                            <button class="editProductButton border p-2 rounded hover:bg-gray-100" data-id="${product.id}">✏️</button>
+                            <button class="deleteProductButton border p-2 rounded text-red-500 hover:bg-red-50" data-id="${product.id}">🗑️</button>
+                        </td>
+                    `;
+                    productTableBody.appendChild(row);
+                });
+            }
+
+            // ========================
+            // SEARCH FUNCTIONALITY
+            // ========================
+            searchInput.addEventListener("keypress", function (event) {
+                if (event.key === "Enter") {
+                    currentSearchQuery = event.target.value.trim();
+                    fetchFilteredProducts(1, currentSearchQuery, currentCategoryFilter);
+                }
+            });
+
+            // ========================
+            // CATEGORY FILTER
+            // ========================
+            async function loadCategoryFilter() {
+                try {
+                    const response = await fetch("/api/Category/dropdown");
+                    const categories = await response.json();
+
+                    categories.forEach(cat => {
+                        const option = document.createElement("option");
+                        option.value = cat.id;
+                        option.textContent = cat.categoryName;
+                        categoryFilter.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error("Failed to load category filter", error);
+                }
+            }
+
+            categoryFilter.addEventListener("change", function () {
+                currentCategoryFilter = this.value;
+                fetchFilteredProducts(1, currentSearchQuery, currentCategoryFilter);
+            });
+
+            // ========================
+            // FETCH FILTERED PRODUCTS
+            // ========================
+            async function fetchFilteredProducts(page, searchQuery = "", categoryId = "") {
+                const loader = document.getElementById("loader");
+                if (loader) loader.classList.remove("hidden");
+
+                try {
+                    let url = `/api/items/filter?page=${page}&pageSize=${pageSize}&dataCenterId=${DATA_CENTER_ID}`;
+                    if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
+                    if (categoryId) url += `&categoryId=${categoryId}`;
+
+                    const response = await fetch(url, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch products. Status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    updateTable(data.data);
+                    updatePagination(data.page, data.totalPages);
+                } catch (error) {
+                    console.error("Error fetching products:", error);
+                    alert("Failed to fetch products. Please try again.");
+                } finally {
+                    if (loader) loader.classList.add("hidden");
+                }
+            }
+
+            // ========================
+            // UPDATE PAGINATION
+            // ========================
+            function updatePagination(page, totalPagesCount) {
+                currentPage = page;
+                totalPages = totalPagesCount;
+                paginationDiv.innerHTML = "";
+
+                if (totalPages <= 1) return;
+
+                // Previous button
+                if (currentPage > 1) {
+                    paginationDiv.innerHTML += `
+                        <button data-page="${currentPage - 1}" class="pagination-button px-3 py-1 bg-teal-600 text-white rounded">
+                            Previous
+                        </button>`;
+                }
+
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    const activeClass = i === currentPage ? "bg-teal-600 text-white" : "bg-gray-300 text-black";
+                    paginationDiv.innerHTML += `
+                        <button data-page="${i}" class="pagination-button px-3 py-1 rounded ${activeClass}">
+                            ${i}
+                        </button>`;
+                }
+
+                // Next button
+                if (currentPage < totalPages) {
+                    paginationDiv.innerHTML += `
+                        <button data-page="${currentPage + 1}" class="pagination-button px-3 py-1 bg-teal-600 text-white rounded">
+                            Next
+                        </button>`;
+                }
+
+                // Add event listeners
+                document.querySelectorAll(".pagination-button").forEach(button => {
+                    button.addEventListener("click", function () {
+                        const selectedPage = parseInt(this.getAttribute("data-page"));
+                        fetchFilteredProducts(selectedPage, currentSearchQuery, currentCategoryFilter);
+                    });
+                });
+            }
         });
     </script>
-</div>
+</body>
 </html>

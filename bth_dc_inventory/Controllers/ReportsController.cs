@@ -1,20 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using bth_dc_inventory.Data;
-using bth_dc_inventory.DTOs.Report;
 using bth_dc_inventory.Models;
-using ClosedXML.Excel;
 using QuestPDF.Fluent;
-using QuestPDF.Infrastructure;
-using System.Globalization;
-using QuestPDF.Drawing;
+using OfficeOpenXml;
 using QuestPDF.Helpers;
-
 
 namespace bth_dc_inventory.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class ReportsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -24,249 +19,446 @@ namespace bth_dc_inventory.Controllers
             _context = context;
         }
 
-        // =========================================
-        // GET REPORT ITEMS (FILTER + PAGINATION)
-        // =========================================
-        [HttpGet("items")]
-        public async Task<IActionResult> GetItemReport(
-            [FromQuery] ReportFilterDto filter,
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 10)
+        // =====================================
+        // GET: api/reports/stats
+        // =====================================
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetReportStats([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
-            var query = _context.Items
-                .Include(i => i.Category)
-                .Include(i => i.DataCenter)
-                .AsQueryable();
+            try
+            {
+                // Default to last 30 days if no dates provided
+                var start = startDate ?? DateTime.Today.AddDays(-30);
+                var end = endDate ?? DateTime.Today.AddDays(1);
 
-            if (filter.CategoryId.HasValue)
-                query = query.Where(i => i.CategoryId == filter.CategoryId);
+                // Apply consistent date filtering
+                var query = _context.Items.AsQueryable();
 
-            if (filter.DataCenterId.HasValue)
-                query = query.Where(i => i.DataCenterId == filter.DataCenterId);
-
-            if (!string.IsNullOrEmpty(filter.Search))
-                query = query.Where(i => i.ItemName.Contains(filter.Search));
-
-            if (filter.StartDate.HasValue)
-                query = query.Where(i => i.DateOfPurchase >= filter.StartDate);
-
-            if (filter.EndDate.HasValue)
-                query = query.Where(i => i.DateOfPurchase <= filter.EndDate);
-
-            var totalItems = await query.CountAsync();
-
-            var data = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(i => new ItemReportDto
+                if (startDate.HasValue || endDate.HasValue)
                 {
-                    ItemCode = i.ItemCode,
-                    ItemName = i.ItemName,
-                    CategoryName = i.Category.CategoryName,
-                    DataCenterName = i.DataCenter.Name,
-                    Quantity = i.Quantity,
-                    BuyingPrice = i.BuyingPrice,
-                    DateOfPurchase = i.DateOfPurchase ?? DateTime.MinValue,
-                    Status = i.Status
-                })
-                .ToListAsync();
+                    query = query.Where(i => i.CreatedAt >= start && i.CreatedAt < end);
+                }
 
-            return Ok(new
-            {
-                page,
-                pageSize,
-                totalItems,
-                totalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
-                data
-            });
-        }
+                var totalEntries = await query.CountAsync();
+                var newItems = await query.CountAsync(i => i.CreatedAt >= start);
+                var updatedItems = await query.CountAsync(i => i.UpdatedAt.HasValue && i.UpdatedAt >= start);
+                var totalDataCenters = await _context.DataCenters.CountAsync();
 
-        // =========================================
-        // GET SUMMARY REPORT
-        // =========================================
-        [HttpGet("summary")]
-        public async Task<ActionResult<StockSummaryReportDto>> GetSummary()
-        {
-            var summary = new StockSummaryReportDto
-            {
-                TotalItems = await _context.Items.CountAsync(),
-                TotalQuantity = await _context.Items.SumAsync(i => i.Quantity),
-                TotalAssetValue = await _context.Items.SumAsync(i => i.Quantity * i.BuyingPrice)
-            };
-
-            return Ok(summary);
-        }
-
-        // =========================================
-        // EXPORT REPORT (PDF / EXCEL)
-        // =========================================
-        [HttpGet("export")]
-        public async Task<IActionResult> ExportReport(int month, int year, string format = "pdf")
-        {
-            var items = await _context.Items
-                .Include(i => i.Category)
-                .Where(i => i.DateOfPurchase.HasValue &&
-                            i.DateOfPurchase.Value.Month == month &&
-                            i.DateOfPurchase.Value.Year == year)
-                .ToListAsync();
-
-            if (!items.Any())
-                return NotFound("Data tidak ditemukan.");
-
-            if (format.ToLower() == "pdf")
-                return File(GeneratePdf(items, month, year), "application/pdf",
-                    $"Report_{month}_{year}.pdf");
-
-            if (format.ToLower() == "excel")
-                return File(GenerateExcel(items),
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    $"Report_{month}_{year}.xlsx");
-
-            return BadRequest("Format tidak didukung.");
-        }
-
-        // =========================================
-        // PDF GENERATOR
-        // =========================================
-        private byte[] GeneratePdf(IEnumerable<Item> items, int month, int year)
-        {
-            // Wajib untuk versi QuestPDF baru
-            QuestPDF.Settings.License = LicenseType.Community;
-
-            var doc = Document.Create(container =>
-            {
-                container.Page(page =>
-                {
-                    page.Margin(20);
-
-                    page.Header()
-                        .AlignCenter()
-                        .Text($"Laporan Inventaris {month}/{year}")
-                        .SemiBold()
-                        .FontSize(16);
-
-                    page.Content().Table(table =>
+                // Category breakdown - Fixed null reference
+                var categoryStats = await query
+                    .Include(i => i.Category)
+                    .Where(i => i.Category != null) // Add null check
+                    .GroupBy(i => i.Category.CategoryName)
+                    .Select(g => new
                     {
-                        table.ColumnsDefinition(c =>
-                        {
-                            c.RelativeColumn(3);
-                            c.RelativeColumn(3);
-                            c.RelativeColumn(1);
-                            c.RelativeColumn(2);
-                        });
+                        Category = g.Key ?? "Unknown",
+                        Count = g.Count(),
+                        Percentage = totalEntries > 0 ? Math.Round((double)g.Count() / totalEntries * 100, 1) : 0
+                    })
+                    .OrderByDescending(x => x.Count)
+                    .ToListAsync();
 
-                        table.Header(h =>
-                        {
-                            h.Cell().Text("Item").SemiBold();
-                            h.Cell().Text("Category").SemiBold();
-                            h.Cell().Text("Qty").SemiBold();
-                            h.Cell().Text("Price").SemiBold();
-                        });
+                // Data center breakdown - Fixed null reference
+                var dataCenterStats = await query
+                    .Include(i => i.DataCenter)
+                    .Where(i => i.DataCenter != null) // Add null check
+                    .GroupBy(i => i.DataCenter.Name)
+                    .Select(g => new
+                    {
+                        DataCenter = g.Key ?? "Unknown",
+                        Count = g.Count(),
+                        Percentage = totalEntries > 0 ? Math.Round((double)g.Count() / totalEntries * 100, 1) : 0
+                    })
+                    .OrderByDescending(x => x.Count)
+                    .ToListAsync();
 
-                        foreach (var i in items)
-                        {
-                            table.Cell().Text(i.ItemName ?? "-");
-                            table.Cell().Text(i.Category?.CategoryName ?? "-");
-                            table.Cell().Text(i.Quantity.ToString());
-                            table.Cell().Text(
-                                i.BuyingPrice.ToString("C", CultureInfo.GetCultureInfo("id-ID"))
-                            );
-                        }
-                    });
+                // Status breakdown - Fixed null reference
+                var statusStats = await query
+                    .GroupBy(i => i.Status ?? "Unknown")
+                    .Select(g => new
+                    {
+                        Status = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
 
-                    page.Footer()
-                        .AlignCenter()
-                        .Text($"Generated at: {DateTime.Now:dd MMM yyyy HH:mm}");
+                return Ok(new
+                {
+                    TotalEntries = totalEntries,
+                    NewItems = newItems,
+                    UpdatedItems = updatedItems,
+                    TotalDataCenters = totalDataCenters,
+                    CategoryStats = categoryStats,
+                    DataCenterStats = dataCenterStats,
+                    StatusStats = statusStats,
+                    DateRange = new { Start = start, End = end }
                 });
-            });
-
-            return doc.GeneratePdf();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error fetching report stats", error = ex.Message });
+            }
         }
 
-        //private byte[] GeneratePdf(IEnumerable<Item> items, int month, int year)
-        //{
-        //    QuestPDF.Settings.License = LicenseType.Community;
-
-        //    var doc = Document.Create(container =>
-        //    {
-        //        container.Page(page =>
-        //        {
-        //            page.Margin(20);
-
-        //            page.Footer()
-        //            .AlignCenter()
-        //            .Text($"Generated at: {DateTime.Now:dd MMM yyyy HH:mm}");
-
-        //            page.Content().Table(table =>
-        //            {
-        //                table.ColumnsDefinition(c =>
-        //                {
-        //                    c.RelativeColumn(2);
-        //                    c.RelativeColumn(2);
-        //                    c.RelativeColumn(1);
-        //                    c.RelativeColumn(2);
-        //                });
-
-        //                table.Header(h =>
-        //                {
-        //                    h.Cell().Text("Item").SemiBold();
-        //                    h.Cell().Text("Category").SemiBold();
-        //                    h.Cell().Text("Qty").SemiBold();
-        //                    h.Cell().Text("Price").SemiBold();
-        //                });
-
-        //                foreach (var i in items)
-        //                {
-        //                    table.Cell().Text(i.ItemName);
-        //                    table.Cell().Text(i.Category.CategoryName);
-        //                    table.Cell().Text(i.Quantity.ToString());
-        //                    table.Cell().Text(i.BuyingPrice.ToString("C", CultureInfo.GetCultureInfo("id-ID")));
-        //                }
-        //            });
-
-        //            page.Footer()
-        //                .AlignCenter()
-        //                .Text(x =>
-        //                {
-        //                    x.Span("Generated at: ");
-        //                    x.Span(DateTime.Now.ToString("dd MMM yyyy HH:mm"));
-        //                });
-        //        });
-        //    });
-
-        //    return doc.GeneratePdf();
-        //}
-
-
-        // =========================================
-        // EXCEL GENERATOR
-        // =========================================
-        private MemoryStream GenerateExcel(IEnumerable<Item> items)
+        // =====================================
+        // GET: api/reports/data
+        // =====================================
+        [HttpGet("data")]
+        public async Task<IActionResult> GetReportData(
+            [FromQuery] DateTime? startDate,
+            [FromQuery] DateTime? endDate,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 50)
         {
-            using var wb = new XLWorkbook();
-            var ws = wb.Worksheets.Add("Report");
-
-            ws.Cell(1, 1).Value = "Item";
-            ws.Cell(1, 2).Value = "Category";
-            ws.Cell(1, 3).Value = "Qty";
-            ws.Cell(1, 4).Value = "Price";
-
-            int row = 2;
-            foreach (var i in items)
+            try
             {
-                ws.Cell(row, 1).Value = i.ItemName;
-                ws.Cell(row, 2).Value = i.Category.CategoryName;
-                ws.Cell(row, 3).Value = i.Quantity;
-                ws.Cell(row, 4).Value = i.BuyingPrice;
-                row++;
-            }
+                var query = _context.Items
+                    .Include(i => i.Category)
+                    .Include(i => i.DataCenter)
+                    .Include(i => i.CreatedBy)
+                    .AsQueryable();
 
-            var stream = new MemoryStream();
-            wb.SaveAs(stream);
-            stream.Position = 0;
-            return stream;
+                // Apply date filter
+                if (startDate.HasValue && endDate.HasValue)
+                {
+                    var start = startDate.Value.Date;
+                    var end = endDate.Value.Date.AddDays(1);
+                    query = query.Where(i => i.CreatedAt >= start && i.CreatedAt < end);
+                }
+
+                var totalCount = await query.CountAsync();
+
+                var items = await query
+                    .OrderByDescending(i => i.CreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(i => new
+                    {
+                        Id = i.Id,
+                        ItemCode = i.ItemCode ?? "N/A",
+                        ItemName = i.ItemName ?? "N/A",
+                        CategoryName = i.Category != null ? i.Category.CategoryName : "Unknown",
+                        DataCenterName = i.DataCenter != null ? i.DataCenter.Name : "Unknown",
+                        Quantity = i.Quantity,
+                        Status = i.Status ?? "Unknown",
+                        CreatedAt = i.CreatedAt,
+                        UpdatedAt = i.UpdatedAt,
+                        CreatedByName = i.CreatedBy != null ? i.CreatedBy.Username : "System",
+                        BuyingPrice = i.BuyingPrice,
+                        AssetNumber = i.AssetNumber,
+                        SerialNumber = i.SerialNumber
+                    })
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    Data = items,
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error fetching report data", error = ex.Message });
+            }
+        }
+
+        // =====================================
+        // GET: api/reports/export/pdf
+        // =====================================
+        [HttpGet("export/pdf")]
+        public async Task<IActionResult> ExportPDF([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        {
+            try
+            {
+                var start = startDate ?? DateTime.Today.AddDays(-30);
+                var end = endDate ?? DateTime.Today.AddDays(1);
+
+                Console.WriteLine($"PDF Export - Date Range: {start:yyyy-MM-dd} to {end:yyyy-MM-dd}");
+
+                var items = await _context.Items
+                    .Include(i => i.Category)
+                    .Include(i => i.DataCenter)
+                    .Include(i => i.CreatedBy)
+                    .Where(i => i.CreatedAt >= start && i.CreatedAt < end)
+                    .OrderByDescending(i => i.CreatedAt)
+                    .ToListAsync();
+
+                Console.WriteLine($"Found {items.Count} items for PDF export");
+
+                if (!items.Any())
+                {
+                    return NotFound(new { message = "No data found for the specified date range" });
+                }
+
+                var pdfBytes = GenerateReportPdf(items, start, end);
+
+                Console.WriteLine($"Generated PDF size: {pdfBytes.Length} bytes");
+
+                return File(
+                    pdfBytes,
+                    "application/pdf",
+                    $"InventoryReport_{start:yyyyMMdd}_{end:yyyyMMdd}.pdf"
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"PDF Export Error: {ex.Message}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return StatusCode(500, new { message = "Error generating PDF", error = ex.Message, details = ex.StackTrace });
+            }
+        }
+
+        // =====================================
+        // GET: api/reports/export/excel
+        // =====================================
+        [HttpGet("export/excel")]
+        public async Task<IActionResult> ExportExcel([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        {
+            try
+            {
+                var start = startDate ?? DateTime.Today.AddDays(-30);
+                var end = endDate ?? DateTime.Today.AddDays(1);
+
+                Console.WriteLine($"Excel Export - Date Range: {start:yyyy-MM-dd} to {end:yyyy-MM-dd}");
+
+                var items = await _context.Items
+                    .Include(i => i.Category)
+                    .Include(i => i.DataCenter)
+                    .Include(i => i.CreatedBy)
+                    .Where(i => i.CreatedAt >= start && i.CreatedAt < end)
+                    .OrderByDescending(i => i.CreatedAt)
+                    .ToListAsync();
+
+                Console.WriteLine($"Found {items.Count} items for Excel export");
+
+                if (!items.Any())
+                {
+                    return NotFound(new { message = "No data found for the specified date range" });
+                }
+
+                var excelBytes = GenerateReportExcel(items, start, end);
+
+                Console.WriteLine($"Generated Excel size: {excelBytes.Length} bytes");
+
+                return File(
+                    excelBytes,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    $"InventoryReport_{start:yyyyMMdd}_{end:yyyyMMdd}.xlsx"
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Excel Export Error: {ex.Message}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return StatusCode(500, new { message = "Error generating Excel", error = ex.Message, details = ex.StackTrace });
+            }
+        }
+
+        // =====================================
+        // TEST ENDPOINT
+        // =====================================
+        [HttpGet("test")]
+        public async Task<IActionResult> TestData([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        {
+            try
+            {
+                var start = startDate ?? DateTime.Today.AddDays(-30);
+                var end = endDate ?? DateTime.Today.AddDays(1);
+
+                var totalItems = await _context.Items.CountAsync();
+                var itemsInRange = await _context.Items
+                    .Where(i => i.CreatedAt >= start && i.CreatedAt < end)
+                    .CountAsync();
+
+                var sampleItems = await _context.Items
+                    .Include(i => i.Category)
+                    .Include(i => i.DataCenter)
+                    .Take(5)
+                    .Select(i => new
+                    {
+                        i.Id,
+                        i.ItemName,
+                        i.CreatedAt,
+                        CategoryName = i.Category != null ? i.Category.CategoryName : null,
+                        DataCenterName = i.DataCenter != null ? i.DataCenter.Name : null
+                    })
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    DateRange = new { Start = start, End = end },
+                    TotalItems = totalItems,
+                    ItemsInDateRange = itemsInRange,
+                    SampleItems = sampleItems
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        // =====================================
+        // PRIVATE METHODS
+        // =====================================
+        private byte[] GenerateReportPdf(List<Item> items, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                // Set QuestPDF license
+                QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
+                var document = Document.Create(container =>
+                {
+                    container.Page(page =>
+                    {
+                        page.Size(QuestPDF.Helpers.PageSizes.A4.Landscape());
+                        page.Margin(25);
+
+                        // Header
+                        page.Header()
+                            .AlignCenter()
+                            .Text($"Inventory Report\n{startDate:dd MMM yyyy} - {endDate:dd MMM yyyy}")
+                            .SemiBold()
+                            .FontSize(16);
+
+                        // Content
+                        page.Content().PaddingTop(15).Table(table =>
+                        {
+                            // Define columns
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.ConstantColumn(30);  // No
+                                columns.RelativeColumn(2);  // Item Code
+                                columns.RelativeColumn(3);  // Item Name
+                                columns.RelativeColumn(2);  // Category
+                                columns.RelativeColumn(2);  // Data Center
+                                columns.RelativeColumn(1);  // Qty
+                                columns.RelativeColumn(2);  // Status
+                                columns.RelativeColumn(2);  // Date
+                            });
+
+                            // Header row
+                            table.Header(header =>
+                            {
+                                header.Cell().Text("#").SemiBold();
+                                header.Cell().Text("Item Code").SemiBold();
+                                header.Cell().Text("Item Name").SemiBold();
+                                header.Cell().Text("Category").SemiBold();
+                                header.Cell().Text("Data Center").SemiBold();
+                                header.Cell().Text("Qty").SemiBold();
+                                header.Cell().Text("Status").SemiBold();
+                                header.Cell().Text("Created").SemiBold();
+                            });
+
+                            // Data rows
+                            int index = 1;
+                            foreach (var item in items)
+                            {
+                                table.Cell().Text(index++.ToString());
+                                table.Cell().Text(item.ItemCode ?? "-");
+                                table.Cell().Text(item.ItemName ?? "-");
+                                table.Cell().Text(item.Category?.CategoryName ?? "-");
+                                table.Cell().Text(item.DataCenter?.Name ?? "-");
+                                table.Cell().Text(item.Quantity.ToString());
+                                table.Cell().Text(item.Status ?? "-");
+                                table.Cell().Text(item.CreatedAt.ToString("dd/MM/yyyy"));
+                            }
+                        });
+
+                        // Footer
+                        page.Footer()
+                            .AlignCenter()
+                            .Text($"Generated at {DateTime.Now:dd MMM yyyy HH:mm} | Total Items: {items.Count}")
+                            .FontSize(10);
+                    });
+                });
+
+                return document.GeneratePdf();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"PDF Generation Error: {ex.Message}");
+                throw new Exception($"Failed to generate PDF: {ex.Message}", ex);
+            }
+        }
+
+        private byte[] GenerateReportExcel(List<Item> items, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                // Set EPPlus license
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                using var package = new ExcelPackage();
+                var worksheet = package.Workbook.Worksheets.Add("Inventory Report");
+
+                // Title
+                worksheet.Cells["A1:H1"].Merge = true;
+                worksheet.Cells["A1"].Value = $"Inventory Report ({startDate:dd MMM yyyy} - {endDate:dd MMM yyyy})";
+                worksheet.Cells["A1"].Style.Font.Bold = true;
+                worksheet.Cells["A1"].Style.Font.Size = 16;
+                worksheet.Cells["A1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                // Headers
+                worksheet.Cells[3, 1].Value = "No";
+                worksheet.Cells[3, 2].Value = "Item Code";
+                worksheet.Cells[3, 3].Value = "Item Name";
+                worksheet.Cells[3, 4].Value = "Category";
+                worksheet.Cells[3, 5].Value = "Data Center";
+                worksheet.Cells[3, 6].Value = "Quantity";
+                worksheet.Cells[3, 7].Value = "Status";
+                worksheet.Cells[3, 8].Value = "Created Date";
+
+                // Style headers
+                using (var range = worksheet.Cells[3, 1, 3, 8])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                    range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                }
+
+                // Data
+                int row = 4;
+                int no = 1;
+                foreach (var item in items)
+                {
+                    worksheet.Cells[row, 1].Value = no++;
+                    worksheet.Cells[row, 2].Value = item.ItemCode ?? "-";
+                    worksheet.Cells[row, 3].Value = item.ItemName ?? "-";
+                    worksheet.Cells[row, 4].Value = item.Category?.CategoryName ?? "-";
+                    worksheet.Cells[row, 5].Value = item.DataCenter?.Name ?? "-";
+                    worksheet.Cells[row, 6].Value = item.Quantity;
+                    worksheet.Cells[row, 7].Value = item.Status ?? "-";
+                    worksheet.Cells[row, 8].Value = item.CreatedAt.ToString("dd/MM/yyyy");
+
+                    // Add borders to data rows
+                    using (var range = worksheet.Cells[row, 1, row, 8])
+                    {
+                        range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                    }
+
+                    row++;
+                }
+
+                // Auto-fit columns
+                worksheet.Cells.AutoFitColumns();
+
+                // Add summary
+                worksheet.Cells[row + 2, 1].Value = $"Total Items: {items.Count}";
+                worksheet.Cells[row + 3, 1].Value = $"Generated: {DateTime.Now:dd/MM/yyyy HH:mm}";
+
+                return package.GetAsByteArray();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Excel Generation Error: {ex.Message}");
+                throw new Exception($"Failed to generate Excel: {ex.Message}", ex);
+            }
         }
     }
 }
-
-

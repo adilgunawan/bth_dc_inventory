@@ -1,18 +1,14 @@
 ﻿@{
-    ViewData["Title"] = "Reports ";
+    ViewData["Title"] = "Reports";
 }
-
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory Reports</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="bg-gray-50 min-h-screen font-sans">
     <div class="container mx-auto p-6">
         <!-- Header -->
@@ -22,77 +18,86 @@
         </header>
 
         <!-- Filters -->
-        <!-- Filters -->
         <section class="bg-white shadow-md rounded-lg p-6 mb-6">
             <h2 class="text-lg font-bold text-gray-700 mb-4">Filters</h2>
-            <!-- Date Range -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                <!-- Date Range -->
                 <div>
-                    <label class="text-sm font-medium text-gray-600 mb-2 block">Date Range</label>
+                    <label class="text-sm font-medium text-gray-600 mb-2 block">Start Date</label>
                     <input type="date" id="startDate"
-                           class="w-full h-10 border border-gray-300 rounded-md px-3 text-sm text-gray-500"
-                           placeholder="Start Date">
-                    <input type="date" id="endDate"
-                           class="w-full h-10 border border-gray-300 rounded-md px-3 text-sm mt-2 text-gray-500"
-                           placeholder="End Date">
+                           class="w-full h-10 border border-gray-300 rounded-md px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div class="flex items-start">
+                <div>
+                    <label class="text-sm font-medium text-gray-600 mb-2 block">End Date</label>
+                    <input type="date" id="endDate"
+                           class="w-full h-10 border border-gray-300 rounded-md px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <!-- Quick Select & Apply Button -->
+                <div class="flex gap-2">
+                    <select id="quickSelect" class="h-10 border border-gray-300 rounded-md px-3 text-sm bg-white">
+                        <option value="">Select Range</option>
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 3 months</option>
+                        <option value="365">Last year</option>
+                    </select>
                     <button id="applyFilter"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium shadow hover:bg-blue-700 h-10">
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium shadow hover:bg-blue-700 transition">
                         Apply Filter
                     </button>
                 </div>
             </div>
         </section>
 
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-8 hidden">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-gray-600">Loading report data...</p>
+        </div>
+
         <!-- Stats -->
-        <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <section id="statsSection" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500">Total Entries</p>
-                    <p class="text-3xl font-bold text-teal-600">156</p>
+                    <p id="totalEntries" class="text-3xl font-bold text-teal-600">0</p>
                 </div>
                 <div class="bg-teal-100 text-teal-600 rounded-full p-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
-                        <rect width="24" height="24" fill="none" />
-                        <path fill="currentColor" d="M8 4c-4.42 0-8 3.58-8 8s3.58 8 8 8s8-3.58 8-8s-3.58-8-8-8m10.5 8c0 .69-.28 1.32-.73 1.77l1.41 1.41c.82-.81 1.32-1.94 1.32-3.18s-.5-2.37-1.32-3.18l-1.41 1.41c.45.45.73 1.08.73 1.77m3.5 0c0 1.66-.67 3.16-1.76 4.24l1.41 1.41C23.1 16.21 24 14.21 24 12s-.9-4.21-2.35-5.65l-1.41 1.41A5.94 5.94 0 0 1 22 12m-10.19 2.42l-1.39 1.39L7 12.39V8h2v3.61z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
                     </svg>
                 </div>
             </div>
             <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500">New Items</p>
-                    <p class="text-3xl font-bold text-green-600">42</p>
+                    <p id="newItems" class="text-3xl font-bold text-green-600">0</p>
                 </div>
                 <div class="bg-green-100 text-green-600 rounded-full p-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 16 16">
-                        <rect width="16" height="16" fill="none" />
-                        <path fill="currentColor" fill-rule="evenodd" d="M0 2.4C0 1.56 0 1.14.163.82C.307.538.536.308.819.164C1.14.001 1.56.001 2.399.001h2.2c.84 0 1.26 0 1.58.163c.282.144.512.373.656.656c.163.321.163.741.163 1.58v2.2c0 .84 0 1.26-.163 1.58a1.5 1.5 0 0 1-.656.656c-.321.163-.741.163-1.58.163h-2.2c-.84 0-1.26 0-1.58-.163a1.5 1.5 0 0 1-.656-.656C0 5.859 0 5.439 0 4.6zM2.4 1h2.2c.437 0 .704 0 .904.017a1.3 1.3 0 0 1 .216.034l.007.003a.5.5 0 0 1 .222.226l.009.032c.008.034.017.09.025.184c.016.2.017.467.017.904v2.2c0 .437 0 .704-.017.904a1.3 1.3 0 0 1-.034.216l-.003.006v.001a.5.5 0 0 1-.219.218s-.004.002-.007.004l-.032.009a1 1 0 0 1-.184.025c-.2.016-.467.017-.904.017H2.4c-.437 0-.704 0-.904-.017a1.3 1.3 0 0 1-.216-.034l-.007-.004a.5.5 0 0 1-.218-.218L1.05 5.72l-.009-.032a1 1 0 0 1-.025-.184C1.001 5.304 1 5.037 1 4.6V2.4c0-.437 0-.704.017-.904a1.3 1.3 0 0 1 .034-.216l.004-.008a.5.5 0 0 1 .218-.218l.007-.003l.032-.009a1 1 0 0 1 .184-.025c.2-.016.467-.017.904-.017M9 2.4c0-.84 0-1.26.163-1.58c.144-.282.373-.512.656-.656c.321-.163.741-.163 1.58-.163h2.2c.84 0 1.26 0 1.58.163c.282.144.512.373.656.656c.164.321.164.741.164 1.58v2.2c0 .84 0 1.26-.164 1.58a1.5 1.5 0 0 1-.656.656c-.321.163-.741.163-1.58.163h-2.2c-.84 0-1.26 0-1.58-.163a1.5 1.5 0 0 1-.656-.656C9 5.859 9 5.439 9 4.6zM11.4 1h2.2c.436 0 .704 0 .904.017a1.3 1.3 0 0 1 .216.034l.008.003a.5.5 0 0 1 .22.226l.01.032c.008.034.017.09.025.184c.016.2.017.467.017.904v2.2c0 .437 0 .704-.017.904a1.3 1.3 0 0 1-.034.216l-.002.005l-.001.002a.5.5 0 0 1-.218.218h-.002l-.002.002l-.004.002l-.032.009a1 1 0 0 1-.184.025c-.2.016-.467.017-.904.017h-2.2c-.436 0-.704 0-.904-.017a1.3 1.3 0 0 1-.216-.034l-.007-.004a.5.5 0 0 1-.218-.218h-.001l-.003-.007l-.009-.032a1 1 0 0 1-.025-.184c-.016-.2-.017-.467-.017-.904V2.4c0-.437 0-.704.017-.904a1.3 1.3 0 0 1 .034-.216l.004-.008a.5.5 0 0 1 .218-.218l.007-.003l.032-.009a1 1 0 0 1 .184-.025c.2-.016.467-.017.904-.017M9.16 9.82c-.163.321-.163.741-.163 1.58v2.2c0 .84 0 1.26.163 1.58c.144.282.373.512.656.656c.321.164.741.164 1.58.164h2.2c.84 0 1.26 0 1.58-.164c.282-.144.512-.373.656-.656c.164-.321.164-.741.164-1.58v-2.2c0-.84 0-1.26-.164-1.58a1.5 1.5 0 0 0-.656-.656c-.321-.163-.741-.163-1.58-.163h-2.2c-.84 0-1.26 0-1.58.163a1.5 1.5 0 0 0-.656.656m4.44.181h-2.2c-.436 0-.704 0-.904.017a1.3 1.3 0 0 0-.216.034l-.006.003h-.001a.5.5 0 0 0-.218.218l-.001.002l-.003.006l-.009.032a1 1 0 0 0-.025.184c-.016.2-.017.467-.017.904v2.2c0 .436 0 .704.017.904a1.3 1.3 0 0 0 .034.216l.004.007a.5.5 0 0 0 .225.222l.032.009c.034.008.09.017.184.025c.2.016.467.017.904.017h2.2c.436 0 .704 0 .904-.017a1.3 1.3 0 0 0 .216-.034l.004-.002l.004-.002a.5.5 0 0 0 .218-.218l.003-.007l.009-.032a1 1 0 0 0 .025-.184c.016-.2.017-.467.017-.904v-2.2c0-.436 0-.704-.017-.904a1.3 1.3 0 0 0-.034-.216l-.003-.008a.5.5 0 0 0-.218-.217l-.008-.004l-.032-.009a1 1 0 0 0-.184-.025c-.2-.016-.467-.017-.904-.017M0 11.4c0-.84 0-1.26.163-1.58c.144-.282.373-.512.656-.656c.321-.163.741-.163 1.58-.163h2.2c.84 0 1.26 0 1.58.163c.282.144.512.373.656.656c.163.321.163.741.163 1.58v2.2c0 .84 0 1.26-.163 1.58a1.5 1.5 0 0 1-.656.656C5.858 16 5.438 16 4.599 16h-2.2c-.84 0-1.26 0-1.58-.164a1.5 1.5 0 0 1-.656-.656C0 14.859 0 14.439 0 13.6zM2.4 10h2.2c.437 0 .704 0 .904.017a1.3 1.3 0 0 1 .216.034l.006.003h.001a.5.5 0 0 1 .222.226l.009.032c.008.034.017.09.025.184c.016.2.017.467.017.904v2.2c0 .436 0 .704-.017.904a1.3 1.3 0 0 1-.034.216l-.003.007a.5.5 0 0 1-.219.219s-.004.002-.007.003l-.032.009a1 1 0 0 1-.184.025c-.2.016-.467.017-.904.017H2.4c-.437 0-.704 0-.904-.017a1.3 1.3 0 0 1-.216-.034l-.007-.003a.5.5 0 0 1-.218-.218l-.004-.008l-.009-.032a1 1 0 0 1-.025-.184c-.016-.2-.017-.467-.017-.904v-2.2c0-.436 0-.704.017-.904a1.3 1.3 0 0 1 .034-.216l.004-.007a.5.5 0 0 1 .218-.218l.007-.004l.032-.009a1 1 0 0 1 .184-.025c.2-.016.467-.017.904-.017" clip-rule="evenodd" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                     </svg>
                 </div>
             </div>
             <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500">Updated Items</p>
-                    <p class="text-3xl font-bold text-orange-500">38</p>
+                    <p id="updatedItems" class="text-3xl font-bold text-orange-500">0</p>
                 </div>
                 <div class="bg-orange-100 text-orange-600 rounded-full p-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
-                        <rect width="24" height="24" fill="none" />
-                        <path fill="currentColor" d="M11 8v5l4.25 2.52l.77-1.28l-3.52-2.09V8zm10 2V3l-2.64 2.64A8.94 8.94 0 0 0 12 3a9 9 0 1 0 9 9h-2c0 3.86-3.14 7-7 7s-7-3.14-7-7s3.14-7 7-7c1.93 0 3.68.79 4.95 2.05L14 10z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z" />
                     </svg>
                 </div>
             </div>
             <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500">Data Centers</p>
-                    <p class="text-3xl font-bold text-purple-600">3</p>
+                    <p id="totalDataCenters" class="text-3xl font-bold text-purple-600">0</p>
                 </div>
                 <div class="bg-purple-100 text-purple-600 rounded-full p-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 32 32">
-                        <rect width="32" height="32" fill="none" />
-                        <path fill="currentColor" d="M28 10h-5V6a2 2 0 0 0-2-2H11a2 2 0 0 0-2 2v4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2M4 28V12h5v2H7v2h2v2H7v2h2v2H7v2h2v4Zm17 0H11V6h10Zm7 0h-5v-4h2v-2h-2v-2h2v-2h-2v-2h2v-2h-2v-2h5Z" />
-                        <path fill="currentColor" d="M14 8h4v2h-4zm0 4h4v2h-4zm0 4h4v2h-4z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M4 6v2h16V6H4zm0 5v3h16v-3H4zm0 8v2h16v-2H4z" />
                     </svg>
                 </div>
             </div>
@@ -101,153 +106,411 @@
         <!-- Export Section -->
         <section class="bg-white shadow-md rounded-lg p-6 mb-6">
             <h2 class="text-lg font-bold text-gray-700 mb-4">Export Report</h2>
-            <div class="flex gap-4">
-                <button class="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:bg-red-600">
-                    Export PDF
+            <div class="flex gap-4 items-center">
+                <button id="exportPDF" class="bg-red-500 text-white px-6 py-2 rounded-md shadow hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    📄 Export PDF
                 </button>
-                <button class="bg-green-500 text-white px-4 py-2 rounded-md shadow hover:bg-green-600">
-                    Export Excel
+                <button id="exportExcel" class="bg-green-500 text-white px-6 py-2 rounded-md shadow hover:bg-green-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    📊 Export Excel
                 </button>
+                <span id="exportStatus" class="text-sm text-gray-500"></span>
             </div>
         </section>
 
         <!-- Report Table -->
         <section class="bg-white shadow-md rounded-lg p-6">
-            <h2 class="text-lg font-bold text-gray-700 mb-4">Report Data</h2>
-            <table class="w-full border-collapse">
-                <thead class="bg-gray-100 border-b">
-                    <tr class="text-gray-600 text-left text-sm">
-                        <th class="p-3">ID</th>
-                        <th class="p-3">Date & Time</th>
-                        <th class="p-3">Item Name</th>
-                        <th class="p-3">Category</th>
-                        <th class="p-3">Quantity</th>
-                        <th class="p-3">Data Center</th>
-                        <th class="p-3">Status</th>
-                        <th class="p-3">Added By</th>
-                    </tr>
-                </thead>
-                <tbody id="reportTable" class="text-gray-600 text-sm">
-                    <tr>
-                        <td class="p-3">INV-00087</td>
-                        <td class="p-3">Feb 3, 2026</td>
-                        <td class="p-3">Server Unit 24</td>
-                        <td class="p-3"><span class="bg-green-100 text-green-600 rounded-full px-3 py-1">Switch</span></td>
-                        <td class="p-3">10</td>
-                        <td class="p-3">Data Center 2</td>
-                        <td class="p-3"><span class="bg-blue-100 text-blue-600 rounded-full px-3 py-1">Added</span></td>
-                        <td class="p-3">John Doe</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-gray-700">Report Data</h2>
+                <div class="text-sm text-gray-500">
+                    Showing <span id="showingFrom">0</span>-<span id="showingTo">0</span> of <span id="totalCount">0</span> entries
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead class="bg-gray-100 border-b">
+                        <tr class="text-gray-600 text-left text-sm">
+                            <th class="p-3">ID</th>
+                            <th class="p-3">Date & Time</th>
+                            <th class="p-3">Item Name</th>
+                            <th class="p-3">Category</th>
+                            <th class="p-3">Quantity</th>
+                            <th class="p-3">Data Center</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3">Added By</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTable" class="text-gray-600 text-sm">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination" class="flex justify-center items-center gap-2 mt-6">
+                <!-- Pagination buttons will be generated here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-8 hidden">
+                <div class="text-gray-400 text-6xl mb-4">📊</div>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">No Data Found</h3>
+                <p class="text-gray-500">Try adjusting your date range or filters</p>
+            </div>
         </section>
     </div>
 
     <script>
-        // Handle Quick Select
-        document.querySelectorAll('.quick-select').forEach(btn => {
-            btn.addEventListener('click', () => {
-                alert(`Filter applied for ${btn.dataset.quickselect}`);
-            });
-        });
+        document.addEventListener("DOMContentLoaded", function() {
+            let currentPage = 1;
+            let currentDateRange = {};
 
-        // Handle Apply Filter
-        document.getElementById('applyFilter').addEventListener('click', () => {
-            alert('Filter applied for specific date range.');
+            // Initialize with last 30 days
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+            document.getElementById("startDate").value = thirtyDaysAgo.toISOString().split('T')[0];
+            document.getElementById("endDate").value = today.toISOString().split('T')[0];
+
+            // Load initial data
+            loadReportData();
+
+            // ========================
+            // EVENT LISTENERS
+            // ========================
+            document.getElementById("quickSelect").addEventListener("change", function() {
+                const days = parseInt(this.value);
+                if (days) {
+                    const end = new Date();
+                    const start = new Date(end.getTime() - days * 24 * 60 * 60 * 1000);
+
+                    document.getElementById("startDate").value = start.toISOString().split('T')[0];
+                    document.getElementById("endDate").value = end.toISOString().split('T')[0];
+                }
+            });
+
+            document.getElementById("applyFilter").addEventListener("click", function() {
+                currentPage = 1;
+                loadReportData();
+            });
+
+            document.getElementById("exportPDF").addEventListener("click", exportToPDF);
+            document.getElementById("exportExcel").addEventListener("click", exportToExcel);
+
+            // ========================
+            // LOAD REPORT DATA
+            // ========================
+            async function loadReportData() {
+                try {
+                    showLoading(true);
+
+                    const startDate = document.getElementById("startDate").value;
+                    const endDate = document.getElementById("endDate").value;
+
+                    if (!startDate || !endDate) {
+                        alert("Please select both start and end dates");
+                        showLoading(false);
+                        return;
+                    }
+
+                    currentDateRange = { startDate, endDate };
+
+                    // Load stats and data in parallel
+                    const [statsResponse, dataResponse] = await Promise.all([
+                        fetch(`/api/reports/stats?startDate=${startDate}&endDate=${endDate}`),
+                        fetch(`/api/reports/data?startDate=${startDate}&endDate=${endDate}&page=${currentPage}&pageSize=50`)
+                    ]);
+
+                    if (!statsResponse.ok || !dataResponse.ok) {
+                        throw new Error("Failed to fetch report data");
+                    }
+
+                    const stats = await statsResponse.json();
+                    const data = await dataResponse.json();
+
+                    updateStats(stats);
+                    updateTable(data);
+                    updatePagination(data);
+
+                    showLoading(false);
+
+                } catch (error) {
+                    console.error("Error loading report data:", error);
+                    showError("Failed to load report data. Please try again.");
+                    showLoading(false);
+                }
+            }
+
+            // ========================
+            // UPDATE STATS
+            // ========================
+            function updateStats(stats) {
+                document.getElementById("totalEntries").textContent = stats.totalEntries;
+                document.getElementById("newItems").textContent = stats.newItems;
+                document.getElementById("updatedItems").textContent = stats.updatedItems;
+                document.getElementById("totalDataCenters").textContent = stats.totalDataCenters;
+            }
+
+            // ========================
+            // UPDATE TABLE
+            // ========================
+            function updateTable(data) {
+                const tableBody = document.getElementById("reportTable");
+                const emptyState = document.getElementById("emptyState");
+
+                if (!data.data || data.data.length === 0) {
+                    tableBody.innerHTML = "";
+                    emptyState.classList.remove("hidden");
+                    return;
+                }
+
+                emptyState.classList.add("hidden");
+
+                tableBody.innerHTML = data.data.map(item => `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3">${item.itemCode || '-'}</td>
+                        <td class="p-3">${new Date(item.createdAt).toLocaleDateString('en-GB')}</td>
+                        <td class="p-3">${item.itemName}</td>
+                        <td class="p-3">
+                            <span class="bg-blue-100 text-blue-600 rounded-full px-3 py-1 text-xs">
+                                ${item.categoryName}
+                            </span>
+                        </td>
+                        <td class="p-3">${item.quantity}</td>
+                        <td class="p-3">${item.dataCenterName}</td>
+                        <td class="p-3">
+                            <span class="px-3 py-1 rounded-full text-xs ${getStatusColor(item.status)}">
+                                ${item.status}
+                            </span>
+                        </td>
+                        <td class="p-3">${item.createdByName || 'System'}</td>
+                    </tr>
+                `).join("");
+
+                // Update showing info
+                const from = (data.page - 1) * data.pageSize + 1;
+                const to = Math.min(from + data.data.length - 1, data.totalCount);
+
+                document.getElementById("showingFrom").textContent = from;
+                document.getElementById("showingTo").textContent = to;
+                document.getElementById("totalCount").textContent = data.totalCount;
+            }
+
+            // ========================
+            // UPDATE PAGINATION
+            // ========================
+            function updatePagination(data) {
+                const pagination = document.getElementById("pagination");
+
+                if (data.totalPages <= 1) {
+                    pagination.innerHTML = "";
+                    return;
+                }
+
+                let paginationHTML = "";
+
+                // Previous button
+                if (data.page > 1) {
+                    paginationHTML += `
+                        <button onclick="changePage(${data.page - 1})"
+                                class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            Previous
+                        </button>
+                    `;
+                }
+
+                // Page numbers
+                const maxVisible = 5;
+                let startPage = Math.max(1, data.page - Math.floor(maxVisible / 2));
+                let endPage = Math.min(data.totalPages, startPage + maxVisible - 1);
+
+                if (endPage - startPage + 1 < maxVisible) {
+                    startPage = Math.max(1, endPage - maxVisible + 1);
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const activeClass = i === data.page ? "bg-blue-600 text-white" : "bg-white text-gray-700 hover:bg-gray-100";
+                    paginationHTML += `
+                        <button onclick="changePage(${i})"
+                                class="px-3 py-2 border rounded ${activeClass}">
+                            ${i}
+                        </button>
+                    `;
+                }
+
+                // Next button
+                if (data.page < data.totalPages) {
+                    paginationHTML += `
+                        <button onclick="changePage(${data.page + 1})"
+                                class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            Next
+                        </button>
+                    `;
+                }
+
+                pagination.innerHTML = paginationHTML;
+            }
+
+            // ========================
+            // PAGINATION CHANGE
+            // ========================
+            window.changePage = function(page) {
+                currentPage = page;
+                loadReportData();
+            };
+
+            // ========================
+            // EXPORT FUNCTIONS
+            // ========================
+                   // Update fungsi export untuk menggunakan ReportsController
+        async function exportToPDF() {
+            try {
+                console.log("Starting PDF export...");
+                setExportLoading("exportPDF", true);
+
+                const { startDate, endDate } = currentDateRange;
+
+                if (!startDate || !endDate) {
+                    throw new Error("Date range not selected");
+                }
+
+                console.log("Requesting PDF with dates:", startDate, endDate);
+
+                // GUNAKAN ENDPOINT REPORTS CONTROLLER
+                const response = await fetch(`/api/reports/export/pdf?startDate=${startDate}&endDate=${endDate}`);
+
+                console.log("Response status:", response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Server error:", errorText);
+                    throw new Error(`Server error: ${response.status} - ${errorText}`);
+                }
+
+                const blob = await response.blob();
+                console.log("Blob size:", blob.size);
+
+                if (blob.size === 0) {
+                    throw new Error("Empty file received");
+                }
+
+                downloadFile(blob, `InventoryReport_${startDate}_${endDate}.pdf`);
+                showExportSuccess("PDF exported successfully!");
+
+            } catch (error) {
+                console.error("Error exporting PDF:", error);
+                showError(`Failed to export PDF: ${error.message}`);
+            } finally {
+                setExportLoading("exportPDF", false);
+            }
+        }
+
+        async function exportToExcel() {
+            try {
+                console.log("Starting Excel export...");
+                setExportLoading("exportExcel", true);
+
+                const { startDate, endDate } = currentDateRange;
+
+                if (!startDate || !endDate) {
+                    throw new Error("Date range not selected");
+                }
+
+                // GUNAKAN ENDPOINT REPORTS CONTROLLER
+                const response = await fetch(`/api/reports/export/excel?startDate=${startDate}&endDate=${endDate}`);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Server error:", errorText);
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const blob = await response.blob();
+
+                if (blob.size === 0) {
+                    throw new Error("Empty file received");
+                }
+
+                downloadFile(blob, `InventoryReport_${startDate}_${endDate}.xlsx`);
+                showExportSuccess("Excel exported successfully!");
+
+            } catch (error) {
+                console.error("Error exporting Excel:", error);
+                showError(`Failed to export Excel: ${error.message}`);
+            } finally {
+                setExportLoading("exportExcel", false);
+            }
+        }
+
+        // Helper function untuk download
+        function downloadFile(blob, filename) {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+            // ========================
+            // UTILITY FUNCTIONS
+            // ========================
+            function showLoading(show) {
+                document.getElementById("loadingState").classList.toggle("hidden", !show);
+                document.getElementById("statsSection").classList.toggle("opacity-50", show);
+            }
+
+            function showError(message) {
+                const toast = createToast(message, 'error');
+                document.body.appendChild(toast);
+            }
+
+            function showExportSuccess(message) {
+                const toast = createToast(message, 'success');
+                document.body.appendChild(toast);
+            }
+
+            function createToast(message, type) {
+                const toast = document.createElement('div');
+                toast.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                    type === 'success' ? 'bg-green-500' : 'bg-red-500'
+                } text-white max-w-sm`;
+                toast.textContent = message;
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+
+                return toast;
+            }
+
+            function setExportLoading(buttonId, loading) {
+                const button = document.getElementById(buttonId);
+                const status = document.getElementById("exportStatus");
+
+                button.disabled = loading;
+
+                if (loading) {
+                    status.textContent = "Generating file...";
+                    status.className = "text-sm text-blue-600";
+                } else {
+                    status.textContent = "";
+                    status.className = "text-sm text-gray-500";
+                }
+            }
+
+            function getStatusColor(status) {
+                switch(status?.toLowerCase()) {
+                    case 'pending': return 'bg-yellow-100 text-yellow-800';
+                    case 'arrived': return 'bg-green-100 text-green-800';
+                    case 'active': return 'bg-blue-100 text-blue-800';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            }
         });
     </script>
 </body>
-
 </html>
-
-@* <body class="bg-gray-50 min-h-screen font-sans flex"> *@
-
-
-@*     <!-- Main Content --> *@
-@*     <main class="flex-1 p-6"> *@
-@*         <!-- Header --> *@
-@*         <header class="flex justify-between items-center border-b pb-4"> *@
-@*             <div> *@
-@*                 <h1 class="text-2xl font-bold text-gray-700">Reports</h1> *@
-@*                 <p class="text-sm text-gray-500">Generate and view reports based on product data</p> *@
-@*             </div> *@
-@*             <button class="bg-teal-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-teal-700"> *@
-@*                 + Generate Report *@
-@*             </button> *@
-@*         </header> *@
-
-@*         <!-- Filters and Calendar --> *@
-@*         <section class="mt-6 bg-white shadow rounded-lg p-6 flex justify-between gap-6"> *@
-@*             <!-- Calendar --> *@
-@*             <div class="w-1/3"> *@
-@*                 <h2 class="text-lg font-semibold text-gray-700 mb-4">Select Date</h2> *@
-@*                 <input type="date" class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-teal-500 focus:outline-none"> *@
-@*             </div> *@
-
-@*             <!-- Chart --> *@
-@*             <div class="flex-1"> *@
-@*                 <h2 class="text-lg font-semibold text-gray-700 mb-4">Report Summary</h2> *@
-@*                 <canvas id="reportChart" class="w-full h-48"></canvas> *@
-@*             </div> *@
-@*         </section> *@
-
-@*         <!-- Report Table --> *@
-@*         <section class="mt-6 bg-white shadow rounded-lg p-6"> *@
-@*             <h2 class="text-lg font-semibold text-gray-700 mb-4">Report List</h2> *@
-@*             <table class="w-full border-collapse border border-gray-200 text-sm"> *@
-@*                 <thead class="bg-gray-100 text-gray-600"> *@
-@*                     <tr> *@
-@*                         <th class="p-3 text-left">#</th> *@
-@*                         <th class="p-3 text-left">Report Name</th> *@
-@*                         <th class="p-3 text-left">Category</th> *@
-@*                         <th class="p-3 text-left">Date Created</th> *@
-@*                         <th class="p-3 text-left">Action</th> *@
-@*                     </tr> *@
-@*                 </thead> *@
-@*                 <tbody class="divide-y divide-gray-200"> *@
-@*                     <!-- Row 1 --> *@
-@*                     <tr> *@
-@*                         <td class="p-3">1</td> *@
-@*                         <td class="p-3">Monthly Inventory</td> *@
-@*                         <td class="p-3"> *@
-@*                             <span class="px-2 py-1 bg-teal-100 text-teal-800 rounded-full text-xs">Inventory</span> *@
-@*                         </td> *@
-@*                         <td class="p-3 text-gray-500">2023-12-01</td> *@
-@*                         <td class="p-3"> *@
-@*                             <button class="text-teal-600 hover:underline">View</button> *@
-@*                             <button class="text-red-600 hover:underline ml-4">Delete</button> *@
-@*                         </td> *@
-@*                     </tr> *@
-@*                     <!-- Row 2 --> *@
-@*                     <tr> *@
-@*                         <td class="p-3">2</td> *@
-@*                         <td class="p-3">Weekly Server Check</td> *@
-@*                         <td class="p-3"> *@
-@*                             <span class="px-2 py-1 bg-gray-200 text-gray-600 rounded-full text-xs">Status</span> *@
-@*                         </td> *@
-@*                         <td class="p-3 text-gray-500">2023-12-05</td> *@
-@*                         <td class="p-3"> *@
-@*                             <button class="text-teal-600 hover:underline">View</button> *@
-@*                             <button class="text-red-600 hover:underline ml-4">Delete</button> *@
-@*                         </td> *@
-@*                     </tr> *@
-@*                 </tbody> *@
-@*             </table> *@
-@*         </section> *@
-@*     </main> *@
-
-@*     <!-- Chart.js Configuration --> *@
-@*     <script> *@
-@*         const ctx = document.getElementById('reportChart').getContext('2d'); *@
-@*         new Chart(ctx, { *@
-@*           type: 'pie', *@
-@*           data: { *@
-@*             labels: ['Server', 'Cable', 'PDU'], *@
-@*             datasets: [{ *@
-@*               data: [55, 25, 20], *@
-@*               backgroundColor: ['#4CAF50', '#FF9800', '#03A9F4'], *@
-@*             }] *@
-@*           } *@
-@*         }); *@
-@*     </script> *@
-@* </body> *@

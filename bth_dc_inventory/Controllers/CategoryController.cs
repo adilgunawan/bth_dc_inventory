@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using bth_dc_inventory.Data;
 using bth_dc_inventory.Models;
@@ -20,29 +21,30 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
-        // GET: api/Category
+        // GET: api/Category - ✅ DENGAN AKUMULASI TOTAL PRODUCTS
         // =====================================
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryReadDto>>> GetCategories()
         {
             var categories = await _context.Categories
-                .Include(c => c.Items)
+                .Include(c => c.Items) // ✅ Include Items untuk menghitung total
                 .Select(c => new CategoryReadDto
                 {
                     Id = c.Id,
                     CategoryName = c.CategoryName,
                     Description = c.Description ?? "",
-                    Image = c.Image, // ✅ Include image path
-                    TotalItems = c.Items.Count(),
-            
+                    Image = c.Image,
+                    TotalItems = c.Items.Count(), // ✅ Akumulasi total products per category
+
                 })
+                .OrderByDescending(c => c.TotalItems) // ✅ Sort by total items descending
                 .ToListAsync();
 
             return Ok(categories);
         }
 
         // =====================================
-        // GET: api/Category/{id}
+        // GET: api/Category/{id} - ✅ DENGAN AKUMULASI TOTAL PRODUCTS
         // =====================================
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryReadDto>> GetCategory(int id)
@@ -59,12 +61,53 @@ namespace bth_dc_inventory.Controllers
                 Id = category.Id,
                 CategoryName = category.CategoryName,
                 Description = category.Description ?? "",
-                Image = category.Image, // ✅ Include image path
-                TotalItems = category.Items.Count(),
-           
+                Image = category.Image,
+                TotalItems = category.Items.Count(), // ✅ Akumulasi total products
+
             };
 
             return Ok(categoryDto);
+        }
+
+        // =====================================
+        // GET: api/Category/stats - ✅ TAMBAHAN: Category statistics
+        // =====================================
+        [HttpGet("stats")]
+        public async Task<ActionResult<object>> GetCategoryStats()
+        {
+            try
+            {
+                var categoryStats = await _context.Categories
+                    .Include(c => c.Items)
+                    .Select(c => new
+                    {
+                        Id = c.Id,
+                        CategoryName = c.CategoryName,
+                        TotalItems = c.Items.Count(),
+                        ActiveItems = c.Items.Count(i => i.Status == "Active"),
+                        PendingItems = c.Items.Count(i => i.Status == "Pending"),
+                        ArrivedItems = c.Items.Count(i => i.Status == "Arrived"),
+                        Image = c.Image
+                    })
+                    .OrderByDescending(c => c.TotalItems)
+                    .ToListAsync();
+
+                var totalCategories = categoryStats.Count;
+                var totalProducts = categoryStats.Sum(c => c.TotalItems);
+                var averageItems = totalCategories > 0 ? Math.Round((double)totalProducts / totalCategories, 1) : 0;
+
+                return Ok(new
+                {
+                    TotalCategories = totalCategories,
+                    TotalProducts = totalProducts,
+                    AverageItems = averageItems,
+                    Categories = categoryStats
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error fetching category stats", error = ex.Message });
+            }
         }
 
         // =====================================
@@ -84,7 +127,7 @@ namespace bth_dc_inventory.Controllers
 
                 string? imagePath = null;
 
-                // ✅ Handle image upload
+                // Handle image upload
                 if (categoryDto.Image != null && categoryDto.Image.Length > 0)
                 {
                     imagePath = await SaveImageAsync(categoryDto.Image);
@@ -94,7 +137,7 @@ namespace bth_dc_inventory.Controllers
                 {
                     CategoryName = categoryDto.CategoryName,
                     Description = categoryDto.Description,
-                    Image = imagePath, // ✅ Save image path
+                    Image = imagePath,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -107,8 +150,8 @@ namespace bth_dc_inventory.Controllers
                     CategoryName = category.CategoryName,
                     Description = category.Description ?? "",
                     Image = category.Image,
-                    TotalItems = 0,
-                
+                    TotalItems = 0, // New category starts with 0 items
+
                 };
 
                 return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, result);
@@ -141,7 +184,7 @@ namespace bth_dc_inventory.Controllers
                 if (await _context.Categories.AnyAsync(c => c.CategoryName == categoryDto.CategoryName && c.Id != id))
                     return BadRequest("Category name already exists");
 
-                // ✅ Handle image update
+                // Handle image update
                 if (categoryDto.Image != null && categoryDto.Image.Length > 0)
                 {
                     // Delete old image if exists
@@ -182,10 +225,11 @@ namespace bth_dc_inventory.Controllers
                 if (category == null)
                     return NotFound();
 
+                // ✅ CHECK: Prevent delete if category has products
                 if (category.Items.Any())
-                    return BadRequest("Cannot delete category with existing products");
+                    return BadRequest($"Cannot delete category. It contains {category.Items.Count} products. Please move or delete the products first.");
 
-                // ✅ Delete associated image
+                // Delete associated image
                 if (!string.IsNullOrEmpty(category.Image))
                 {
                     DeleteImage(category.Image);
@@ -209,7 +253,12 @@ namespace bth_dc_inventory.Controllers
         public async Task<ActionResult<IEnumerable<object>>> GetCategoryDropdown()
         {
             var categories = await _context.Categories
-                .Select(c => new { c.Id, c.CategoryName })
+                .Select(c => new {
+                    Id = c.Id,
+                    CategoryName = c.CategoryName,
+                    TotalItems = c.Items.Count() // ✅ Include total items in dropdown
+                })
+                .OrderBy(c => c.CategoryName)
                 .ToListAsync();
 
             return Ok(categories);
@@ -229,8 +278,18 @@ namespace bth_dc_inventory.Controllers
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                // Generate unique filename
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + image.FileName;
+                // ✅ PERBAIKI: Generate nama file yang lebih pendek
+                string extension = Path.GetExtension(image.FileName).ToLowerInvariant();
+
+                // Validasi extension
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+                if (!allowedExtensions.Contains(extension))
+                {
+                    throw new Exception("Invalid file type. Only images are allowed.");
+                }
+
+                // Generate simple unique filename
+                string uniqueFileName = Guid.NewGuid().ToString("N") + extension;
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                 // Save file
@@ -240,7 +299,7 @@ namespace bth_dc_inventory.Controllers
                 }
 
                 // Return relative path for database storage
-                return Path.Combine("uploads", "categories", uniqueFileName).Replace("\\", "/");
+                return $"uploads/categories/{uniqueFileName}";
             }
             catch (Exception ex)
             {
@@ -254,7 +313,7 @@ namespace bth_dc_inventory.Controllers
             {
                 if (!string.IsNullOrEmpty(imagePath))
                 {
-                    string fullPath = Path.Combine(_environment.WebRootPath, imagePath.Replace("/", "\\"));
+                    string fullPath = Path.Combine(_environment.WebRootPath, imagePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
                     if (System.IO.File.Exists(fullPath))
                     {
                         System.IO.File.Delete(fullPath);

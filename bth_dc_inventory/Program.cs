@@ -33,6 +33,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = "YourIssuer",
             ValidAudience = "YourAudience",
             IssuerSigningKey = new SymmetricSecurityKey(key)
+                
         };
     });
 

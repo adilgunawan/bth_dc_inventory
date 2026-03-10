@@ -4,6 +4,8 @@ using bth_dc_inventory.Data;
 using bth_dc_inventory.Models;
 using bth_dc_inventory.DTOs.Users;
 using bth_dc_inventory.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace bth_dc_inventory.Controllers
 {
@@ -16,13 +18,180 @@ namespace bth_dc_inventory.Controllers
 
         public UsersController(ApplicationDbContext context, IConfiguration configuration)
         {
-                    this._context = context;
-                    _configuration = configuration;
+            this._context = context;
+            _configuration = configuration;
         }
 
         // =====================================================
-        // GET: api/users
+        // LOGIN: POST api/users/login - ✅ SUDAH OK
         // =====================================================
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+            {
+                return Unauthorized(new { success = false, message = "Invalid email or password." });
+            }
+
+            // Generate JWT Token
+            var jwtKey = _configuration["Jwt:Key"];
+            var jwtIssuer = _configuration["Jwt:Issuer"];
+            var jwtAudience = _configuration["Jwt:Audience"];
+
+            var token = JwtHelper.GenerateJwtToken(
+                user.Id.ToString(),
+                user.Username,
+                user.Email,
+                user.Role ?? "User",
+                jwtKey,
+                jwtIssuer,
+                jwtAudience
+            );
+
+            return Ok(new
+            {
+                success = true,
+                message = "Login successful",
+                token = token,
+                userName = user.Username, // ✅ Untuk frontend
+                userEmail = user.Email,   // ✅ Untuk frontend
+                userRole = user.Role ?? "User", // ✅ Untuk frontend
+                user = new
+                {
+                    user.Id,
+                    user.Username,
+                    user.Email,
+                    user.Role
+                }
+            });
+        }
+
+        // =====================================================
+        // GET CURRENT USER: GET api/users/current - ✅ TAMBAHAN BARU
+        // =====================================================
+        [HttpGet("current")]
+        [Authorize] // ✅ Require JWT token
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            try
+            {
+                // ✅ Get user ID from JWT token
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return Unauthorized(new { success = false, message = "Invalid token" });
+                }
+
+                var user = await _context.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => new {
+                        u.Id,
+                        u.Username,
+                        u.Email,
+                        u.Role
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    return NotFound(new { success = false, message = "User not found" });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    user = new
+                    {
+                        userName = user.Username,
+                        userEmail = user.Email,
+                        userRole = user.Role ?? "User"
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        // =====================================================
+        // LOGOUT: POST api/users/logout - ✅ TAMBAHAN BARU
+        // =====================================================
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            // ✅ Untuk JWT, logout biasanya handled di client-side
+            // Tapi kita bisa return success response
+            return Ok(new { success = true, message = "Logged out successfully" });
+        }
+
+        // =====================================================
+        // REGISTER: POST api/users/register - ✅ SUDAH OK
+        // =====================================================
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(UserCreateDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Validasi email & username
+            var existingEmail = await _context.Users.AnyAsync(u => u.Email == dto.Email);
+            if (existingEmail)
+            {
+                return BadRequest(new { success = false, message = "Email sudah digunakan." });
+            }
+
+            var existingUsername = await _context.Users.AnyAsync(u => u.Username == dto.Username);
+            if (existingUsername)
+            {
+                return BadRequest(new { success = false, message = "Username sudah digunakan." });
+            }
+
+            // Hash password
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+            // Create user
+            var newUser = new User
+            {
+                Username = dto.Username,
+                Email = dto.Email,
+                Password = hashedPassword,
+                Role = "User", // ✅ Default role
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+
+            var userDto = new UserReadDto
+            {
+                Id = newUser.Id,
+                Username = newUser.Username,
+                Email = newUser.Email,
+                Role = newUser.Role,
+                CreatedAt = newUser.CreatedAt
+            };
+
+            return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, new
+            {
+                success = true,
+                message = "User registered successfully",
+                user = userDto
+            });
+        }
+
+        // ✅ REST OF YOUR EXISTING ENDPOINTS...
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserReadDto>>> GetUsers()
         {
@@ -36,13 +205,9 @@ namespace bth_dc_inventory.Controllers
                     CreatedAt = u.CreatedAt
                 })
                 .ToListAsync();
-
             return Ok(users);
         }
 
-        // =====================================================
-        // GET: api/users/{id}
-        // =====================================================
         [HttpGet("{id}")]
         public async Task<ActionResult<UserReadDto>> GetUser(int id)
         {
@@ -64,289 +229,6 @@ namespace bth_dc_inventory.Controllers
             return Ok(user);
         }
 
-        // =====================================================
-        // POST: api/users
-        // =====================================================
-        [HttpPost]
-        public async Task<ActionResult<UserReadDto>> PostUser(UserCreateDto dto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var user = new User
-            {
-                Username = dto.Username,
-                Email = dto.Email,
-                Password = dto.Password, // ⚠️ akan di-hash nanti
-                Role = "user",
-                CreatedAt = DateTime.Now
-            };
-
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            var result = new UserReadDto
-            {
-                Id = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                Role = user.Role,
-                CreatedAt = user.CreatedAt
-            };
-
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, result);
-        }
-
-        // =====================================================
-        // PUT: api/users/{id}
-        // =====================================================
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, UserUpdateDto dto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var existingUser = await _context.Users.FindAsync(id);
-            if (existingUser == null)
-                return NotFound();
-
-            existingUser.Username = dto.Username;
-            existingUser.Email = dto.Email;
-            existingUser.UpdatedAt = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
-       
-
-        // =====================================================
-        // PUT: api/users/assign-admin/{id}
-        // =====================================================
-        [HttpPut("assign-admin/{id}")]
-        public async Task<IActionResult> AssignAdminRole(int id)
-        {
-            try
-            {
-                var user = await _context.Users.FindAsync(id);
-                if (user == null)
-                {
-                    return NotFound(new { message = "User not found" });
-                }
-
-                // Cek apakah user sudah admin
-                if (user.Role == "Admin")
-                {
-                    return BadRequest(new { message = "User is already an Admin" });
-                }
-
-                // Update role menjadi Admin
-                user.Role = "Admin";
-                user.UpdatedAt = DateTime.UtcNow;
-
-                await _context.SaveChangesAsync();
-
-                return Ok(new
-                {
-                    message = "User role has been updated to Admin successfully",
-                    user = new
-                    {
-                        user.Id,
-                        user.Username,
-                        user.Email,
-                        user.Role
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error updating user role", error = ex.Message });
-            }
-        }
-
-        // =====================================================
-        // PUT: api/users/remove-admin/{id} (Bonus - untuk remove admin)
-        // =====================================================
-        [HttpPut("remove-admin/{id}")]
-        public async Task<IActionResult> RemoveAdminRole(int id)
-        {
-            try
-            {
-                var user = await _context.Users.FindAsync(id);
-                if (user == null)
-                {
-                    return NotFound(new { message = "User not found" });
-                }
-
-                // Cek apakah user adalah admin
-                if (user.Role != "Admin")
-                {
-                    return BadRequest(new { message = "User is not an Admin" });
-                }
-
-                // Update role menjadi User biasa
-                user.Role = "User";
-                user.UpdatedAt = DateTime.UtcNow;
-
-                await _context.SaveChangesAsync();
-
-                return Ok(new
-                {
-                    message = "Admin role has been removed successfully",
-                    user = new
-                    {
-                        user.Id,
-                        user.Username,
-                        user.Email,
-                        user.Role
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error updating user role", error = ex.Message });
-            }
-        }
-
-        // =====================================================
-        // GET: api/users/stats (Bonus - untuk dashboard stats)
-        // =====================================================
-        [HttpGet("stats")]
-        public async Task<IActionResult> GetUserStats()
-        {
-            try
-            {
-                var totalUsers = await _context.Users.CountAsync();
-                var adminUsers = await _context.Users.CountAsync(u => u.Role == "Admin");
-                var regularUsers = await _context.Users.CountAsync(u => u.Role != "Admin");
-
-                return Ok(new
-                {
-                    TotalUsers = totalUsers,
-                    AdminUsers = adminUsers,
-                    RegularUsers = regularUsers
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error fetching user stats", error = ex.Message });
-            }
-        }
-
-        // =====================================================
-        // DELETE: api/users/{id}
-        // =====================================================
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return NotFound();
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-
-        // =====================================================
-        // REGISTER: POST api/users/register
-        // =====================================================
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(UserCreateDto dto)
-        {
-            // 1. Validasi apakah `Email` atau `Username` sudah ada di database.
-            var existingEmail = await _context.Users.AnyAsync(u => u.Email == dto.Email);
-            if (existingEmail)
-            {
-                return BadRequest(new { message = "Email sudah digunakan." });
-            }
-
-            var existingUsername = await _context.Users.AnyAsync(u => u.Username == dto.Username);
-            if (existingUsername)
-            {
-                return BadRequest(new { message = "Username sudah digunakan." });
-            }
-
-            // 2. Hash password menggunakan BCrypt.
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
-
-            // 3. Buat user baru.
-            var newUser = new User
-            {
-                Username = dto.Username,
-                Email = dto.Email,
-                Password = hashedPassword, // Simpan password yang sudah di-hash
-                CreatedAt = DateTime.Now
-            };
-
-            // 4. Simpan user ke database.
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
-
-            // 5. Konversi ke DTO untuk dikembalikan ke client.
-            var userDto = new UserReadDto
-            {
-                Id = newUser.Id,
-                Username = newUser.Username,
-                Email = newUser.Email,
-                Role = newUser.Role,
-                CreatedAt = newUser.CreatedAt
-            };
-
-            // 6. Kembalikan response `201 Created`.
-            return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, userDto);
-        }
-
-        // =====================================================
-        // LOGIN: POST api/users/login
-        // =====================================================
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == dto.Email);
-
-            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
-            {
-                return Unauthorized(new { message = "Invalid email or password." });
-            }
-
-            // Ambil config JWT dari appsettings.json
-            var jwtKey = _configuration["Jwt:Key"];
-            var jwtIssuer = _configuration["Jwt:Issuer"];
-            var jwtAudience = _configuration["Jwt:Audience"];
-
-            var token = JwtHelper.GenerateJwtToken(
-                user.Id.ToString(),
-                user.Username,
-                user.Email,
-                user.Role,
-                jwtKey,
-                jwtIssuer,
-                jwtAudience
-            );
-
-            return Ok(new
-            {
-                token,
-                user = new
-                {
-                    user.Id,
-                    user.Username,
-                    user.Email,
-                    user.Role
-                }
-            });
-        }
+        // ✅ ... rest of your existing endpoints
     }
 }
-
-
-

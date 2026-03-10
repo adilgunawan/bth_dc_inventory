@@ -61,8 +61,16 @@
                 </div>
                 <!-- Product Image -->
                 <div class="flex justify-center items-center px-3">
-                    <img id="productImage" src="/images/dummy_picture.png" alt="Product Image"
-                         class="rounded-lg shadow-lg object-cover max-w-full h-auto">
+                    <div class="relative">
+                        <img id="productImage"
+                             src="/images/dummy_picture.png"
+                             alt="Product Image"
+                             class="rounded-lg shadow-lg object-cover w-full max-w-2xl h-96 border border-gray-200">
+                        <!-- Loading placeholder -->
+                        <div id="imageLoading" class="absolute inset-0 bg-gray-200 rounded-lg flex items-center justify-center hidden">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -143,6 +151,7 @@
                             class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
                         <option value="Pending">Pending</option>
                         <option value="Arrived">Arrived</option>
+                        <option value="Active">Active</option>
                     </select>
                 </div>
 
@@ -225,7 +234,6 @@
             async function loadDropdownData() {
                 try {
                     console.log("Loading dropdown data...");
-
                     const [categoriesRes, dataCentersRes] = await Promise.all([
                         fetch("/api/Category/dropdown"),
                         fetch("/api/DataCenters/dropdown")
@@ -249,7 +257,6 @@
                     } else {
                         console.error("Failed to load data centers:", dataCentersRes.status);
                     }
-
                 } catch (error) {
                     console.error("Error loading dropdown data:", error);
                     // Don't show error for dropdowns, continue loading product
@@ -293,7 +300,6 @@
                     console.log(`Loading product details for ID: ${id}`);
 
                     const response = await fetch(`/api/items/${id}`);
-
                     if (!response.ok) {
                         if (response.status === 404) {
                             throw new Error("Product not found");
@@ -305,21 +311,54 @@
                     console.log("Product loaded:", currentProduct);
 
                     displayProductDetails(currentProduct);
+                    displayProductImage(currentProduct); // ✅ TAMBAHKAN: Display category image
                     showLoading(false);
-
                 } catch (error) {
                     console.error("Error loading product:", error);
                     showError("Failed to Load Product Details", error.message);
                     showLoading(false);
                 }
             }
+                    function displayProductImage(product) {
+            const productImage = document.getElementById("productImage");
+            const imageLoading = document.getElementById("imageLoading");
 
+            // Show loading
+            if (imageLoading) {
+                imageLoading.classList.remove("hidden");
+            }
+
+            if (product.categoryImage) {
+                productImage.src = `/${product.categoryImage}`;
+                productImage.alt = `${product.categoryName} Image`;
+            } else {
+                productImage.src = "/images/dummy_picture.png";
+                productImage.alt = "Default Product Image";
+            }
+
+            // Hide loading when image loads
+            productImage.onload = function() {
+                if (imageLoading) {
+                    imageLoading.classList.add("hidden");
+                }
+            };
+
+            // Handle error loading image
+            productImage.onerror = function() {
+                this.src = "/images/dummy_picture.png";
+                this.alt = "Default Product Image";
+                if (imageLoading) {
+                    imageLoading.classList.add("hidden");
+                }
+            };
+
+            console.log("Product image set to:", productImage.src);
+        }
             // ========================
             // DISPLAY PRODUCT DETAILS
             // ========================
             function displayProductDetails(product) {
                 const detailList = document.getElementById("detailList");
-
                 detailList.innerHTML = `
                     <li><span class="font-semibold text-gray-700">Product Name:</span> ${product.itemName || 'N/A'}</li>
                     <li><span class="font-semibold text-gray-700">Item Code:</span> ${product.itemCode || 'N/A'}</li>
@@ -342,6 +381,29 @@
                 document.getElementById("productDetails").classList.remove("hidden");
             }
 
+            // ✅ TAMBAHKAN: Function untuk display product image dari category
+            function displayProductImage(product) {
+                const productImage = document.getElementById("productImage");
+
+                if (product.categoryImage) {
+                    // Jika category memiliki image, gunakan itu
+                    productImage.src = `/${product.categoryImage}`;
+                    productImage.alt = `${product.categoryName} Image`;
+                } else {
+                    // Fallback ke dummy image jika tidak ada
+                    productImage.src = "/images/dummy_picture.png";
+                    productImage.alt = "Default Product Image";
+                }
+
+                // Handle error loading image
+                productImage.onerror = function() {
+                    this.src = "/images/dummy_picture.png";
+                    this.alt = "Default Product Image";
+                };
+
+                console.log("Product image set to:", productImage.src);
+            }
+
             // ========================
             // GET STATUS COLOR
             // ========================
@@ -349,6 +411,7 @@
                 switch(status) {
                     case 'Arrived': return 'bg-green-200 text-green-800';
                     case 'Pending': return 'bg-yellow-200 text-yellow-800';
+                    case 'Active': return 'bg-blue-200 text-blue-800'; // ✅ TAMBAHKAN status Active
                     default: return 'bg-gray-200 text-gray-800';
                 }
             }
@@ -372,7 +435,6 @@
             // ========================
             // MODAL HANDLERS
             // ========================
-
             // Edit Modal
             document.getElementById("openEditModal").addEventListener("click", async () => {
                 if (currentProduct) {
@@ -381,7 +443,6 @@
                         console.log("Reloading dropdown data...");
                         await loadDropdownData();
                     }
-
                     populateEditForm(currentProduct);
                     document.getElementById("editModal").classList.remove("hidden");
                 }
@@ -423,22 +484,16 @@
                     document.getElementById("editDateOfPurchase").value = date.toISOString().split('T')[0];
                 }
 
-                // Set category - need to find the categoryId from categoryName
-                if (product.categoryName && categoriesData.length > 0) {
-                    const category = categoriesData.find(cat => cat.categoryName === product.categoryName);
-                    if (category) {
-                        document.getElementById("editCategory").value = category.id;
-                        console.log("Set category to:", category.id, category.categoryName);
-                    }
+                // Set category - menggunakan categoryId yang sudah ada
+                if (product.categoryId) {
+                    document.getElementById("editCategory").value = product.categoryId;
+                    console.log("Set category to:", product.categoryId, product.categoryName);
                 }
 
-                // Set location - need to find the dataCenterId from dataCenterName
-                if (product.dataCenterName && dataCentersData.length > 0) {
-                    const dataCenter = dataCentersData.find(dc => dc.name === product.dataCenterName);
-                    if (dataCenter) {
-                        document.getElementById("editLocation").value = dataCenter.id;
-                        console.log("Set location to:", dataCenter.id, dataCenter.name);
-                    }
+                // Set location - menggunakan dataCenterId yang sudah ada
+                if (product.dataCenterId) {
+                    document.getElementById("editLocation").value = product.dataCenterId;
+                    console.log("Set location to:", product.dataCenterId, product.dataCenterName);
                 }
             }
 
@@ -485,7 +540,6 @@
                     alert("Product updated successfully!");
                     document.getElementById("editModal").classList.add("hidden");
                     await loadProductDetails(productId); // Reload product details
-
                 } catch (error) {
                     console.error("Error updating product:", error);
                     alert(`Failed to update product: ${error.message}`);
@@ -518,7 +572,6 @@
 
                     alert("Product deleted successfully!");
                     goBack(); // Redirect back after successful deletion
-
                 } catch (error) {
                     console.error("Error deleting product:", error);
                     alert("Failed to delete product. Please try again.");

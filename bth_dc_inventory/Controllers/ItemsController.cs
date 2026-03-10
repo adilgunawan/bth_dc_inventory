@@ -56,39 +56,49 @@ namespace bth_dc_inventory.Controllers
         // =====================================
         // GET: api/items/{id}
         // =====================================
+        // GET: api/items/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<ItemReadDto>> GetItem(int id)
+        public async Task<ActionResult<object>> GetItem(int id)
         {
-            // Cari item berdasarkan ID
-            var item = await _context.Items
-                .Include(i => i.Category) // Relasi ke tabel Category
-                .Include(i => i.DataCenter) // Relasi ke tabel DataCenter
-                .Where(i => i.Id == id) // Filter dengan ID
-                .Select(i => new ItemReadDto
+            try
+            {
+                var item = await _context.Items
+                    .Include(i => i.Category)
+                    .Include(i => i.DataCenter)
+                    .Include(i => i.CreatedBy)
+                    .FirstOrDefaultAsync(i => i.Id == id);
+
+                if (item == null)
+                    return NotFound();
+
+                var result = new
                 {
-                    Id = i.Id,
-                    ItemCode = i.ItemCode,
-                    ItemName = i.ItemName,
-                    AssetNumber = string.IsNullOrWhiteSpace(i.AssetNumber) ? null : i.AssetNumber,
-                    SerialNumber = string.IsNullOrWhiteSpace(i.SerialNumber) ? null : i.SerialNumber,
-                    CategoryName = i.Category != null ? i.Category.CategoryName : "N/A", // Pastikan relasi tidak null
-                    DataCenterName = i.DataCenter != null ? i.DataCenter.Name : "N/A", // Pastikan relasi tidak null
-                    BuyingPrice = i.BuyingPrice,
-                    Quantity = i.Quantity,
-                    Status = i.Status,
-                    DateOfPurchase = i.DateOfPurchase.HasValue ? i.DateOfPurchase.Value : null, // Validasi null
-                    UpdatedAt = i.UpdatedAt.HasValue ? i.UpdatedAt.Value : null // Validasi null
-                })
-                .FirstOrDefaultAsync();
+                    Id = item.Id,
+                    ItemCode = item.ItemCode ?? "",
+                    ItemName = item.ItemName ?? "",
+                    AssetNumber = item.AssetNumber ?? "",
+                    SerialNumber = item.SerialNumber ?? "",
+                    CategoryId = item.CategoryId,
+                    CategoryName = item.Category?.CategoryName ?? "",
+                    CategoryImage = item.Category?.Image, // ✅ Tambahkan ini
+                    DataCenterId = item.DataCenterId,
+                    DataCenterName = item.DataCenter?.Name ?? "",
+                    BuyingPrice = item.BuyingPrice,
+                    Quantity = item.Quantity,
+                    Status = item.Status ?? "",
+                    DateOfPurchase = item.DateOfPurchase,
+                    CreatedAt = item.CreatedAt,
+                    UpdatedAt = item.UpdatedAt,
+                    CreatedByName = item.CreatedBy?.Username ?? ""
+                };
 
-            // Jika item tidak ditemukan
-            if (item == null)
-                return NotFound(new { message = "Item not found." });
-
-            // Jika ditemukan, kembalikan hasil
-            return Ok(item);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error fetching item", error = ex.Message });
+            }
         }
-   
 
         // =====================================
         // POST: api/items
@@ -525,6 +535,7 @@ namespace bth_dc_inventory.Controllers
                     //PONumber = i.PONumber,
 
                     CategoryName = i.Category.CategoryName,
+               
                     DataCenterName = i.DataCenter.Name,
                     BuyingPrice = i.BuyingPrice,
                     Quantity = i.Quantity,

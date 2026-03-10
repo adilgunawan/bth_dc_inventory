@@ -12,7 +12,7 @@
 
         public string CategoryName { get; set; } = string.Empty;
         public string DataCenterName { get; set; } = string.Empty;
-
+        public string? CategoryImage { get; set; }
         public decimal BuyingPrice { get; set; }
         public int Quantity { get; set; }
         public string Status { get; set; } = string.Empty;

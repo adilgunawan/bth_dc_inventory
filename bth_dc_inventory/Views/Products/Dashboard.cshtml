@@ -2,20 +2,15 @@
     Layout = "_Layout";
     ViewData["Title"] = "Dashboard";
 }
-
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body class="bg-gray-50 min-h-screen font-sans">
-
     <div class="container mx-auto p-6">
         <!-- Header -->
         <header class="mb-6 flex justify-between items-center">
@@ -23,17 +18,26 @@
                 <h1 class="text-3xl font-bold text-gray-700">Infineon Technologies Batam</h1>
                 <p class="text-gray-400 text-sm">Dashboard Data Center Inventory</p>
             </div>
-
             <!-- Search Engine -->
-            <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-3 relative">
                 <input type="text" id="searchInput" placeholder="Search by product name, PO number, asset number..."
                        class="w-64 bg-white border border-gray-300 rounded-md px-4 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder-gray-400">
                 <button id="searchButton"
                         class="bg-teal-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-teal-700 transition">
                     Search
                 </button>
+                <!-- Search Results -->
+                <div id="searchResults" class="absolute top-12 right-0 w-80 bg-white border border-gray-300 rounded-md shadow-lg hidden z-50 max-h-60 overflow-y-auto">
+                    <!-- Results will be populated here -->
+                </div>
             </div>
         </header>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-8 hidden">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+            <p class="text-gray-600">Loading dashboard data...</p>
+        </div>
 
         <!-- Stats Cards -->
         <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
@@ -41,50 +45,51 @@
             <div class="bg-white shadow-md rounded-lg p-6 flex items-center">
                 <div>
                     <h3 class="text-sm text-gray-400">Total Products</h3>
-                    <p class="text-3xl font-bold text-teal-600">215</p>
-                    <p class="text-sm text-gray-400">Active inventory items</p>
+                    <p id="totalProducts" class="text-3xl font-bold text-teal-600">-</p>
+                    <p class="text-sm text-gray-400">Total inventory items</p>
                 </div>
                 <div class="ml-auto bg-teal-100 text-teal-600 rounded-full p-4">
-                    <img src="~/icons/box.svg" alt="Alternate Text" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                    </svg>
                 </div>
             </div>
-
             <!-- Pending Products Card -->
             <div class="bg-white shadow-md rounded-lg p-6 flex items-center">
                 <div>
                     <h3 class="text-sm text-gray-400">Products Pending</h3>
-                    <p class="text-3xl font-bold text-orange-500">88</p>
+                    <p id="pendingProducts" class="text-3xl font-bold text-orange-500">-</p>
                     <p class="text-sm text-gray-400">Status pending</p>
                 </div>
                 <div class="ml-auto bg-orange-100 text-orange-600 rounded-full p-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"><rect width="24" height="24" fill="none" /><path fill="currentColor" d="M17 22q-2.075 0-3.537-1.463T12 17t1.463-3.537T17 12t3.538 1.463T22 17t-1.463 3.538T17 22m1.675-2.625l.7-.7L17.5 16.8V14h-1v3.2zM5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h4.175q.275-.875 1.075-1.437T12 1q1 0 1.788.563T14.85 3H19q.825 0 1.413.588T21 5v6.25q-.45-.325-.95-.55T19 10.3V5h-2v3H7V5H5v14h5.3q.175.55.4 1.05t.55.95zm7-16q.425 0 .713-.288T13 4t-.288-.712T12 3t-.712.288T11 4t.288.713T12 5" /></svg>
-                </div>
-            </div>
-
-            <!-- Servers Card -->
-            <div class="bg-white shadow-md rounded-lg p-6 flex items-center">
-                <div>
-                    <h3 class="text-sm text-gray-400">Servers</h3>
-                    <p class="text-3xl font-bold text-blue-600">76</p>
-                    <p class="text-sm text-gray-400">24.8% of total items</p>
-                </div>
-                <div class="ml-auto bg-blue-100 text-blue-600 rounded-full p-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M4 1h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m0 8h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1m0 8h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1M9 5h1V3H9zm0 8h1v-2H9zm0 8h1v-2H9zM5 3v2h2V3zm0 8v2h2v-2zm0 8v2h2v-2z" />
+                        <path fill="currentColor" d="M17 22q-2.075 0-3.537-1.463T12 17t1.463-3.537T17 12t3.538 1.463T22 17t-1.463 3.538T17 22m1.675-2.625l.7-.7L17.5 16.8V14h-1v3.2z" />
                     </svg>
                 </div>
             </div>
-
-            <!-- Cable Power Card -->
+            <!-- Active Products Card -->
             <div class="bg-white shadow-md rounded-lg p-6 flex items-center">
                 <div>
-                    <h3 class="text-sm text-gray-400">Cable Power</h3>
-                    <p class="text-3xl font-bold text-purple-600">170</p>
-                    <p class="text-sm text-gray-400">55.6% of total items</p>
+                    <h3 class="text-sm text-gray-400">Active Products</h3>
+                    <p id="activeProducts" class="text-3xl font-bold text-blue-600">-</p>
+                    <p class="text-sm text-gray-400">Currently active</p>
+                </div>
+                <div class="ml-auto bg-blue-100 text-blue-600 rounded-full p-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M4 1h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m0 8h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1m0 8h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1" />
+                    </svg>
+                </div>
+            </div>
+            <!-- Total Categories Card -->
+            <div class="bg-white shadow-md rounded-lg p-6 flex items-center">
+                <div>
+                    <h3 class="text-sm text-gray-400">Categories</h3>
+                    <p id="totalCategories" class="text-3xl font-bold text-purple-600">-</p>
+                    <p class="text-sm text-gray-400">Product categories</p>
                 </div>
                 <div class="ml-auto bg-purple-100 text-purple-600 rounded-full p-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M5 21q-.425 0-.712-.288T4 20v-1H3v-4q0-.425.288-.712T4 14h1V7q0-1.65 1.175-2.825T9 3t2.825 1.175T13 7v10q0 .825.588 1.413T15 19t1.413-.587T17 17v-7h-1q-.425 0-.712-.288T15 9V5h1V4q0-.425.288-.712T17 3h2q.425 0 .713.288T20 4v1h1v4q0 .425-.288.713T20 10h-1v7q0 1.65-1.175 2.825T15 21t-2.825-1.175T11 17V7q0-.825-.587-1.412T9 5t-1.412.588T7 7v7h1q.425 0 .713.288T9 15v4H8v1q0 .425-.288.713T7 21z" />
+                        <path fill="currentColor" d="M10 3H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zM9 9H5V5h4v4zm11-6h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zm-1 6h-4V5h4v4zm-9 4H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1zm-1 6H5v-4h4v4zm11-6h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1zm-1 6h-4v-4h4v4z" />
                     </svg>
                 </div>
             </div>
@@ -93,31 +98,34 @@
         <!-- Inventory Distribution & Quick Overview -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <!-- Inventory Distribution -->
-            <!-- Inventory Distribution -->
             <div class="col-span-2 bg-white shadow-md rounded-lg p-6">
                 <h3 class="text-lg font-bold text-gray-700 mb-4">Inventory Distribution</h3>
-                <p class="text-sm text-gray-400">Breakdown by equipment type</p>
+                <p class="text-sm text-gray-400">Breakdown by equipment category</p>
                 <!-- Pie Chart -->
-                <div class="flex justify-center mt-6">
-                    <canvas id="inventoryPieChart" class="w-48 h-48"></canvas>
+                <div class="flex justify-center mt-6" style="height: 400px;">
+                    <canvas id="inventoryPieChart"></canvas>
                 </div>
             </div>
-
-
             <!-- Quick Overview -->
             <div class="bg-white shadow-md rounded-lg p-6">
                 <h3 class="text-lg font-bold text-gray-700 mb-4">Quick Overview</h3>
-                <div>
-                    <p class="text-sm text-gray-400">Total Items</p>
-                    <p class="text-lg font-bold text-gray-700">645</p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-400">Active</p>
-                    <p class="text-lg font-bold text-green-600">215</p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-400">Pending</p>
-                    <p class="text-lg font-bold text-red-600">88</p>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-gray-400">Total Items</p>
+                        <p id="overviewTotal" class="text-lg font-bold text-gray-700">-</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Active</p>
+                        <p id="overviewActive" class="text-lg font-bold text-green-600">-</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Pending</p>
+                        <p id="overviewPending" class="text-lg font-bold text-orange-600">-</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Arrived</p>
+                        <p id="overviewArrived" class="text-lg font-bold text-blue-600">-</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -125,145 +133,319 @@
         <!-- Data Centers -->
         <section>
             <h3 class="text-lg font-bold text-gray-700 mb-6">Data Centers</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Data Center 1 -->
-                <div class="relative bg-gradient-to-br from-blue-500 to-blue-400 text-white p-6 rounded-lg shadow-md">
-                    <p class="mb-2 text-sm font-medium opacity-90">Data Center 1</p>
-                    <p class="text-sm font-bold opacity-80">Batam 1 BLok 3</p>
-                    <div class="mt-4">
-                        <h4 class="text-3xl font-bold mb-1">215</h4>
-                        <p class="text-sm opacity-80">Active Items</p>
-                        <div class="mt-3 flex items-center justify-between">
-                            <span class="text-sm opacity-80">Capacity: <strong>300</strong></span>
-                            <span class="inline-block bg-white text-xs px-3 py-1 rounded-full text-teal-600">
-                                Operational
-                            </span>
-                        </div>
-                        <div class="mt-3 bg-white h-2 rounded-full">
-                            <div class="h-2 bg-teal-500 rounded-full" style="width: 71.7%;"></div>
-                        </div>
-                        <div class="mt-3 flex justify-between text-xs opacity-80">
-                            <span>71.7% utilized</span>
-                            <span>12.5 TB</span>
-                        </div>
-                        <button class="mt-4 inline-flex items-center text-sm text-white border border-white rounded-md px-3 py-1 transition hover:bg-white hover:text-blue-400">
-                            View Details →
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Data Center 2 -->
-                <div class="relative bg-gradient-to-br from-teal-500 to-teal-400 text-white p-6 rounded-lg shadow-md">
-                    <p class="mb-2 text-sm font-medium opacity-90">Data Center 2</p>
-                    <p class="text-sm font-bold opacity-80">Batam 1 Blok 2</p>
-                    <div class="mt-4">
-                        <h4 class="text-3xl font-bold mb-1">215</h4>
-                        <p class="text-sm opacity-80">Active Items</p>
-                        <div class="mt-3 flex items-center justify-between">
-                            <span class="text-sm opacity-80">Capacity: <strong>300</strong></span>
-                            <span class="inline-block bg-white text-xs px-3 py-1 rounded-full text-teal-600">
-                                Operational
-                            </span>
-                        </div>
-                        <div class="mt-3 bg-white h-2 rounded-full">
-                            <div class="h-2 bg-teal-500 rounded-full" style="width: 77%;"></div>
-                        </div>
-                        <div class="mt-3 flex justify-between text-xs opacity-80">
-                            <span>77% utilized</span>
-                            <span>18.7 TB</span>
-                        </div>
-                        <button class="mt-4 inline-flex items-center text-sm text-white border border-white rounded-md px-3 py-1 transition hover:bg-white hover:text-teal-400">
-                            View Details →
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Data Center 3 -->
-                <div class="relative bg-gradient-to-br from-purple-500 to-purple-400 text-white p-6 rounded-lg shadow-md">
-                    <p class="mb-2 text-sm font-medium opacity-90">Data Center 3</p>
-                    <p class="text-sm font-bold opacity-80">Batam 3</p>
-                    <div class="mt-4">
-                        <h4 class="text-3xl font-bold mb-1">215</h4>
-                        <p class="text-sm opacity-80">Active Items</p>
-                        <div class="mt-3 flex items-center justify-between">
-                            <span class="text-sm opacity-80">Capacity: <strong>300</strong></span>
-                            <span class="inline-block bg-white text-xs px-3 py-1 rounded-full text-purple-600">
-                                Operational
-                            </span>
-                        </div>
-                        <div class="mt-3 bg-white h-2 rounded-full">
-                            <div class="h-2 bg-purple-500 rounded-full" style="width: 71.7%;"></div>
-                        </div>
-                        <div class="mt-3 flex justify-between text-xs opacity-80">
-                            <span>71.7% utilized</span>
-                            <span>15.2 TB</span>
-                        </div>
-                        <button class="mt-4 inline-flex items-center text-sm text-white border border-white rounded-md px-3 py-1 transition hover:bg-white hover:text-purple-400">
-                            View Details →
-                        </button>
-                    </div>
-                </div>
+            <div id="dataCentersContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Data centers will be populated here -->
             </div>
         </section>
     </div>
 
     <script>
-        // Data for Pie Chart
-        const chartData = {
-            labels: ["Server", "PDU", "Switch", "Cable Power", "Rack"],
-            datasets: [
-                {
+        let pieChart = null;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            loadDashboardData();
+            setupSearch();
+        });
+
+        // ========================
+        // LOAD DASHBOARD DATA
+        // ========================
+        async function loadDashboardData() {
+            try {
+                showLoading(true);
+
+                // Load stats, distribution, and datacenter data in parallel
+                const [statsResponse, distributionResponse, datacenterResponse] = await Promise.all([
+                    fetch('/api/dashboard/dashboard-stats'),
+                    fetch('/api/dashboard/inventory-distribution'),
+                    fetch('/api/dashboard/datacenter-stats')
+                ]);
+
+                if (!statsResponse.ok || !distributionResponse.ok || !datacenterResponse.ok) {
+                    throw new Error("Failed to fetch dashboard data");
+                }
+
+                const stats = await statsResponse.json();
+                const distribution = await distributionResponse.json();
+                const datacenters = await datacenterResponse.json();
+
+                updateStatsCards(stats);
+                updateQuickOverview(stats);
+                updateInventoryChart(distribution);
+                updateDataCenters(datacenters);
+
+                showLoading(false);
+            } catch (error) {
+                console.error("Error loading dashboard data:", error);
+                showError("Failed to load dashboard data. Please refresh the page.");
+                showLoading(false);
+            }
+        }
+
+        // ========================
+        // UPDATE STATS CARDS
+        // ========================
+        function updateStatsCards(stats) {
+            document.getElementById("totalProducts").textContent = stats.totalProducts || 0;
+            document.getElementById("pendingProducts").textContent = stats.pendingProducts || 0;
+            document.getElementById("activeProducts").textContent = stats.activeProducts || 0;
+        }
+
+        // ========================
+        // UPDATE QUICK OVERVIEW
+        // ========================
+        function updateQuickOverview(stats) {
+            document.getElementById("overviewTotal").textContent = stats.totalProducts || 0;
+            document.getElementById("overviewActive").textContent = stats.activeProducts || 0;
+            document.getElementById("overviewPending").textContent = stats.pendingProducts || 0;
+            document.getElementById("overviewArrived").textContent = stats.arrivedProducts || 0;
+        }
+
+        // ========================
+        // UPDATE INVENTORY CHART
+        // ========================
+        function updateInventoryChart(distribution) {
+            if (!distribution || distribution.length === 0) {
+                renderDefaultChart();
+                return;
+            }
+
+            const labels = distribution.map(item => item.label);
+            const data = distribution.map(item => item.count);
+
+            // Generate colors dynamically
+            const colors = [
+                "#22D3EE", "#FACC15", "#34D399", "#A78BFA", "#F87171",
+                "#FB923C", "#60A5FA", "#A3A3A3", "#10B981", "#8B5CF6"
+            ];
+
+            const chartData = {
+                labels: labels,
+                datasets: [{
                     label: "Inventory Distribution",
-                    data: [76, 30, 12, 170, 18], // Example data
-                    backgroundColor: [
-                        "#22D3EE", // Cyan
-                        "#FACC15", // Yellow
-                        "#34D399", // Green
-                        "#A78BFA", // Purple
-                        "#F87171"  // Red
-                    ],
+                    data: data,
+                    backgroundColor: colors.slice(0, data.length),
                     hoverOffset: 4,
-                },
-            ],
-        };
+                }],
+            };
 
-        // Config for Pie Chart
-        const config = {
-            type: "pie", // Defines the chart type
-            data: chartData,
-            options: {
-                responsive: true,
-                        maintainAspectRatio: false, // Disable the default aspect ratio handling
-
-                plugins: {
-                    legend: {
-                        position: "right", // Position of legend
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (tooltipItem) {
-                                const value = chartData.datasets[0].data[tooltipItem.dataIndex];
-                                const label = chartData.labels[tooltipItem.dataIndex];
-                                const percentage = (
-                                    (value /
-                                        chartData.datasets[0].data.reduce(
-                                            (a, b) => a + b,
-                                            0
-                                        )) *
-                                    100
-                                ).toFixed(1);
-                                return `${label}: ${value} (${percentage}%)`;
+            const config = {
+                type: "pie",
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "right",
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (tooltipItem) {
+                                    const value = chartData.datasets[0].data[tooltipItem.dataIndex];
+                                    const label = chartData.labels[tooltipItem.dataIndex];
+                                    const total = chartData.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${label}: ${value} (${percentage}%)`;
+                                },
                             },
                         },
                     },
                 },
-            },
-        };
+            };
 
-        // Render the chart
-        const ctx = document.getElementById("inventoryPieChart").getContext("2d");
-        new Chart(ctx, config);
+            const ctx = document.getElementById("inventoryPieChart").getContext("2d");
+            if (pieChart) {
+                pieChart.destroy();
+            }
+            pieChart = new Chart(ctx, config);
+
+            // Update total categories count
+            document.getElementById("totalCategories").textContent = distribution.length;
+        }
+
+        // ========================
+        // RENDER DEFAULT CHART
+        // ========================
+        function renderDefaultChart() {
+            const defaultData = {
+                labels: ["No Data"],
+                datasets: [{
+                    label: "No Data Available",
+                    data: [1],
+                    backgroundColor: ["#E5E7EB"],
+                    hoverOffset: 4,
+                }],
+            };
+
+            const ctx = document.getElementById("inventoryPieChart").getContext("2d");
+            if (pieChart) {
+                pieChart.destroy();
+            }
+            pieChart = new Chart(ctx, {
+                type: "pie",
+                data: defaultData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "right",
+                        },
+                    },
+                },
+            });
+        }
+
+        // ========================
+        // UPDATE DATA CENTERS
+        // ========================
+        function updateDataCenters(datacenters) {
+            const container = document.getElementById("dataCentersContainer");
+            const colors = ['blue', 'teal', 'purple', 'green', 'orange'];
+
+            if (!datacenters || datacenters.length === 0) {
+                container.innerHTML = '<div class="col-span-3 text-center text-gray-500">No data centers found</div>';
+                return;
+            }
+
+            container.innerHTML = datacenters.map((dc, index) => {
+                const color = colors[index % colors.length];
+                const utilization = dc.capacity > 0 ? ((dc.activeItems / dc.capacity) * 100).toFixed(1) : 0;
+
+                return `
+                        <div class="relative bg-gradient-to-br from-${color}-500 to-${color}-400 text-white p-6 rounded-lg shadow-md">
+                            <p class="mb-2 text-sm font-medium opacity-90">${dc.name}</p>
+                            <p class="text-sm font-bold opacity-80">${dc.location || 'Location not specified'}</p>
+                            <div class="mt-4">
+                                <h4 class="text-3xl font-bold mb-1">${dc.activeItems}</h4>
+                                <p class="text-sm opacity-80">Active Items</p>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <span class="text-sm opacity-80">Capacity: <strong>${dc.capacity}</strong></span>
+                                    <span class="inline-block bg-white text-xs px-3 py-1 rounded-full text-${color}-600">
+                                        ${dc.status}
+                                    </span>
+                                </div>
+                                <div class="mt-3 bg-white h-2 rounded-full">
+                                    <div class="h-2 bg-${color}-500 rounded-full" style="width: ${Math.min(utilization, 100)}%;"></div>
+                                </div>
+                                <div class="mt-3 flex justify-between text-xs opacity-80">
+                                    <span>${utilization}% utilized</span>
+                                    <span>Total: ${dc.totalItems}</span>
+                                </div>
+                                <button class="mt-4 inline-flex items-center text-sm text-white border border-white rounded-md px-3 py-1 transition hover:bg-white hover:text-${color}-400">
+                                    View Details →
+                                </button>
+                            </div>
+                        </div>
+                    `;
+            }).join('');
+        }
+
+        // ========================
+        // SETUP SEARCH
+        // ========================
+        function setupSearch() {
+            const searchInput = document.getElementById("searchInput");
+            const searchButton = document.getElementById("searchButton");
+            const searchResults = document.getElementById("searchResults");
+
+            let searchTimeout;
+
+            searchInput.addEventListener("input", function () {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+
+                if (query.length === 0) {
+                    searchResults.classList.add("hidden");
+                    return;
+                }
+
+                searchTimeout = setTimeout(() => {
+                    performSearch(query);
+                }, 300);
+            });
+
+            searchButton.addEventListener("click", function () {
+                const query = searchInput.value.trim();
+                if (query) {
+                    performSearch(query);
+                }
+            });
+
+            // Hide results when clicking outside
+            document.addEventListener("click", function (e) {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.classList.add("hidden");
+                }
+            });
+        }
+
+        async function performSearch(query) {
+            try {
+                const response = await fetch(`/api/dashboard/search?query=${encodeURIComponent(query)}`); // ✅ Fixed syntax
+                if (!response.ok) {
+                    throw new Error("Search failed");
+                }
+
+                const results = await response.json();
+                displaySearchResults(results);
+            } catch (error) {
+                console.error("Search error:", error);
+                showError("Search failed. Please try again.");
+            }
+        }
+
+        function displaySearchResults(results) {
+            const searchResults = document.getElementById("searchResults");
+
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="p-3 text-sm text-gray-500">No results found</div>';
+            } else {
+                searchResults.innerHTML = results.map(item => `
+                        <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-200 last:border-b-0">
+                            <div class="font-medium text-sm text-gray-900">${item.itemName}</div>
+                            <div class="text-xs text-gray-500">
+                                ${item.itemCode} • ${item.category} • ${item.dataCenter}
+                            </div>
+                            <div class="text-xs mt-1">
+                                <span class="inline-block px-2 py-1 rounded-full text-xs ${getStatusColor(item.status)}">
+                                    ${item.status}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('');
+            }
+
+            searchResults.classList.remove("hidden");
+        }
+
+        // ========================
+        // UTILITY FUNCTIONS
+        // ========================
+        function showLoading(show) {
+            document.getElementById("loadingState").classList.toggle("hidden", !show);
+        }
+
+        function showError(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
+        }
+
+        function getStatusColor(status) {
+            switch (status?.toLowerCase()) {
+                case 'pending': return 'bg-yellow-100 text-yellow-800';
+                case 'active': return 'bg-green-100 text-green-800';
+                case 'arrived': return 'bg-blue-100 text-blue-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
     </script>
 </body>
-
 </html>

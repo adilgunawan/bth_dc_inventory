@@ -118,6 +118,121 @@ namespace bth_dc_inventory.Controllers
             return NoContent();
         }
 
+       
+
+        // =====================================================
+        // PUT: api/users/assign-admin/{id}
+        // =====================================================
+        [HttpPut("assign-admin/{id}")]
+        public async Task<IActionResult> AssignAdminRole(int id)
+        {
+            try
+            {
+                var user = await _context.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return NotFound(new { message = "User not found" });
+                }
+
+                // Cek apakah user sudah admin
+                if (user.Role == "Admin")
+                {
+                    return BadRequest(new { message = "User is already an Admin" });
+                }
+
+                // Update role menjadi Admin
+                user.Role = "Admin";
+                user.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    message = "User role has been updated to Admin successfully",
+                    user = new
+                    {
+                        user.Id,
+                        user.Username,
+                        user.Email,
+                        user.Role
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error updating user role", error = ex.Message });
+            }
+        }
+
+        // =====================================================
+        // PUT: api/users/remove-admin/{id} (Bonus - untuk remove admin)
+        // =====================================================
+        [HttpPut("remove-admin/{id}")]
+        public async Task<IActionResult> RemoveAdminRole(int id)
+        {
+            try
+            {
+                var user = await _context.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return NotFound(new { message = "User not found" });
+                }
+
+                // Cek apakah user adalah admin
+                if (user.Role != "Admin")
+                {
+                    return BadRequest(new { message = "User is not an Admin" });
+                }
+
+                // Update role menjadi User biasa
+                user.Role = "User";
+                user.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    message = "Admin role has been removed successfully",
+                    user = new
+                    {
+                        user.Id,
+                        user.Username,
+                        user.Email,
+                        user.Role
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error updating user role", error = ex.Message });
+            }
+        }
+
+        // =====================================================
+        // GET: api/users/stats (Bonus - untuk dashboard stats)
+        // =====================================================
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetUserStats()
+        {
+            try
+            {
+                var totalUsers = await _context.Users.CountAsync();
+                var adminUsers = await _context.Users.CountAsync(u => u.Role == "Admin");
+                var regularUsers = await _context.Users.CountAsync(u => u.Role != "Admin");
+
+                return Ok(new
+                {
+                    TotalUsers = totalUsers,
+                    AdminUsers = adminUsers,
+                    RegularUsers = regularUsers
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error fetching user stats", error = ex.Message });
+            }
+        }
+
         // =====================================================
         // DELETE: api/users/{id}
         // =====================================================

@@ -238,16 +238,13 @@
                 try {
                     showLoading(true);
                     const response = await fetch(API_URL);
-
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-
                     categoriesData = await response.json();
                     renderCategories(categoriesData);
                     updateStats(categoriesData);
                     showLoading(false);
-
                 } catch (error) {
                     console.error("Error loading categories:", error);
                     showError("Failed to load categories. Please refresh the page.");
@@ -260,7 +257,6 @@
             // ========================
             function renderCategories(categories) {
                 const container = document.getElementById("categoriesGrid");
-
                 if (!categories || categories.length === 0) {
                     container.innerHTML = "";
                     document.getElementById("emptyState").classList.remove("hidden");
@@ -268,37 +264,44 @@
                 }
 
                 document.getElementById("emptyState").classList.add("hidden");
+                container.innerHTML = categories.map(category => {
+                    // ✅ Use actual image or fallback to dummy
+                    const imageUrl = category.image
+                        ? `/${category.image}`
+                        : '/images/dummy_picture.png';
 
-                container.innerHTML = categories.map(category => `
-                    <div class="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                        <div class="aspect-w-16 aspect-h-9 bg-gray-200">
-                            <img src="/images/dummy_picture.png"
-                                 alt="${category.categoryName}"
-                                 class="w-full h-32 object-cover">
-                        </div>
-                        <div class="p-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">
-                                    ${category.totalItems || 0} products
-                                </span>
+                    return `
+                        <div class="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                            <div class="aspect-w-16 aspect-h-9 bg-gray-200">
+                                <img src="${imageUrl}"
+                                     alt="${category.categoryName}"
+                                     class="w-full h-32 object-cover"
+                                     onerror="this.src='/images/dummy_picture.png'">
                             </div>
-                            <h3 class="text-lg font-bold text-gray-700 mb-2">${category.categoryName}</h3>
-                            <p class="text-sm text-gray-500 mb-4 line-clamp-2">
-                                ${category.description || "No description available"}
-                            </p>
-                            <div class="flex justify-between">
-                                <button class="editCategoryButton text-blue-600 hover:text-blue-800 font-medium text-sm"
-                                        data-id="${category.id}">
-                                    Edit
-                                </button>
-                                <button class="deleteCategoryButton text-red-600 hover:text-red-800 font-medium text-sm"
-                                        data-id="${category.id}">
-                                    Delete
-                                </button>
+                            <div class="p-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">
+                                        ${category.totalItems || 0} products
+                                    </span>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-700 mb-2">${category.categoryName}</h3>
+                                <p class="text-sm text-gray-500 mb-4 line-clamp-2">
+                                    ${category.description || "No description available"}
+                                </p>
+                                <div class="flex justify-between">
+                                    <button class="editCategoryButton text-blue-600 hover:text-blue-800 font-medium text-sm"
+                                            data-id="${category.id}">
+                                        Edit
+                                    </button>
+                                    <button class="deleteCategoryButton text-red-600 hover:text-red-800 font-medium text-sm"
+                                            data-id="${category.id}">
+                                        Delete
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `).join("");
+                    `;
+                }).join("");
 
                 // Bind event listeners
                 bindCategoryEvents();
@@ -420,7 +423,6 @@
             // ========================
             async function handleAddCategory(e) {
                 e.preventDefault();
-
                 const submitButton = document.getElementById("submitAddButton");
                 const originalText = submitButton.textContent;
 
@@ -428,22 +430,24 @@
                     submitButton.disabled = true;
                     submitButton.textContent = "Creating...";
 
-                    const categoryData = {
-                        categoryName: document.getElementById("categoryName").value.trim(),
-                        description: document.getElementById("description").value.trim()
-                    };
+                    // ✅ Create FormData for file upload
+                    const formData = new FormData();
+                    formData.append('categoryName', document.getElementById("categoryName").value.trim());
+                    formData.append('description', document.getElementById("description").value.trim());
 
-                    if (!categoryData.categoryName) {
+                    const imageFile = document.getElementById("uploadImage").files[0];
+                    if (imageFile) {
+                        formData.append('image', imageFile);
+                    }
+
+                    if (!formData.get('categoryName')) {
                         showFieldError("categoryNameError", "Category name is required");
                         return;
                     }
 
                     const response = await fetch(API_URL, {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(categoryData)
+                        body: formData // ✅ Send FormData instead of JSON
                     });
 
                     if (!response.ok) {
@@ -455,7 +459,6 @@
                     document.getElementById("addCategoryModal").classList.add("hidden");
                     resetAddForm();
                     loadCategories(); // Refresh the list
-
                 } catch (error) {
                     console.error("Error creating category:", error);
                     showError("Failed to create category. Please try again.");
@@ -471,19 +474,29 @@
             async function openEditModal(categoryId) {
                 try {
                     const response = await fetch(`${API_URL}/${categoryId}`);
-
                     if (!response.ok) {
                         throw new Error("Failed to fetch category details");
                     }
 
                     const category = await response.json();
-
                     document.getElementById("editCategoryId").value = category.id;
                     document.getElementById("editCategoryName").value = category.categoryName || "";
                     document.getElementById("editCategoryDescription").value = category.description || "";
 
-                    document.getElementById("editCategoryModal").classList.remove("hidden");
+                    // ✅ Show current image if exists
+                    const editImagePreview = document.getElementById("editedUploadedImage");
+                    const editDefaultText = document.getElementById("defaultEditText");
 
+                    if (category.image) {
+                        editImagePreview.src = `/${category.image}`;
+                        editImagePreview.classList.remove("hidden");
+                        editDefaultText.classList.add("hidden");
+                    } else {
+                        editImagePreview.classList.add("hidden");
+                        editDefaultText.classList.remove("hidden");
+                    }
+
+                    document.getElementById("editCategoryModal").classList.remove("hidden");
                 } catch (error) {
                     console.error("Error loading category for edit:", error);
                     showError("Failed to load category details.");
@@ -492,7 +505,6 @@
 
             async function handleEditCategory(e) {
                 e.preventDefault();
-
                 const submitButton = document.getElementById("submitEditButton");
                 const originalText = submitButton.textContent;
 
@@ -500,23 +512,25 @@
                     submitButton.disabled = true;
                     submitButton.textContent = "Saving...";
 
-                    const categoryData = {
-                        id: parseInt(document.getElementById("editCategoryId").value),
-                        categoryName: document.getElementById("editCategoryName").value.trim(),
-                        description: document.getElementById("editCategoryDescription").value.trim()
-                    };
+                    // ✅ Create FormData for file upload
+                    const formData = new FormData();
+                    formData.append('id', document.getElementById("editCategoryId").value);
+                    formData.append('categoryName', document.getElementById("editCategoryName").value.trim());
+                    formData.append('description', document.getElementById("editCategoryDescription").value.trim());
 
-                    if (!categoryData.categoryName) {
+                    const imageFile = document.getElementById("editUploadImage").files[0];
+                    if (imageFile) {
+                        formData.append('image', imageFile);
+                    }
+
+                    if (!formData.get('categoryName')) {
                         showFieldError("editCategoryNameError", "Category name is required");
                         return;
                     }
 
                     const response = await fetch(`${API_URL}/${selectedCategoryId}`, {
                         method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(categoryData)
+                        body: formData // ✅ Send FormData instead of JSON
                     });
 
                     if (!response.ok) {
@@ -527,7 +541,6 @@
                     document.getElementById("editCategoryModal").classList.add("hidden");
                     resetEditForm();
                     loadCategories(); // Refresh the list
-
                 } catch (error) {
                     console.error("Error updating category:", error);
                     showError("Failed to update category. Please try again.");
@@ -568,7 +581,6 @@
                     showSuccess("Category deleted successfully!");
                     document.getElementById("deleteCategoryModal").classList.add("hidden");
                     loadCategories(); // Refresh the list
-
                 } catch (error) {
                     console.error("Error deleting category:", error);
                     showError("Failed to delete category. Please try again.");
@@ -587,7 +599,6 @@
             }
 
             function showError(message) {
-                // Create a toast notification
                 const toast = createToast(message, 'error');
                 document.body.appendChild(toast);
             }
@@ -603,11 +614,9 @@
                     type === 'success' ? 'bg-green-500' : 'bg-red-500'
                 } text-white`;
                 toast.textContent = message;
-
                 setTimeout(() => {
                     toast.remove();
                 }, 3000);
-
                 return toast;
             }
 
@@ -615,7 +624,6 @@
                 const errorElement = document.getElementById(fieldId);
                 errorElement.textContent = message;
                 errorElement.classList.remove("hidden");
-
                 setTimeout(() => {
                     errorElement.classList.add("hidden");
                 }, 3000);

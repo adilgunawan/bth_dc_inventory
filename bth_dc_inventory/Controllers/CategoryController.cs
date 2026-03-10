@@ -11,25 +11,30 @@ namespace bth_dc_inventory.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public CategoryController(ApplicationDbContext context)
+        public CategoryController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         // =====================================
-        // GET: api/category
+        // GET: api/Category
         // =====================================
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryReadDto>>> GetCategories() 
+        public async Task<ActionResult<IEnumerable<CategoryReadDto>>> GetCategories()
         {
             var categories = await _context.Categories
+                .Include(c => c.Items)
                 .Select(c => new CategoryReadDto
                 {
                     Id = c.Id,
                     CategoryName = c.CategoryName,
-                    Description = c.Description,
-                    TotalItems = c.Items.Count()
+                    Description = c.Description ?? "",
+                    Image = c.Image, // ✅ Include image path
+                    TotalItems = c.Items.Count(),
+            
                 })
                 .ToListAsync();
 
@@ -37,229 +42,230 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
-        // GET: api/categories/dropdown
+        // GET: api/Category/{id}
         // =====================================
-        [HttpGet("dropdown")]
-        public async Task<IActionResult> GetCategoriesDropdown()
-        {
-            var categories = await _context.Categories
-                .Select(c => new
-                {
-                    c.Id,
-                    c.CategoryName
-                })
-                .ToListAsync();
-
-            return Ok(categories);
-        }
-
-        // =====================================
-        // GET: api/category/{id}
-        // =====================================
-
-        [HttpGet("{id:int}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<CategoryReadDto>> GetCategory(int id)
         {
             var category = await _context.Categories
-                .Where(c => c.Id == id)
-                .Select(c => new CategoryReadDto
-                {
-                    Id = c.Id,
-                    CategoryName = c.CategoryName,
-                    Description = c.Description,
-                    TotalItems = c.Items.Count()
-                })
-                .FirstOrDefaultAsync();
+                .Include(c => c.Items)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (category == null)
-                return NotFound(new { message = "Kategori tidak ditemukan" });
+                return NotFound();
 
-            return Ok(category);
-        }
-
-        // =====================================
-        // POST: api/category
-        // =====================================
-        [HttpPost]
-        public async Task<IActionResult> CreateCategory(CategoryCreateDto dto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var category = new Category
+            var categoryDto = new CategoryReadDto
             {
-                CategoryName = dto.CategoryName,
-                Description = dto.Description,
-                CreatedAt = DateTime.UtcNow
+                Id = category.Id,
+                CategoryName = category.CategoryName,
+                Description = category.Description ?? "",
+                Image = category.Image, // ✅ Include image path
+                TotalItems = category.Items.Count(),
+           
             };
 
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, null);
+            return Ok(categoryDto);
         }
 
         // =====================================
-        // PUT: api/category/{id}
+        // POST: api/Category
         // =====================================
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateCategory(int id, CategoryUpdateDto dto)
+        [HttpPost]
+        public async Task<ActionResult<CategoryReadDto>> CreateCategory([FromForm] CategoryCreateDto categoryDto)
         {
-            if (id != dto.Id)
-                return BadRequest("ID URL tidak sama dengan ID body");
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-                return NotFound("Kategori tidak ditemukan");
+                // Check if category name already exists
+                if (await _context.Categories.AnyAsync(c => c.CategoryName == categoryDto.CategoryName))
+                    return BadRequest("Category name already exists");
 
-            category.CategoryName = dto.CategoryName;
-            category.Description = dto.Description;
-            category.UpdatedAt = DateTime.UtcNow;
+                string? imagePath = null;
 
-            await _context.SaveChangesAsync();
-            return NoContent();
+                // ✅ Handle image upload
+                if (categoryDto.Image != null && categoryDto.Image.Length > 0)
+                {
+                    imagePath = await SaveImageAsync(categoryDto.Image);
+                }
+
+                var category = new Category
+                {
+                    CategoryName = categoryDto.CategoryName,
+                    Description = categoryDto.Description,
+                    Image = imagePath, // ✅ Save image path
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.Categories.Add(category);
+                await _context.SaveChangesAsync();
+
+                var result = new CategoryReadDto
+                {
+                    Id = category.Id,
+                    CategoryName = category.CategoryName,
+                    Description = category.Description ?? "",
+                    Image = category.Image,
+                    TotalItems = 0,
+                
+                };
+
+                return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // =====================================
-        // DELETE: api/category/{id}
+        // PUT: api/Category/{id}
         // =====================================
-        [HttpDelete("{id:int}")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCategory(int id, [FromForm] CategoryUpdateDto categoryDto)
+        {
+            try
+            {
+                if (id != categoryDto.Id)
+                    return BadRequest("ID mismatch");
+
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var category = await _context.Categories.FindAsync(id);
+                if (category == null)
+                    return NotFound();
+
+                // Check if category name already exists (excluding current category)
+                if (await _context.Categories.AnyAsync(c => c.CategoryName == categoryDto.CategoryName && c.Id != id))
+                    return BadRequest("Category name already exists");
+
+                // ✅ Handle image update
+                if (categoryDto.Image != null && categoryDto.Image.Length > 0)
+                {
+                    // Delete old image if exists
+                    if (!string.IsNullOrEmpty(category.Image))
+                    {
+                        DeleteImage(category.Image);
+                    }
+
+                    // Save new image
+                    category.Image = await SaveImageAsync(categoryDto.Image);
+                }
+
+                category.CategoryName = categoryDto.CategoryName;
+                category.Description = categoryDto.Description;
+                category.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // =====================================
+        // DELETE: api/Category/{id}
+        // =====================================
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-                return NotFound("Kategori tidak ditemukan");
+            try
+            {
+                var category = await _context.Categories
+                    .Include(c => c.Items)
+                    .FirstOrDefaultAsync(c => c.Id == id);
 
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
+                if (category == null)
+                    return NotFound();
 
-            return NoContent();
+                if (category.Items.Any())
+                    return BadRequest("Cannot delete category with existing products");
+
+                // ✅ Delete associated image
+                if (!string.IsNullOrEmpty(category.Image))
+                {
+                    DeleteImage(category.Image);
+                }
+
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // =====================================
+        // GET: api/Category/dropdown
+        // =====================================
+        [HttpGet("dropdown")]
+        public async Task<ActionResult<IEnumerable<object>>> GetCategoryDropdown()
+        {
+            var categories = await _context.Categories
+                .Select(c => new { c.Id, c.CategoryName })
+                .ToListAsync();
+
+            return Ok(categories);
+        }
+
+        // =====================================
+        // PRIVATE METHODS - IMAGE HANDLING
+        // =====================================
+        private async Task<string> SaveImageAsync(IFormFile image)
+        {
+            try
+            {
+                // Create uploads directory if it doesn't exist
+                string uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "categories");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                // Generate unique filename
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + image.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                // Save file
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await image.CopyToAsync(fileStream);
+                }
+
+                // Return relative path for database storage
+                return Path.Combine("uploads", "categories", uniqueFileName).Replace("\\", "/");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error saving image: {ex.Message}");
+            }
+        }
+
+        private void DeleteImage(string imagePath)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(imagePath))
+                {
+                    string fullPath = Path.Combine(_environment.WebRootPath, imagePath.Replace("/", "\\"));
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        System.IO.File.Delete(fullPath);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't throw - image deletion shouldn't break the operation
+                Console.WriteLine($"Error deleting image: {ex.Message}");
+            }
         }
     }
 }
-
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-//using bth_dc_inventory.Data;
-//using bth_dc_inventory.Models;
-
-//namespace bth_dc_inventory.Controllers
-//{
-//    [Route("api/[controller]")]
-//    [ApiController]
-//    public class CategoryController : ControllerBase
-//    {
-//        private readonly ApplicationDbContext _context;
-
-//        public CategoryController(ApplicationDbContext context)
-//        {
-//            _context = context;
-//        }
-
-//        // GET: api/Category
-//        // Mendapatkan semua kategori
-//        [HttpGet]
-//        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
-//        {
-//            var categories = await _context.Categories.ToListAsync();
-//            return Ok(categories);
-//        }
-
-//        // GET: api/Category/{id}
-//        // Mendapatkan detail kategori berdasarkan ID
-//        [HttpGet("{id:int}")]
-//        public async Task<ActionResult<Category>> GetCategory(int id)
-//        {
-//            var category = await _context.Categories.FindAsync(id);
-
-//            if (category == null)
-//            {
-//                return NotFound(new { message = "Kategori tidak ditemukan." });
-//            }
-
-//            return Ok(category);
-//        }
-
-//        // POST: api/Category
-//        // Menambahkan kategori baru
-//        [HttpPost]
-//        public async Task<ActionResult<Category>> CreateCategory([FromBody] Category category)
-//        {
-//            if (!ModelState.IsValid)
-//            {
-//                return BadRequest(ModelState);
-//            }
-
-//            category.CreatedAt = DateTime.UtcNow; // Set waktu pembuatan kategori
-//            _context.Categories.Add(category);
-//            await _context.SaveChangesAsync();
-
-//            // Redirect ke endpoint GetCategory setelah sukses menambahkan data
-//            return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, category);
-//        }
-
-//        // PUT: api/Category/{id}
-//        // Memperbarui kategori berdasarkan ID
-//        [HttpPut("{id:int}")]
-//        public async Task<IActionResult> UpdateCategory(int id, [FromBody] Category category)
-//        {
-//            if (id != category.Id)
-//            {
-//                return BadRequest(new { message = "ID pada URL tidak sesuai dengan ID pada data." });
-//            }
-
-//            var existingCategory = await _context.Categories.FindAsync(id);
-//            if (existingCategory == null)
-//            {
-//                return NotFound(new { message = "Kategori tidak ditemukan." });
-//            }
-
-//            // Perbarui properti yang dapat diubah
-//            existingCategory.CategoryName = category.CategoryName;
-//            existingCategory.Description = category.Description;
-//            existingCategory.Image = category.Image; // Perbarui gambar kategori
-//            existingCategory.UpdatedAt = DateTime.UtcNow;
-
-//            try
-//            {
-//                await _context.SaveChangesAsync();
-//                return NoContent(); // Berhasil diperbarui tanpa konten
-//            }
-//            catch (DbUpdateConcurrencyException)
-//            {
-//                if (!CategoryExists(id))
-//                {
-//                    return NotFound(new { message = "Kategori tidak ditemukan." });
-//                }
-//                else
-//                {
-//                    throw; // Lempar error lain jika bukan karena ID hilang
-//                }
-//            }
-//        }
-
-//        // DELETE: api/Category/{id}
-//        // Menghapus kategori berdasarkan ID
-//        [HttpDelete("{id:int}")]
-//        public async Task<IActionResult> DeleteCategory(int id)
-//        {
-//            var category = await _context.Categories.FindAsync(id);
-
-//            if (category == null)
-//            {
-//                return NotFound(new { message = "Kategori tidak ditemukan." });
-//            }
-
-//            _context.Categories.Remove(category);
-//            await _context.SaveChangesAsync();
-
-//            return NoContent();
-//        }
-
-//        // Helper method: memeriksa apakah kategori dengan ID tertentu ada
-//        private bool CategoryExists(int id)
-//        {
-//            return _context.Categories.Any(c => c.Id == id);
-//        }
-//    }
-//}

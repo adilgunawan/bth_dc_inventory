@@ -14,6 +14,7 @@ namespace bth_dc_inventory.DTOs.Category
 
         [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
         public string Description { get; set; } = string.Empty;
+        public IFormFile? Image { get; set; }
     }
 }
 

@@ -55,6 +55,7 @@ OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonComm
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 QuestPDF.Settings.CheckIfAllTextGlyphsAreAvailable = false;
 
+
 // =========================
 // BUILD THE APPLICATION
 // =========================

@@ -210,6 +210,7 @@
                                 class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm">
                             <option value="Pending">Pending</option>
                             <option value="Arrived">Arrived</option>
+                            <option value="Arrived">Active</option>
                         </select>
                     </div>
 
@@ -465,6 +466,7 @@
                 selectedItemId = itemId;
 
                 try {
+                    // ✅ PERBAIKI: Gunakan parentheses biasa untuk fetch
                     const response = await fetch(`/api/items/${itemId}`);
                     if (!response.ok) throw new Error("Failed to fetch product details");
 
@@ -499,7 +501,7 @@
                 document.getElementById("editProductModal").classList.add("hidden");
             });
 
-            // Submit edit form
+            // ✅ PERBAIKI: Submit edit form
             document.getElementById("editProductForm").addEventListener("submit", async function (e) {
                 e.preventDefault();
 
@@ -509,20 +511,34 @@
                     return;
                 }
 
+                // ✅ PERBAIKI: Validasi dan format data dengan benar
+                const categoryId = document.getElementById("editCategory").value;
+                const dataCenterId = document.getElementById("editLocation").value;
+                const buyingPrice = document.getElementById("editBuyingPrice").value;
+                const quantity = document.getElementById("editQuantity").value;
+
+                if (!categoryId || !dataCenterId) {
+                    alert("Category and Location must be selected");
+                    return;
+                }
+
                 const data = {
-                    itemCode: document.getElementById("editItemCode").value,
-                    itemName: document.getElementById("editProductName").value,
-                    assetNumber: document.getElementById("editAssetNumber").value,
-                    serialNumber: document.getElementById("editSerialNumber").value,
-                    categoryId: parseInt(document.getElementById("editCategory").value),
-                    dataCenterId: parseInt(document.getElementById("editLocation").value),
-                    buyingPrice: parseFloat(document.getElementById("editBuyingPrice").value),
-                    quantity: parseInt(document.getElementById("editQuantity").value),
+                    itemCode: document.getElementById("editItemCode").value.trim(),
+                    itemName: document.getElementById("editProductName").value.trim(),
+                    assetNumber: document.getElementById("editAssetNumber").value.trim() || null,
+                    serialNumber: document.getElementById("editSerialNumber").value.trim() || null,
+                    categoryId: parseInt(categoryId),
+                    dataCenterId: parseInt(dataCenterId),
+                    buyingPrice: buyingPrice ? parseFloat(buyingPrice) : 0,
+                    quantity: quantity ? parseInt(quantity) : 0,
                     status: document.getElementById("editStatus").value,
-                    dateOfPurchase: document.getElementById("editDateOfPurchase").value
+                    dateOfPurchase: document.getElementById("editDateOfPurchase").value || null
                 };
 
+                console.log("Sending update data:", data); // ✅ Debug log
+
                 try {
+                    // ✅ PERBAIKI: Gunakan parentheses biasa untuk fetch
                     const response = await fetch(`/api/items/${itemId}`, {
                         method: "PUT",
                         headers: {
@@ -532,15 +548,18 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error("Update failed");
+                        // ✅ PERBAIKI: Tampilkan error detail dari server
+                        const errorText = await response.text();
+                        console.error("Server error:", errorText);
+                        throw new Error(`Update failed: ${response.status} - ${errorText}`);
                     }
 
                     alert("Product updated successfully");
                     document.getElementById("editProductModal").classList.add("hidden");
                     fetchProducts(currentPage, currentSearchQuery);
                 } catch (error) {
-                    console.error(error);
-                    alert("Failed to update product");
+                    console.error("Update error:", error);
+                    alert(`Failed to update product: ${error.message}`);
                 }
             });
 
@@ -573,6 +592,7 @@
                 this.disabled = true;
 
                 try {
+                    // ✅ PERBAIKI: Gunakan parentheses biasa untuk fetch
                     const response = await fetch(`/api/items/${selectedProductId}`, {
                         method: "DELETE",
                         headers: {

@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using bth_dc_inventory.Data;
 using bth_dc_inventory.Models;
@@ -21,79 +20,177 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
-        // GET: api/Category - ✅ DENGAN AKUMULASI TOTAL PRODUCTS
+        // GET: api/Category - ✅ DENGAN DEBUG LENGKAP
         // =====================================
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryReadDto>>> GetCategories()
         {
-            var categories = await _context.Categories
-                .Include(c => c.Items) // ✅ Include Items untuk menghitung total
-                .Select(c => new CategoryReadDto
+            try
+            {
+                // ✅ DEBUG: Cek total items di database
+                var totalItemsInDb = await _context.Items.CountAsync();
+                Console.WriteLine($"=== DEBUG CATEGORY ITEMS ===");
+                Console.WriteLine($"Total items in database: {totalItemsInDb}");
+
+                // ✅ DEBUG: Cek items per category dengan raw query
+                var itemsPerCategory = await _context.Items
+                    .GroupBy(i => i.CategoryId)
+                    .Select(g => new { CategoryId = g.Key, Count = g.Count() })
+                    .ToListAsync();
+
+                Console.WriteLine("Items per CategoryId:");
+                foreach (var item in itemsPerCategory)
                 {
-                    Id = c.Id,
-                    CategoryName = c.CategoryName,
-                    Description = c.Description ?? "",
-                    Image = c.Image,
-                    TotalItems = c.Items.Count(), // ✅ Akumulasi total products per category
+                    Console.WriteLine($"  CategoryId: {item.CategoryId}, Count: {item.Count}");
+                }
 
-                })
-                .OrderByDescending(c => c.TotalItems) // ✅ Sort by total items descending
-                .ToListAsync();
+                // ✅ PERBAIKI: Query dengan multiple approaches
+                var categories = await _context.Categories
+                    .Select(c => new CategoryReadDto
+                    {
+                        Id = c.Id,
+                        CategoryName = c.CategoryName,
+                        Description = c.Description ?? "",
+                        Image = c.Image,
+                        // ✅ METHOD 1: Direct count with explicit join
+                        TotalItems = _context.Items.Count(i => i.CategoryId == c.Id)
+                    })
+                    .OrderByDescending(c => c.TotalItems)
+                    .ToListAsync();
 
-            return Ok(categories);
+                // ✅ DEBUG: Log hasil
+                Console.WriteLine("Final results:");
+                foreach (var cat in categories)
+                {
+                    Console.WriteLine($"  Category: {cat.CategoryName}, Items: {cat.TotalItems}");
+                }
+
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetCategories: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { message = "Error fetching categories", error = ex.Message });
+            }
         }
 
         // =====================================
-        // GET: api/Category/{id} - ✅ DENGAN AKUMULASI TOTAL PRODUCTS
+        // GET: api/Category/debug - ✅ ENDPOINT KHUSUS DEBUG
+        // =====================================
+        [HttpGet("debug")]
+        public async Task<ActionResult> DebugCategoryItems()
+        {
+            try
+            {
+                // ✅ DEBUG: Cek semua data
+                var allCategories = await _context.Categories.ToListAsync();
+                var allItems = await _context.Items.ToListAsync();
+
+                var debugInfo = new
+                {
+                    TotalCategories = allCategories.Count,
+                    TotalItems = allItems.Count,
+                    Categories = allCategories.Select(c => new
+                    {
+                        c.Id,
+                        c.CategoryName,
+                        ItemsWithThisCategory = allItems.Count(i => i.CategoryId == c.Id)
+                    }).ToList(),
+                    ItemsGroupedByCategory = allItems
+                        .GroupBy(i => i.CategoryId)
+                        .Select(g => new
+                        {
+                            CategoryId = g.Key,
+                            Count = g.Count(),
+                            CategoryName = allCategories.FirstOrDefault(c => c.Id == g.Key)?.CategoryName ?? "Unknown"
+                        }).ToList(),
+                    SampleItems = allItems.Take(5).Select(i => new
+                    {
+                        i.Id,
+                        i.ItemName,
+                        i.CategoryId,
+                        CategoryName = allCategories.FirstOrDefault(c => c.Id == i.CategoryId)?.CategoryName ?? "Not Found"
+                    }).ToList()
+                };
+
+                return Ok(debugInfo);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
+
+        // =====================================
+        // GET: api/Category/{id} - ✅ DENGAN DEBUG
         // =====================================
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryReadDto>> GetCategory(int id)
         {
-            var category = await _context.Categories
-                .Include(c => c.Items)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (category == null)
-                return NotFound();
-
-            var categoryDto = new CategoryReadDto
+            try
             {
-                Id = category.Id,
-                CategoryName = category.CategoryName,
-                Description = category.Description ?? "",
-                Image = category.Image,
-                TotalItems = category.Items.Count(), // ✅ Akumulasi total products
+                var category = await _context.Categories.FindAsync(id);
+                if (category == null)
+                    return NotFound();
 
-            };
+                // ✅ HITUNG ITEMS SECARA TERPISAH
+                var itemCount = await _context.Items.CountAsync(i => i.CategoryId == id);
 
-            return Ok(categoryDto);
+                Console.WriteLine($"Category {id} ({category.CategoryName}) has {itemCount} items");
+
+                var categoryDto = new CategoryReadDto
+                {
+                    Id = category.Id,
+                    CategoryName = category.CategoryName,
+                    Description = category.Description ?? "",
+                    Image = category.Image,
+                    TotalItems = itemCount
+                };
+
+                return Ok(categoryDto);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetCategory: {ex.Message}");
+                return StatusCode(500, new { message = "Error fetching category", error = ex.Message });
+            }
         }
 
         // =====================================
-        // GET: api/Category/stats - ✅ TAMBAHAN: Category statistics
+        // GET: api/Category/stats - ✅ DENGAN PERBAIKAN
         // =====================================
         [HttpGet("stats")]
         public async Task<ActionResult<object>> GetCategoryStats()
         {
             try
             {
-                var categoryStats = await _context.Categories
-                    .Include(c => c.Items)
-                    .Select(c => new
-                    {
-                        Id = c.Id,
-                        CategoryName = c.CategoryName,
-                        TotalItems = c.Items.Count(),
-                        ActiveItems = c.Items.Count(i => i.Status == "Active"),
-                        PendingItems = c.Items.Count(i => i.Status == "Pending"),
-                        ArrivedItems = c.Items.Count(i => i.Status == "Arrived"),
-                        Image = c.Image
-                    })
-                    .OrderByDescending(c => c.TotalItems)
-                    .ToListAsync();
+                // ✅ GUNAKAN PENDEKATAN YANG SAMA
+                var categories = await _context.Categories.ToListAsync();
+                var categoryStats = new List<object>();
 
-                var totalCategories = categoryStats.Count;
-                var totalProducts = categoryStats.Sum(c => c.TotalItems);
+                foreach (var category in categories)
+                {
+                    var totalItems = await _context.Items.CountAsync(i => i.CategoryId == category.Id);
+                    var activeItems = await _context.Items.CountAsync(i => i.CategoryId == category.Id && i.Status == "Active");
+                    var pendingItems = await _context.Items.CountAsync(i => i.CategoryId == category.Id && i.Status == "Pending");
+                    var arrivedItems = await _context.Items.CountAsync(i => i.CategoryId == category.Id && i.Status == "Arrived");
+
+                    categoryStats.Add(new
+                    {
+                        Id = category.Id,
+                        CategoryName = category.CategoryName,
+                        TotalItems = totalItems,
+                        ActiveItems = activeItems,
+                        PendingItems = pendingItems,
+                        ArrivedItems = arrivedItems,
+                        Image = category.Image
+                    });
+                }
+
+                var orderedStats = categoryStats.OrderByDescending(c => ((dynamic)c).TotalItems).ToList();
+                var totalCategories = categories.Count;
+                var totalProducts = categoryStats.Sum(c => ((dynamic)c).TotalItems);
                 var averageItems = totalCategories > 0 ? Math.Round((double)totalProducts / totalCategories, 1) : 0;
 
                 return Ok(new
@@ -101,18 +198,43 @@ namespace bth_dc_inventory.Controllers
                     TotalCategories = totalCategories,
                     TotalProducts = totalProducts,
                     AverageItems = averageItems,
-                    Categories = categoryStats
+                    Categories = orderedStats
                 });
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Error in GetCategoryStats: {ex.Message}");
                 return StatusCode(500, new { message = "Error fetching category stats", error = ex.Message });
             }
         }
 
         // =====================================
-        // POST: api/Category
+        // GET: api/Category/dropdown - ✅ DENGAN PERBAIKAN
         // =====================================
+        [HttpGet("dropdown")]
+        public async Task<ActionResult<IEnumerable<object>>> GetCategoryDropdown()
+        {
+            try
+            {
+                var categories = await _context.Categories
+                    .Select(c => new {
+                        Id = c.Id,
+                        CategoryName = c.CategoryName,
+                        TotalItems = _context.Items.Count(i => i.CategoryId == c.Id) // ✅ Direct count
+                    })
+                    .OrderBy(c => c.CategoryName)
+                    .ToListAsync();
+
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error fetching dropdown", error = ex.Message });
+            }
+        }
+
+        // ... (rest of your methods remain the same: POST, PUT, DELETE, and private methods)
+
         [HttpPost]
         public async Task<ActionResult<CategoryReadDto>> CreateCategory([FromForm] CategoryCreateDto categoryDto)
         {
@@ -126,7 +248,6 @@ namespace bth_dc_inventory.Controllers
                     return BadRequest("Category name already exists");
 
                 string? imagePath = null;
-
                 // Handle image upload
                 if (categoryDto.Image != null && categoryDto.Image.Length > 0)
                 {
@@ -151,7 +272,6 @@ namespace bth_dc_inventory.Controllers
                     Description = category.Description ?? "",
                     Image = category.Image,
                     TotalItems = 0, // New category starts with 0 items
-
                 };
 
                 return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, result);
@@ -162,9 +282,6 @@ namespace bth_dc_inventory.Controllers
             }
         }
 
-        // =====================================
-        // PUT: api/Category/{id}
-        // =====================================
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory(int id, [FromForm] CategoryUpdateDto categoryDto)
         {
@@ -192,7 +309,6 @@ namespace bth_dc_inventory.Controllers
                     {
                         DeleteImage(category.Image);
                     }
-
                     // Save new image
                     category.Image = await SaveImageAsync(categoryDto.Image);
                 }
@@ -202,6 +318,7 @@ namespace bth_dc_inventory.Controllers
                 category.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
+
                 return NoContent();
             }
             catch (Exception ex)
@@ -210,24 +327,19 @@ namespace bth_dc_inventory.Controllers
             }
         }
 
-        // =====================================
-        // DELETE: api/Category/{id}
-        // =====================================
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             try
             {
-                var category = await _context.Categories
-                    .Include(c => c.Items)
-                    .FirstOrDefaultAsync(c => c.Id == id);
-
+                var category = await _context.Categories.FindAsync(id);
                 if (category == null)
                     return NotFound();
 
-                // ✅ CHECK: Prevent delete if category has products
-                if (category.Items.Any())
-                    return BadRequest($"Cannot delete category. It contains {category.Items.Count} products. Please move or delete the products first.");
+                // ✅ CHECK: Count items with explicit query
+                var itemCount = await _context.Items.CountAsync(i => i.CategoryId == id);
+                if (itemCount > 0)
+                    return BadRequest($"Cannot delete category. It contains {itemCount} products. Please move or delete the products first.");
 
                 // Delete associated image
                 if (!string.IsNullOrEmpty(category.Image))
@@ -247,58 +359,33 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
-        // GET: api/Category/dropdown
-        // =====================================
-        [HttpGet("dropdown")]
-        public async Task<ActionResult<IEnumerable<object>>> GetCategoryDropdown()
-        {
-            var categories = await _context.Categories
-                .Select(c => new {
-                    Id = c.Id,
-                    CategoryName = c.CategoryName,
-                    TotalItems = c.Items.Count() // ✅ Include total items in dropdown
-                })
-                .OrderBy(c => c.CategoryName)
-                .ToListAsync();
-
-            return Ok(categories);
-        }
-
-        // =====================================
-        // PRIVATE METHODS - IMAGE HANDLING
+        // PRIVATE METHODS - IMAGE HANDLING (same as before)
         // =====================================
         private async Task<string> SaveImageAsync(IFormFile image)
         {
             try
             {
-                // Create uploads directory if it doesn't exist
                 string uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "categories");
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                // ✅ PERBAIKI: Generate nama file yang lebih pendek
                 string extension = Path.GetExtension(image.FileName).ToLowerInvariant();
-
-                // Validasi extension
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
                 if (!allowedExtensions.Contains(extension))
                 {
                     throw new Exception("Invalid file type. Only images are allowed.");
                 }
 
-                // Generate simple unique filename
                 string uniqueFileName = Guid.NewGuid().ToString("N") + extension;
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                // Save file
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await image.CopyToAsync(fileStream);
                 }
 
-                // Return relative path for database storage
                 return $"uploads/categories/{uniqueFileName}";
             }
             catch (Exception ex)
@@ -322,7 +409,6 @@ namespace bth_dc_inventory.Controllers
             }
             catch (Exception ex)
             {
-                // Log error but don't throw - image deletion shouldn't break the operation
                 Console.WriteLine($"Error deleting image: {ex.Message}");
             }
         }

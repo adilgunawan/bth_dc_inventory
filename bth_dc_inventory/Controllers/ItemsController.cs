@@ -150,6 +150,7 @@ namespace bth_dc_inventory.Controllers
                 Status = "Pending",
                 CreatedById = userId,
                 CreatedAt = DateTime.UtcNow,
+                DateOfPurchase = dto.DateOfPurchase,
             };
 
             try

@@ -45,16 +45,23 @@
                     </div>
 
                     <!-- Serial Number -->
+                    <!-- Serial Number -->
                     <div>
                         <label for="serialNumber" class="text-sm font-medium text-gray-700">Serial Number</label>
-                        <input type="text" id="serialNumber" placeholder="Enter serial number"
+                        <input type="text"
+                               id="serialNumber"
+                               name="serialNumber"
+                               placeholder="Enter serial number"
                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500" />
                     </div>
 
                     <!-- Asset Number -->
                     <div>
                         <label for="assetNumber" class="text-sm font-medium text-gray-700">Asset Number</label>
-                        <input type="text" id="assetNumber" placeholder="Enter asset number"
+                        <input type="text"
+                               id="assetNumber"
+                               name="assetNumber"
+                               placeholder="Enter asset number"
                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500" />
                     </div>
 
@@ -97,9 +104,10 @@
                     <!-- Date of Purchase -->
                     <div>
                         <label for="dateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
-                        <input type="date" id="dateOfPurchase"
-                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                               required />
+                        <input type="date"
+                               id="dateOfPurchase"
+                               name="dateOfPurchase"
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
                     </div>
 
                     <!-- Status -->
@@ -318,7 +326,24 @@
                 addProductModal.classList.remove("hidden");
                 await loadDropdowns();
             });
+                    // ✅ Debug date input
+                const dateInput = document.getElementById("dateOfPurchase");
+                console.log("Date input element:", dateInput);
+                console.log("Date input type:", dateInput.type);
 
+                // Set default date untuk testing
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.value = today;
+                console.log("Default date set:", today);
+
+                // Add event listener untuk monitor perubahan
+                dateInput.addEventListener("change", function() {
+                    console.log("Date changed to:", this.value);
+                });
+
+                dateInput.addEventListener("blur", function() {
+                    console.log("Date blur, final value:", this.value);
+                });
             closeModal.addEventListener("click", () => {
                 addProductModal.classList.add("hidden");
                 form.reset();
@@ -369,51 +394,89 @@
             // ========================
             // SUBMIT ADD FORM
             // ========================
-            form.addEventListener("submit", async function (e) {
-                e.preventDefault();
+                    // Ganti bagian submit form dengan kode yang lebih robust:
+                form.addEventListener("submit", async function (e) {
+            e.preventDefault();
 
-                if (!document.getElementById("category").value ||
-                    !document.getElementById("location").value) {
-                    alert("Category and Location must be selected");
-                    return;
+            // ✅ Debug semua input values
+            const formData = {
+                itemCode: document.getElementById("itemCode").value.trim(),
+                productName: document.getElementById("productName").value.trim(),
+                serialNumber: document.getElementById("serialNumber").value.trim(),
+                assetNumber: document.getElementById("assetNumber").value.trim(),
+                category: document.getElementById("category").value,
+                location: document.getElementById("location").value,
+                buyingPrice: document.getElementById("buyingPrice").value,
+                quantity: document.getElementById("quantity").value,
+                dateOfPurchase: document.getElementById("dateOfPurchase").value,
+                status: document.getElementById("status").value
+            };
+
+            console.log("=== FORM DEBUG ===");
+            console.log("Raw form data:", formData);
+            console.log("Date input element:", document.getElementById("dateOfPurchase"));
+            console.log("Date value type:", typeof formData.dateOfPurchase);
+            console.log("Date value length:", formData.dateOfPurchase.length);
+
+            // Validasi required fields
+            if (!formData.category || !formData.location) {
+                alert("Category and Location must be selected");
+                return;
+            }
+
+            if (!formData.status) {
+                alert("Status must be selected");
+                return;
+            }
+
+            // ✅ Format data untuk API
+            const productData = {
+                itemCode: formData.itemCode,
+                itemName: formData.productName,
+                assetNumber: formData.assetNumber || null,
+                serialNumber: formData.serialNumber || null,
+                categoryId: parseInt(formData.category),
+                dataCenterId: parseInt(formData.location),
+                buyingPrice: parseFloat(formData.buyingPrice) || 0,
+                quantity: parseInt(formData.quantity) || 0,
+                dateOfPurchase: formData.dateOfPurchase || null, // ✅ Pastikan ini tidak kosong
+                status: formData.status
+            };
+
+            console.log("=== API PAYLOAD ===");
+            console.log("Sending to API:", JSON.stringify(productData, null, 2));
+
+            try {
+                const response = await fetch("/api/items", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                console.log("Response status:", response.status);
+                console.log("Response headers:", response.headers);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Server Error Response:", errorText);
+                    throw new Error(`Server returned ${response.status}: ${errorText}`);
                 }
 
-                const productData = {
-                    itemCode: document.getElementById("itemCode").value.trim(),
-                    itemName: document.getElementById("productName").value.trim(),
-                    assetNumber: document.getElementById("assetNumber").value.trim(),
-                    serialNumber: document.getElementById("serialNumber").value.trim(),
-                    categoryId: parseInt(document.getElementById("category").value),
-                    dataCenterId: parseInt(document.getElementById("location").value),
-                    buyingPrice: parseFloat(document.getElementById("buyingPrice").value) || 0,
-                    quantity: parseInt(document.getElementById("quantity").value) || 0,
-                    dateOfPurchase: document.getElementById("dateOfPurchase").value,
-                    status: document.getElementById("status").value
-                };
+                const result = await response.json();
+                console.log("Success result:", result);
 
-                try {
-                    const response = await fetch("/api/items", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(productData)
-                    });
+                alert("Product successfully created!");
+                addProductModal.classList.add("hidden");
+                form.reset();
+                fetchProducts(currentPage, currentSearchQuery);
 
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(errorText);
-                    }
-
-                    alert("Product successfully created!");
-                    addProductModal.classList.add("hidden");
-                    form.reset();
-                    fetchProducts(currentPage, currentSearchQuery);
-                } catch (error) {
-                    console.error("Submit Error:", error);
-                    alert("Failed to create product");
-                }
-            });
+            } catch (error) {
+                console.error("Submit Error:", error);
+                alert(`Failed to create product: ${error.message}`);
+            }
+        });
 
             // ========================
             // EDIT PRODUCT

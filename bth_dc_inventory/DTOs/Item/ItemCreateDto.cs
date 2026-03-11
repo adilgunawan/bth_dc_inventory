@@ -30,20 +30,7 @@ namespace bth_dc_inventory.DTOs.Item
         public DateTime? DateOfPurchase { get; set; }
 
     }
-    //public class ItemCreateDto
-    //{
-    //    [Required]
-    //    public string ItemCode { get; set; }
-    //    [Required]
-    //    public string ItemName { get; set; }
-    //    public string? AssetNumber { get; set; }
-    //    public string? SerialNumber { get; set; }
-    //    [Required]
-    //    public int CategoryId { get; set; }
-    //    [Required]
-    //    public int DataCenterId { get; set; }
-    //    [Required]
-    //    public decimal BuyingPrice { get; set; }
+
 }
 
 

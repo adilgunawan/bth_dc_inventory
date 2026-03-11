@@ -333,9 +333,7 @@
                                     <span>${utilization}% utilized</span>
                                     <span>Total: ${dc.totalItems}</span>
                                 </div>
-                                <button class="mt-4 inline-flex items-center text-sm text-white border border-white rounded-md px-3 py-1 transition hover:bg-white hover:text-${color}-400">
-                                    View Details →
-                                </button>
+                                
                             </div>
                         </div>
                     `;
@@ -415,8 +413,8 @@
                         ${item.status}
                     </span>
                 </div>
-                <div class="text-xs text-gray-400 mt-1">
-                    📍 ${item.location || 'Location not specified'} • 💰 ${item.price || 'Price not set'}
+                     <div class="text-xs text-gray-400 mt-1">
+                     📍 ${item.dataCenter || 'Location not specified'} • 
                 </div>
             </div>
         `).join('');

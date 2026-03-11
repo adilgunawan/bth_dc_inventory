@@ -14,21 +14,21 @@
         <!-- Header -->
         <header class="mb-6">
             <h1 class="text-3xl font-bold text-gray-700">Inventory Reports</h1>
-            <p class="text-sm text-gray-500">View and export inventory data by date range</p>
+            <p class="text-sm text-gray-500">View and export inventory data by purchase date range</p>
         </header>
 
         <!-- Filters -->
         <section class="bg-white shadow-md rounded-lg p-6 mb-6">
-            <h2 class="text-lg font-bold text-gray-700 mb-4">Filters</h2>
+            <h2 class="text-lg font-bold text-gray-700 mb-4">Filter by Purchase Date</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
                 <!-- Date Range -->
                 <div>
-                    <label class="text-sm font-medium text-gray-600 mb-2 block">Start Date</label>
+                    <label class="text-sm font-medium text-gray-600 mb-2 block">Purchase Start Date</label>
                     <input type="date" id="startDate"
                            class="w-full h-10 border border-gray-300 rounded-md px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-600 mb-2 block">End Date</label>
+                    <label class="text-sm font-medium text-gray-600 mb-2 block">Purchase End Date</label>
                     <input type="date" id="endDate"
                            class="w-full h-10 border border-gray-300 rounded-md px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -59,7 +59,7 @@
         <section id="statsSection" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Total Entries</p>
+                    <p class="text-sm text-gray-500">Total Items</p>
                     <p id="totalEntries" class="text-3xl font-bold text-teal-600">0</p>
                 </div>
                 <div class="bg-teal-100 text-teal-600 rounded-full p-3">
@@ -70,23 +70,23 @@
             </div>
             <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">New Items</p>
-                    <p id="newItems" class="text-3xl font-bold text-green-600">0</p>
+                    <p class="text-sm text-gray-500">Total Value</p>
+                    <p id="totalValue" class="text-3xl font-bold text-green-600">$0</p>
                 </div>
                 <div class="bg-green-100 text-green-600 rounded-full p-3">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                        <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                     </svg>
                 </div>
             </div>
             <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Updated Items</p>
-                    <p id="updatedItems" class="text-3xl font-bold text-orange-500">0</p>
+                    <p class="text-sm text-gray-500">Categories</p>
+                    <p id="totalCategories" class="text-3xl font-bold text-orange-500">0</p>
                 </div>
                 <div class="bg-orange-100 text-orange-600 rounded-full p-3">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z" />
+                        <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
                 </div>
             </div>
@@ -105,7 +105,7 @@
 
         <!-- Export Section -->
         <section class="bg-white shadow-md rounded-lg p-6 mb-6">
-            <h2 class="text-lg font-bold text-gray-700 mb-4">Export Report</h2>
+            <h2 class="text-lg font-bold text-gray-700 mb-4">Export Report by Purchase Date</h2>
             <div class="flex gap-4 items-center">
                 <button id="exportPDF" class="bg-red-500 text-white px-6 py-2 rounded-md shadow hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
                     📄 Export PDF
@@ -120,24 +120,24 @@
         <!-- Report Table -->
         <section class="bg-white shadow-md rounded-lg p-6">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold text-gray-700">Report Data</h2>
+                <h2 class="text-lg font-bold text-gray-700">Items by Purchase Date</h2>
                 <div class="text-sm text-gray-500">
                     Showing <span id="showingFrom">0</span>-<span id="showingTo">0</span> of <span id="totalCount">0</span> entries
                 </div>
             </div>
-
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse">
                     <thead class="bg-gray-100 border-b">
                         <tr class="text-gray-600 text-left text-sm">
-                            <th class="p-3">ID</th>
-                            <th class="p-3">Date & Time</th>
+                            <th class="p-3">Item Code</th>
                             <th class="p-3">Item Name</th>
+                            <th class="p-3">Purchase Date</th>
                             <th class="p-3">Category</th>
                             <th class="p-3">Quantity</th>
+                            <th class="p-3">Unit Price</th>
+                            <th class="p-3">Total Value</th>
                             <th class="p-3">Data Center</th>
                             <th class="p-3">Status</th>
-                            <th class="p-3">Added By</th>
                         </tr>
                     </thead>
                     <tbody id="reportTable" class="text-gray-600 text-sm">
@@ -145,17 +145,15 @@
                     </tbody>
                 </table>
             </div>
-
             <!-- Pagination -->
             <div id="pagination" class="flex justify-center items-center gap-2 mt-6">
                 <!-- Pagination buttons will be generated here -->
             </div>
-
             <!-- Empty State -->
             <div id="emptyState" class="text-center py-8 hidden">
                 <div class="text-gray-400 text-6xl mb-4">📊</div>
                 <h3 class="text-xl font-semibold text-gray-600 mb-2">No Data Found</h3>
-                <p class="text-gray-500">Try adjusting your date range or filters</p>
+                <p class="text-gray-500">Try adjusting your purchase date range or filters</p>
             </div>
         </section>
     </div>
@@ -165,9 +163,9 @@
             let currentPage = 1;
             let currentDateRange = {};
 
-            // Initialize with last 30 days - ✅ DIPERBAIKI
+            // Initialize with last 30 days
             const today = new Date();
-            const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000); // ✅ Diperbaiki
+            const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
             document.getElementById("startDate").value = thirtyDaysAgo.toISOString().split('T')[0];
             document.getElementById("endDate").value = today.toISOString().split('T')[0];
 
@@ -180,7 +178,7 @@
                 const days = parseInt(this.value);
                 if (days) {
                     const end = new Date();
-                    const start = new Date(end.getTime() - days * 24 * 60 * 60 * 1000); // ✅ Diperbaiki
+                    const start = new Date(end.getTime() - days * 24 * 60 * 60 * 1000);
                     document.getElementById("startDate").value = start.toISOString().split('T')[0];
                     document.getElementById("endDate").value = end.toISOString().split('T')[0];
                 }
@@ -195,26 +193,27 @@
             document.getElementById("exportExcel").addEventListener("click", exportToExcel);
 
             // ========================
-            // LOAD REPORT DATA - ✅ DIPERBAIKI FETCH SYNTAX
+            // LOAD REPORT DATA - BERDASARKAN PURCHASE DATE
             // ========================
             async function loadReportData() {
                 try {
                     showLoading(true);
+
                     const startDate = document.getElementById("startDate").value;
                     const endDate = document.getElementById("endDate").value;
 
                     if (!startDate || !endDate) {
-                        alert("Please select both start and end dates");
+                        alert("Please select both purchase start and end dates");
                         showLoading(false);
                         return;
                     }
 
                     currentDateRange = { startDate, endDate };
 
-                    // ✅ DIPERBAIKI: gunakan parentheses biasa ()
+                    // ✅ UBAH: API call berdasarkan purchase date
                     const [statsResponse, dataResponse] = await Promise.all([
-                        fetch(`/api/reports/stats?startDate=${startDate}&endDate=${endDate}`),
-                        fetch(`/api/reports/data?startDate=${startDate}&endDate=${endDate}&page=${currentPage}&pageSize=50`)
+                        fetch(`/api/reports/stats-by-purchase-date?startDate=${startDate}&endDate=${endDate}`),
+                        fetch(`/api/reports/data-by-purchase-date?startDate=${startDate}&endDate=${endDate}&page=${currentPage}&pageSize=50`)
                     ]);
 
                     if (!statsResponse.ok || !dataResponse.ok) {
@@ -228,6 +227,7 @@
                     updateTable(data);
                     updatePagination(data);
                     showLoading(false);
+
                 } catch (error) {
                     console.error("Error loading report data:", error);
                     showError("Failed to load report data. Please try again.");
@@ -236,17 +236,17 @@
             }
 
             // ========================
-            // UPDATE STATS
+            // UPDATE STATS - UNTUK PURCHASE DATE
             // ========================
             function updateStats(stats) {
-                document.getElementById("totalEntries").textContent = stats.totalEntries;
-                document.getElementById("newItems").textContent = stats.newItems;
-                document.getElementById("updatedItems").textContent = stats.updatedItems;
-                document.getElementById("totalDataCenters").textContent = stats.totalDataCenters;
+                document.getElementById("totalEntries").textContent = stats.totalItems || 0;
+                document.getElementById("totalValue").textContent = `$${(stats.totalValue || 0).toLocaleString()}`;
+                document.getElementById("totalCategories").textContent = stats.totalCategories || 0;
+                document.getElementById("totalDataCenters").textContent = stats.totalDataCenters || 0;
             }
 
             // ========================
-            // UPDATE TABLE
+            // UPDATE TABLE - FOKUS PADA PURCHASE DATE
             // ========================
             function updateTable(data) {
                 const tableBody = document.getElementById("reportTable");
@@ -259,24 +259,30 @@
                 }
 
                 emptyState.classList.add("hidden");
+
                 tableBody.innerHTML = data.data.map(item => `
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3">${item.itemCode || '-'}</td>
-                        <td class="p-3">${new Date(item.createdAt).toLocaleDateString('en-GB')}</td>
+                        <td class="p-3 font-medium">${item.itemCode || '-'}</td>
                         <td class="p-3">${item.itemName}</td>
+                        <td class="p-3">
+                            <span class="text-blue-600 font-medium">
+                                ${item.dateOfPurchase ? new Date(item.dateOfPurchase).toLocaleDateString('en-GB') : 'Not Set'}
+                            </span>
+                        </td>
                         <td class="p-3">
                             <span class="bg-blue-100 text-blue-600 rounded-full px-3 py-1 text-xs">
                                 ${item.categoryName}
                             </span>
                         </td>
-                        <td class="p-3">${item.quantity}</td>
+                        <td class="p-3 text-center">${item.quantity}</td>
+                        <td class="p-3">$${(item.buyingPrice || 0).toLocaleString()}</td>
+                        <td class="p-3 font-medium">$${((item.buyingPrice || 0) * (item.quantity || 0)).toLocaleString()}</td>
                         <td class="p-3">${item.dataCenterName}</td>
                         <td class="p-3">
                             <span class="px-3 py-1 rounded-full text-xs ${getStatusColor(item.status)}">
                                 ${item.status}
                             </span>
                         </td>
-                        <td class="p-3">${item.createdByName || 'System'}</td>
                     </tr>
                 `).join("");
 
@@ -293,6 +299,7 @@
             // ========================
             function updatePagination(data) {
                 const pagination = document.getElementById("pagination");
+
                 if (data.totalPages <= 1) {
                     pagination.innerHTML = "";
                     return;
@@ -351,26 +358,29 @@
             };
 
             // ========================
-            // EXPORT FUNCTIONS - ✅ DIPERBAIKI
+            // EXPORT FUNCTIONS - BERDASARKAN PURCHASE DATE
             // ========================
             async function exportToPDF() {
                 try {
-                    console.log("Starting PDF export...");
+                    console.log("Starting PDF export by purchase date...");
                     setExportLoading("exportPDF", true);
+
                     const { startDate, endDate } = currentDateRange;
                     if (!startDate || !endDate) {
-                        throw new Error("Date range not selected");
+                        throw new Error("Purchase date range not selected");
                     }
 
-                    console.log("Requesting PDF with dates:", startDate, endDate);
-                    // ✅ DIPERBAIKI: gunakan parentheses biasa ()
-                    const response = await fetch(`/api/reports/export/pdf?startDate=${startDate}&endDate=${endDate}`);
+                    console.log("Requesting PDF with purchase dates:", startDate, endDate);
+
+                    // ✅ UBAH: Export berdasarkan purchase date
+                    const response = await fetch(`/api/reports/export/pdf-by-purchase-date?startDate=${startDate}&endDate=${endDate}`);
+
                     console.log("Response status:", response.status);
 
                     if (!response.ok) {
                         const errorText = await response.text();
                         console.error("Server error:", errorText);
-                        throw new Error(`Server error: ${response.status} - ${errorText}`); // ✅ Diperbaiki
+                        throw new Error(`Server error: ${response.status} - ${errorText}`);
                     }
 
                     const blob = await response.blob();
@@ -380,11 +390,12 @@
                         throw new Error("Empty file received");
                     }
 
-                    downloadFile(blob, `InventoryReport_${startDate}_${endDate}.pdf`);
+                    downloadFile(blob, `InventoryReport_PurchaseDate_${startDate}_${endDate}.pdf`);
                     showExportSuccess("PDF exported successfully!");
+
                 } catch (error) {
                     console.error("Error exporting PDF:", error);
-                    showError(`Failed to export PDF: ${error.message}`); // ✅ Diperbaiki
+                    showError(`Failed to export PDF: ${error.message}`);
                 } finally {
                     setExportLoading("exportPDF", false);
                 }
@@ -392,19 +403,21 @@
 
             async function exportToExcel() {
                 try {
-                    console.log("Starting Excel export...");
+                    console.log("Starting Excel export by purchase date...");
                     setExportLoading("exportExcel", true);
+
                     const { startDate, endDate } = currentDateRange;
                     if (!startDate || !endDate) {
-                        throw new Error("Date range not selected");
+                        throw new Error("Purchase date range not selected");
                     }
 
-                    // ✅ DIPERBAIKI: gunakan parentheses biasa ()
-                    const response = await fetch(`/api/reports/export/excel?startDate=${startDate}&endDate=${endDate}`);
+                    // ✅ UBAH: Export berdasarkan purchase date
+                    const response = await fetch(`/api/reports/export/excel-by-purchase-date?startDate=${startDate}&endDate=${endDate}`);
+
                     if (!response.ok) {
                         const errorText = await response.text();
                         console.error("Server error:", errorText);
-                        throw new Error(`Server error: ${response.status}`); // ✅ Diperbaiki
+                        throw new Error(`Server error: ${response.status}`);
                     }
 
                     const blob = await response.blob();
@@ -412,11 +425,12 @@
                         throw new Error("Empty file received");
                     }
 
-                    downloadFile(blob, `InventoryReport_${startDate}_${endDate}.xlsx`);
+                    downloadFile(blob, `InventoryReport_PurchaseDate_${startDate}_${endDate}.xlsx`);
                     showExportSuccess("Excel exported successfully!");
+
                 } catch (error) {
                     console.error("Error exporting Excel:", error);
-                    showError(`Failed to export Excel: ${error.message}`); // ✅ Diperbaiki
+                    showError(`Failed to export Excel: ${error.message}`);
                 } finally {
                     setExportLoading("exportExcel", false);
                 }
@@ -469,6 +483,7 @@
                 const button = document.getElementById(buttonId);
                 const status = document.getElementById("exportStatus");
                 button.disabled = loading;
+
                 if (loading) {
                     status.textContent = "Generating file...";
                     status.className = "text-sm text-blue-600";

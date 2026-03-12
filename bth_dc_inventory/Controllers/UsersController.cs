@@ -28,66 +28,98 @@ namespace bth_dc_inventory.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
+                Console.WriteLine($"🔐 Login attempt for: {dto.Email}"); // Debug log
 
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == dto.Email);
-
-            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
-            {
-                return Unauthorized(new { success = false, message = "Invalid email or password." });
-            }
-
-            // Generate JWT Token
-            var jwtKey = _configuration["Jwt:Key"];
-            var jwtIssuer = _configuration["Jwt:Issuer"];
-            var jwtAudience = _configuration["Jwt:Audience"];
-
-            var token = JwtHelper.GenerateJwtToken(
-                user.Id.ToString(),
-                user.Username,
-                user.Email,
-                user.Role ?? "User",
-                jwtKey,
-                jwtIssuer,
-                jwtAudience
-            );
-
-            return Ok(new
-            {
-                success = true,
-                message = "Login successful",
-                token = token,
-                userName = user.Username, // ✅ Untuk frontend
-                userEmail = user.Email,   // ✅ Untuk frontend
-                userRole = user.Role ?? "User", // ✅ Untuk frontend
-                user = new
+                if (!ModelState.IsValid)
                 {
-                    user.Id,
+                    return BadRequest(new { success = false, message = "Invalid input data", errors = ModelState });
+                }
+
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+                if (user == null)
+                {
+                    Console.WriteLine($"❌ User not found: {dto.Email}");
+                    return Unauthorized(new { success = false, message = "Invalid email or password." });
+                }
+
+                if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+                {
+                    Console.WriteLine($"❌ Invalid password for: {dto.Email}");
+                    return Unauthorized(new { success = false, message = "Invalid email or password." });
+                }
+
+                // Generate JWT Token
+                var jwtKey = _configuration["Jwt:Key"];
+                var jwtIssuer = _configuration["Jwt:Issuer"];
+                var jwtAudience = _configuration["Jwt:Audience"];
+
+                if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
+                {
+                    Console.WriteLine("❌ JWT configuration missing");
+                    return StatusCode(500, new { success = false, message = "Server configuration error" });
+                }
+
+                var token = JwtHelper.GenerateJwtToken(
+                    user.Id.ToString(),
                     user.Username,
                     user.Email,
-                    user.Role
-                }
-            });
+                    user.Role ?? "User",
+                    jwtKey,
+                    jwtIssuer,
+                    jwtAudience
+                );
+
+                Console.WriteLine($"✅ Login successful for: {user.Username}");
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Login successful",
+                    token = token,
+                    userName = user.Username,
+                    userEmail = user.Email,
+                    userRole = user.Role ?? "User",
+                    user = new
+                    {
+                        user.Id,
+                        user.Username,
+                        user.Email,
+                        user.Role
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Login exception: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "Internal server error", error = ex.Message });
+            }
         }
 
         // =====================================================
-        // GET CURRENT USER: GET api/users/current - ✅ TAMBAHAN BARU
+        // GET CURRENT USER: GET api/users/current - ✅ UNTUK PROFILE
         // =====================================================
         [HttpGet("current")]
-        [Authorize] // ✅ Require JWT token
+        [Authorize]
         public async Task<IActionResult> GetCurrentUser()
         {
             try
             {
-                // ✅ Get user ID from JWT token
+                Console.WriteLine("🔍 Getting current user from token");
+
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userName = User.FindFirst(ClaimTypes.Name)?.Value;
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                Console.WriteLine($"Claims - ID: {userIdClaim}, Name: {userName}, Email: {userEmail}, Role: {userRole}");
 
                 if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
                 {
+                    Console.WriteLine("❌ Invalid user ID in token");
                     return Unauthorized(new { success = false, message = "Invalid token" });
                 }
 
@@ -103,14 +135,18 @@ namespace bth_dc_inventory.Controllers
 
                 if (user == null)
                 {
+                    Console.WriteLine($"❌ User not found in database: {userId}");
                     return NotFound(new { success = false, message = "User not found" });
                 }
+
+                Console.WriteLine($"✅ Current user retrieved: {user.Username}");
 
                 return Ok(new
                 {
                     success = true,
                     user = new
                     {
+                        id = user.Id,
                         userName = user.Username,
                         userEmail = user.Email,
                         userRole = user.Role ?? "User"
@@ -119,23 +155,170 @@ namespace bth_dc_inventory.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"❌ GetCurrentUser exception: {ex.Message}");
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
 
         // =====================================================
-        // LOGOUT: POST api/users/logout - ✅ TAMBAHAN BARU
+        // GET ALL USERS: GET api/users - ✅ UNTUK SETTINGS PAGE
+        // =====================================================
+        [HttpGet]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<object>>> GetUsers()
+        {
+            try
+            {
+                Console.WriteLine("📋 Getting all users");
+
+                var users = await _context.Users
+                    .Select(u => new
+                    {
+                        Id = u.Id,
+                        Username = u.Username,
+                        Email = u.Email,
+                        Role = u.Role ?? "User",
+                        CreatedAt = u.CreatedAt
+                    })
+                    .OrderBy(u => u.Username)
+                    .ToListAsync();
+
+                Console.WriteLine($"✅ Retrieved {users.Count} users");
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ GetUsers exception: {ex.Message}");
+                return StatusCode(500, new { message = "Error fetching users", error = ex.Message });
+            }
+        }
+
+        // =====================================================
+        // GET USER STATS: GET api/users/stats - ✅ UNTUK SETTINGS PAGE
+        // =====================================================
+        [HttpGet("stats")]
+        [Authorize]
+        public async Task<ActionResult<object>> GetUserStats()
+        {
+            try
+            {
+                Console.WriteLine("📊 Getting user stats");
+
+                var totalUsers = await _context.Users.CountAsync();
+                var adminUsers = await _context.Users.CountAsync(u => u.Role == "Admin");
+                var regularUsers = totalUsers - adminUsers;
+
+                Console.WriteLine($"✅ Stats - Total: {totalUsers}, Admin: {adminUsers}, Regular: {regularUsers}");
+
+                return Ok(new
+                {
+                    TotalUsers = totalUsers,
+                    AdminUsers = adminUsers,
+                    RegularUsers = regularUsers
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ GetUserStats exception: {ex.Message}");
+                return StatusCode(500, new { message = "Error fetching user stats", error = ex.Message });
+            }
+        }
+
+        // =====================================================
+        // ASSIGN ADMIN ROLE: PUT api/users/assign-admin/{id}
+        // =====================================================
+        [HttpPut("assign-admin/{id}")]
+        [Authorize]
+        public async Task<ActionResult> AssignAdminRole(int id)
+        {
+            try
+            {
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+                if (currentUserRole != "Admin")
+                {
+                    return Forbid("Only administrators can assign admin roles");
+                }
+
+                var user = await _context.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return NotFound(new { message = "User not found" });
+                }
+
+                if (user.Role == "Admin")
+                {
+                    return BadRequest(new { message = "User is already an admin" });
+                }
+
+                user.Role = "Admin";
+                user.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = $"{user.Username} has been assigned as admin successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error assigning admin role", error = ex.Message });
+            }
+        }
+
+        // =====================================================
+        // REMOVE ADMIN ROLE: PUT api/users/remove-admin/{id}
+        // =====================================================
+        [HttpPut("remove-admin/{id}")]
+        [Authorize]
+        public async Task<ActionResult> RemoveAdminRole(int id)
+        {
+            try
+            {
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+                if (currentUserRole != "Admin")
+                {
+                    return Forbid("Only administrators can remove admin roles");
+                }
+
+                var user = await _context.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return NotFound(new { message = "User not found" });
+                }
+
+                if (user.Role != "Admin")
+                {
+                    return BadRequest(new { message = "User is not an admin" });
+                }
+
+                var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (int.TryParse(currentUserIdClaim, out int currentUserId) && user.Id == currentUserId)
+                {
+                    return BadRequest(new { message = "You cannot remove your own admin role" });
+                }
+
+                user.Role = "User";
+                user.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = $"Admin role removed from {user.Username} successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error removing admin role", error = ex.Message });
+            }
+        }
+
+        // =====================================================
+        // LOGOUT: POST api/users/logout
         // =====================================================
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            // ✅ Untuk JWT, logout biasanya handled di client-side
-            // Tapi kita bisa return success response
             return Ok(new { success = true, message = "Logged out successfully" });
         }
 
         // =====================================================
-        // REGISTER: POST api/users/register - ✅ SUDAH OK
+        // REGISTER: POST api/users/register
         // =====================================================
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserCreateDto dto)
@@ -145,7 +328,6 @@ namespace bth_dc_inventory.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Validasi email & username
             var existingEmail = await _context.Users.AnyAsync(u => u.Email == dto.Email);
             if (existingEmail)
             {
@@ -158,16 +340,14 @@ namespace bth_dc_inventory.Controllers
                 return BadRequest(new { success = false, message = "Username sudah digunakan." });
             }
 
-            // Hash password
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
-            // Create user
             var newUser = new User
             {
                 Username = dto.Username,
                 Email = dto.Email,
                 Password = hashedPassword,
-                Role = "User", // ✅ Default role
+                Role = "User",
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -191,24 +371,11 @@ namespace bth_dc_inventory.Controllers
             });
         }
 
-        // ✅ REST OF YOUR EXISTING ENDPOINTS...
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserReadDto>>> GetUsers()
-        {
-            var users = await _context.Users
-                .Select(u => new UserReadDto
-                {
-                    Id = u.Id,
-                    Username = u.Username,
-                    Email = u.Email,
-                    Role = u.Role,
-                    CreatedAt = u.CreatedAt
-                })
-                .ToListAsync();
-            return Ok(users);
-        }
-
+        // =====================================================
+        // GET SINGLE USER: GET api/users/{id}
+        // =====================================================
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<UserReadDto>> GetUser(int id)
         {
             var user = await _context.Users
@@ -228,7 +395,5 @@ namespace bth_dc_inventory.Controllers
 
             return Ok(user);
         }
-
-        // ✅ ... rest of your existing endpoints
     }
 }

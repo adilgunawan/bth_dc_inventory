@@ -8,11 +8,12 @@
     </div>
 
     <!-- Right Profile -->
+    <!-- ✅ Update bagian profile untuk handle guest users -->
     <div class="flex items-center gap-3">
         <div class="flex items-center gap-2">
             <!-- ✅ Dynamic User Avatar -->
             <div id="userAvatar" class="w-10 h-10 bg-teal-600 text-white flex items-center justify-center rounded-full font-bold">
-                A
+                ?
             </div>
             <div class="leading-tight">
                 <!-- ✅ Dynamic Username -->
@@ -20,10 +21,20 @@
                 <!-- ✅ Dynamic User Role -->
                 <p id="userRole" class="text-xs text-gray-400">Data Center Inventory</p>
             </div>
-            <!-- ✅ Logout Button -->
-            <button id="logoutButton" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
-                Logout
-            </button>
+
+            <!-- ✅ Conditional buttons based on auth status -->
+            <div id="authButtons" class="flex items-center gap-2">
+                <!-- ✅ Logout Button (hidden for guests) -->
+                <button id="logoutButton" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Logout
+                </button>
+
+                <!-- ✅ Login Button (shown for guests) -->
+                <button id="loginButton" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors hidden"
+                        onclick="window.location.href='/Account/Login'">
+                    Login
+                </button>
+            </div>
         </div>
     </div>
 
@@ -58,65 +69,116 @@
         </div>
     </div>
     <script>
+                // ✅ Di function updateUserDisplay, tambahkan:
+        function updateUserDisplay(userName, userEmail, userRole) {
+            // ... existing code ...
+
+            // ✅ Show/hide buttons based on authentication
+            const logoutButton = document.getElementById('logoutButton');
+            const loginButton = document.getElementById('loginButton');
+
+            if (userName === 'Guest User' || userRole === 'Visitor') {
+                // Guest user - show login button, hide logout
+                logoutButton?.classList.add('hidden');
+                loginButton?.classList.remove('hidden');
+            } else {
+                // Authenticated user - show logout button, hide login
+                logoutButton?.classList.remove('hidden');
+                loginButton?.classList.add('hidden');
+            }
+
+            console.log('✅ User display updated successfully');
+        }
+    </script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             loadUserProfile();
             setupLogout();
         });
 
         // =====================================
-        // LOAD USER PROFILE - ✅ UPDATE UNTUK API
+        // JWT HELPER FUNCTIONS - ✅ KONSISTEN DENGAN DASHBOARD
+        // =====================================
+        function getAuthToken() {
+            return localStorage.getItem('authToken'); // ✅ Gunakan 'authToken' bukan 'token'
+        }
+
+        function getAuthHeaders() {
+            const token = getAuthToken();
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        function checkAuthentication() {
+            const token = getAuthToken();
+            if (!token) {
+                console.log('❌ No auth token found');
+                return false;
+            }
+            return true;
+        }
+
+        // =====================================
+        // LOAD USER PROFILE - ✅ DIPERBAIKI
         // =====================================
         async function loadUserProfile() {
             try {
-                console.log('Loading user profile...');
+                console.log('🔄 Loading user profile...');
 
-                // ✅ Coba ambil dari localStorage dulu
+                // ✅ Cek token dulu
+                if (!checkAuthentication()) {
+                    console.log('No authentication found, using guest mode');
+                    updateUserDisplay('Guest User', '', 'Visitor');
+                    return;
+                }
+
+                // ✅ Ambil dari localStorage dulu untuk display cepat
                 const userName = localStorage.getItem('userName');
                 const userEmail = localStorage.getItem('userEmail');
                 const userRole = localStorage.getItem('userRole');
-                const token = localStorage.getItem('token');
 
-                if (userName && token) {
-                    console.log('Found user in localStorage:', userName);
+                if (userName) {
+                    console.log('✅ Found user in localStorage:', userName);
                     updateUserDisplay(userName, userEmail, userRole);
-
-                    // ✅ Verify token masih valid
-                    await verifyTokenValidity();
-                } else {
-                    console.log('No user data found, using guest mode');
-                    updateUserDisplay('Guest User', '', 'Visitor');
                 }
+
+                // ✅ Verify dengan server
+                await verifyTokenValidity();
+
             } catch (error) {
-                console.error('Error in loadUserProfile:', error);
+                console.error('❌ Error in loadUserProfile:', error);
                 updateUserDisplay('Guest User', '', 'Visitor');
             }
         }
 
         // =====================================
-        // VERIFY TOKEN VALIDITY - ✅ BARU
+        // VERIFY TOKEN VALIDITY - ✅ DIPERBAIKI
         // =====================================
         async function verifyTokenValidity() {
             try {
-                const token = localStorage.getItem('token');
-                if (!token) return;
+                console.log('🔍 Verifying token validity...');
 
                 const response = await fetch('/api/users/current', {
                     method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    }
+                    headers: getAuthHeaders()
                 });
 
+                console.log('Token verification response status:', response.status);
+
                 if (!response.ok) {
-                    // Token invalid, clear data
-                    console.log('Token invalid, clearing user data');
-                    clearUserData();
-                    updateUserDisplay('Guest User', '', 'Visitor');
-                    return;
+                    if (response.status === 401) {
+                        console.log('❌ Token expired/invalid, clearing user data');
+                        clearUserData();
+                        updateUserDisplay('Guest User', '', 'Visitor');
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
                 }
 
                 const result = await response.json();
+                console.log('✅ Token verification result:', result);
 
                 if (result.success && result.user) {
                     // ✅ Update dengan data terbaru dari server
@@ -126,53 +188,79 @@
                     localStorage.setItem('userRole', user.userRole);
 
                     updateUserDisplay(user.userName, user.userEmail, user.userRole);
+                    console.log('✅ User profile updated from server');
                 }
+
             } catch (error) {
-                console.error('Error verifying token:', error);
+                console.error('❌ Error verifying token:', error);
+                // Don't clear data on network errors, keep localStorage data
             }
         }
 
         // =====================================
-        // UPDATE USER DISPLAY - ✅ SAMA SEPERTI SEBELUMNYA
+        // UPDATE USER DISPLAY - ✅ ENHANCED
         // =====================================
         function updateUserDisplay(userName, userEmail, userRole) {
-            console.log('Updating display for:', userName);
+            console.log(`🎨 Updating display for: ${userName} (${userRole})`);
 
             try {
+                // ✅ Update username
                 const userNameElement = document.getElementById('userName');
                 if (userNameElement) {
                     userNameElement.textContent = userName || 'Guest';
                     if (userEmail) {
-                        userNameElement.title = userEmail;
+                        userNameElement.title = `${userName} (${userEmail})`; // Tooltip with email
                     }
                 }
 
+                // ✅ Update role
                 const userRoleElement = document.getElementById('userRole');
                 if (userRoleElement) {
-                    userRoleElement.textContent = userRole || 'Data Center Inventory';
+                    if (userRole && userRole !== 'Visitor') {
+                        userRoleElement.textContent = userRole;
+                    } else {
+                        userRoleElement.textContent = 'Data Center Inventory';
+                    }
                 }
 
+                // ✅ Update avatar
                 const userAvatar = document.getElementById('userAvatar');
                 if (userAvatar && userName) {
                     const initial = userName.charAt(0).toUpperCase();
                     userAvatar.textContent = initial;
 
                     // ✅ Warna berdasarkan role
-                    let colorClass = 'bg-teal-600';
-                    if (userRole === 'Admin') colorClass = 'bg-red-600';
-                    else if (userRole === 'User') colorClass = 'bg-blue-600';
+                    let colorClass = 'bg-teal-600'; // Default
+                    if (userRole === 'Admin') {
+                        colorClass = 'bg-red-600';
+                    } else if (userRole === 'User') {
+                        colorClass = 'bg-blue-600';
+                    } else if (userRole === 'Visitor') {
+                        colorClass = 'bg-gray-600';
+                    }
 
                     userAvatar.className = `w-10 h-10 ${colorClass} text-white flex items-center justify-center rounded-full font-bold`;
                 }
 
-                console.log('User display updated successfully');
+                // ✅ Show/hide logout button based on authentication
+                const logoutButton = document.getElementById('logoutButton');
+                if (logoutButton) {
+                    if (userName === 'Guest User' || userRole === 'Visitor') {
+                        logoutButton.style.display = 'none';
+                    } else {
+                        logoutButton.style.display = 'block';
+                    }
+                }
+
+                console.log('✅ User display updated successfully');
+
             } catch (error) {
-                console.error('Error updating user display:', error);
+                console.error('❌ Error updating user display:', error);
             }
         }
 
         // =====================================
-        // SETUP LOGOUT - ✅ UPDATE UNTUK API
+        // SETUP LOGOUT - ✅ ENHANCED
         // =====================================
         function setupLogout() {
             const logoutButton = document.getElementById('logoutButton');
@@ -180,84 +268,104 @@
             const cancelLogout = document.getElementById('cancelLogout');
             const confirmLogout = document.getElementById('confirmLogout');
 
-            logoutButton.addEventListener('click', () => {
+            // ✅ Show modal on logout click
+            logoutButton?.addEventListener('click', () => {
                 logoutModal.classList.remove('hidden');
             });
 
-            cancelLogout.addEventListener('click', () => {
+            // ✅ Cancel logout
+            cancelLogout?.addEventListener('click', () => {
                 logoutModal.classList.add('hidden');
             });
 
-            logoutModal.addEventListener('click', (e) => {
+            // ✅ Close modal on backdrop click
+            logoutModal?.addEventListener('click', (e) => {
                 if (e.target === logoutModal) {
                     logoutModal.classList.add('hidden');
                 }
             });
 
-            confirmLogout.addEventListener('click', async () => {
+            // ✅ Confirm logout
+            confirmLogout?.addEventListener('click', async () => {
                 await performLogout();
             });
 
+            // ✅ Close on Escape key
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !logoutModal.classList.contains('hidden')) {
+                if (e.key === 'Escape' && !logoutModal?.classList.contains('hidden')) {
                     logoutModal.classList.add('hidden');
                 }
             });
         }
 
         // =====================================
-        // PERFORM LOGOUT - ✅ UPDATE UNTUK API
+        // PERFORM LOGOUT - ✅ ENHANCED
         // =====================================
         async function performLogout() {
             try {
                 const confirmButton = document.getElementById('confirmLogout');
                 const originalText = confirmButton.textContent;
+
+                // ✅ Show loading state
                 confirmButton.textContent = 'Logging out...';
                 confirmButton.disabled = true;
 
-                // ✅ Call API logout endpoint
-                const token = localStorage.getItem('token');
+                console.log('🚪 Performing logout...');
+
+                // ✅ Call server logout endpoint if token exists
+                const token = getAuthToken();
                 if (token) {
                     try {
-                        await fetch('/api/users/logout', {
+                        const response = await fetch('/api/users/logout', {
                             method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            }
+                            headers: getAuthHeaders()
                         });
+                        console.log('Server logout response:', response.status);
                     } catch (serverError) {
-                        console.warn('Server logout failed:', serverError);
+                        console.warn('⚠️ Server logout failed (but continuing):', serverError);
                     }
                 }
 
                 // ✅ Clear all user data
                 clearUserData();
 
+                console.log('✅ User data cleared, redirecting to login...');
+
                 // ✅ Redirect to login page
-                window.location.href = "/Account/login"; // Sesuaikan dengan route login kamu
+                window.location.href = "/Account/Login"; // ✅ Capital L untuk consistency
 
             } catch (error) {
-                console.error('Logout error:', error);
+                console.error('❌ Logout error:', error);
 
+                // ✅ Reset button state
                 const confirmButton = document.getElementById('confirmLogout');
                 confirmButton.textContent = 'Logout';
                 confirmButton.disabled = false;
 
                 alert('Logout may have failed, but you will be redirected to login page.');
                 clearUserData();
-                window.location.href = "/Account/login";
+                window.location.href = "/Account/Login";
             }
         }
 
         // =====================================
-        // CLEAR USER DATA - ✅ HELPER FUNCTION
+        // CLEAR USER DATA - ✅ COMPREHENSIVE
         // =====================================
         function clearUserData() {
-            localStorage.removeItem('token');
+            // ✅ Clear all possible token keys (for consistency)
+            localStorage.removeItem('authToken'); // ✅ Primary token key
+            localStorage.removeItem('token');     // ✅ Legacy token key
             localStorage.removeItem('userName');
             localStorage.removeItem('userEmail');
             localStorage.removeItem('userRole');
+
+            console.log('🧹 All user data cleared from localStorage');
         }
+
+        // =====================================
+        // MAKE FUNCTIONS AVAILABLE GLOBALLY - ✅ OPTIONAL
+        // =====================================
+        window.loadUserProfile = loadUserProfile;
+        window.performLogout = performLogout;
     </script>
 </div>

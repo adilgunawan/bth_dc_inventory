@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Infrastructure;
 using System.Text;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,25 +18,84 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 );
 
 // =========================
-// CONFIGURE JWT AUTHENTICATION
+// CONFIGURE JWT AUTHENTICATION - ✅ DIPERBAIKI
 // =========================
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+var jwtKey = jwtSettings["Key"];
+var jwtIssuer = jwtSettings["Issuer"];
+var jwtAudience = jwtSettings["Audience"];
+
+// ✅ Debug: Log JWT configuration
+Console.WriteLine($"JWT Configuration:");
+Console.WriteLine($"  Key: {(!string.IsNullOrEmpty(jwtKey) ? "✅ Configured" : "❌ Missing")}");
+Console.WriteLine($"  Issuer: {jwtIssuer ?? "❌ Missing"}");
+Console.WriteLine($"  Audience: {jwtAudience ?? "❌ Missing"}");
+
+if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
+{
+    throw new InvalidOperationException("JWT configuration is incomplete. Please check appsettings.json");
+}
+
+var key = Encoding.UTF8.GetBytes(jwtKey);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.TokenValidationParameters = new TokenValidationParameters
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtIssuer, // ✅ Gunakan dari appsettings.json
+        ValidAudience = jwtAudience, // ✅ Gunakan dari appsettings.json
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ClockSkew = TimeSpan.Zero // ✅ Hapus default 5 minute tolerance
+    };
+
+    // ✅ Event handlers untuk debugging
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = "YourIssuer",
-            ValidAudience = "YourAudience",
-            IssuerSigningKey = new SymmetricSecurityKey(key)
-                
-        };
-    });
+            Console.WriteLine($"❌ JWT Authentication Failed: {context.Exception.Message}");
+            Console.WriteLine($"   Token: {context.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "")?.Substring(0, 20)}...");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            var userName = context.Principal?.FindFirst(ClaimTypes.Name)?.Value;
+            var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Console.WriteLine($"✅ JWT Token Validated - User: {userName} (ID: {userId})");
+            return Task.CompletedTask;
+        },
+        OnMessageReceived = context =>
+        {
+            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+            {
+                var token = authHeader.Substring(7);
+                Console.WriteLine($"🔑 JWT Token Received: {token.Substring(0, Math.Min(30, token.Length))}...");
+            }
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            Console.WriteLine($"🚫 JWT Challenge: {context.Error} - {context.ErrorDescription}");
+            Console.WriteLine($"   Path: {context.Request.Path}");
+            Console.WriteLine($"   Headers: {string.Join(", ", context.Request.Headers.Select(h => $"{h.Key}={h.Value}"))}");
+            return Task.CompletedTask;
+        }
+    };
+});
+
+// ✅ Authorization
+builder.Services.AddAuthorization();
 
 // =========================
 // SERVICES
@@ -49,13 +109,12 @@ builder.Services.Configure<IISServerOptions>(options =>
     options.MaxRequestBodySize = 52428800; // 50MB
 });
 
-// ✅ BENAR UNTUK EPPlus 7.x - gunakan LicenseContext
+// ✅ EPPlus License
 OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
 
-// ✅ QuestPDF
+// ✅ QuestPDF License
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 QuestPDF.Settings.CheckIfAllTextGlyphsAreAvailable = false;
-
 
 // =========================
 // BUILD THE APPLICATION
@@ -79,16 +138,22 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
-app.UseAuthentication();
+
+// ✅ PENTING: Urutan middleware harus benar
+app.UseAuthentication(); // Harus sebelum UseAuthorization
 app.UseAuthorization();
 
 // =========================
 // ROUTING
 // =========================
-app.MapControllers();
+app.MapControllers(); // ✅ Untuk API endpoints
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+Console.WriteLine("🚀 Application started successfully!");
+Console.WriteLine($"📍 Environment: {app.Environment.EnvironmentName}");
 
 app.Run();

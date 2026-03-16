@@ -71,7 +71,7 @@
             <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500">Total Value</p>
-                    <p id="totalValue" class="text-3xl font-bold text-green-600">$0</p>
+                    <p id="totalValue" class="text-3xl font-bold text-green-600">€0</p>
                 </div>
                 <div class="bg-green-100 text-green-600 rounded-full p-3">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
@@ -240,7 +240,7 @@
             // ========================
             function updateStats(stats) {
                 document.getElementById("totalEntries").textContent = stats.totalItems || 0;
-                document.getElementById("totalValue").textContent = `$${(stats.totalValue || 0).toLocaleString()}`;
+                document.getElementById("totalValue").textContent = `€${(stats.totalValue || 0).toLocaleString()}`;
                 document.getElementById("totalCategories").textContent = stats.totalCategories || 0;
                 document.getElementById("totalDataCenters").textContent = stats.totalDataCenters || 0;
             }

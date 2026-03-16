@@ -23,23 +23,23 @@
                 <button onclick="goBack()" class="bg-gray-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-700">
                     Back
                 </button>
-                <!-- Delete Button -->
-                <button id="openDeleteModal" class="bg-red-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-red-700">
+                <!-- Delete Button (Only visible for Admin) -->
+                <button id="openDeleteModal" class="bg-red-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-red-700"
+                        style="display: none;">
                     Delete Product
                 </button>
-                <!-- Edit Button -->
-                <button id="openEditModal" class="bg-teal-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-teal-700">
+                <!-- Edit Button (Only visible for Admin) -->
+                <button id="openEditModal" class="bg-teal-600 text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-teal-700"
+                        style="display: none;">
                     Edit Product
                 </button>
             </div>
         </header>
-
         <!-- Loading State -->
         <div id="loadingState" class="mt-6 text-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
             <p class="mt-4 text-gray-600">Loading product details...</p>
         </div>
-
         <!-- Error State -->
         <div id="errorState" class="mt-6 text-center hidden">
             <div class="text-red-500 text-6xl mb-4">⚠️</div>
@@ -47,7 +47,6 @@
             <p id="errorMessage" class="text-gray-600 mb-4">Please try again later.</p>
             <button onclick="goBack()" class="text-teal-600 underline hover:text-teal-700">Go Back</button>
         </div>
-
         <!-- Details Section -->
         <section id="productDetails" class="mt-6 bg-white p-6 rounded-lg shadow-sm hidden">
             <!-- Grid for Details -->
@@ -75,40 +74,34 @@
             </div>
         </section>
     </main>
-
     <!-- Modal Edit Product -->
     <div id="editModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
         <div class="bg-white w-full max-w-lg rounded-lg p-6 shadow-lg max-h-screen overflow-y-auto">
             <h2 class="text-lg font-bold text-gray-700 mb-4">Edit Product</h2>
             <form id="editForm" class="space-y-4">
                 <input type="hidden" id="editProductId">
-
                 <div>
                     <label for="editProductName" class="text-sm font-medium text-gray-700">Product Name</label>
                     <input type="text" id="editProductName"
                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                            required />
                 </div>
-
                 <div>
                     <label for="editItemCode" class="text-sm font-medium text-gray-700">Item Code</label>
                     <input type="text" id="editItemCode"
                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                            required />
                 </div>
-
                 <div>
                     <label for="editAssetNumber" class="text-sm font-medium text-gray-700">Asset Number</label>
                     <input type="text" id="editAssetNumber"
                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 </div>
-
                 <div>
                     <label for="editSerialNumber" class="text-sm font-medium text-gray-700">Serial Number</label>
                     <input type="text" id="editSerialNumber"
                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 </div>
-
                 <div>
                     <label for="editCategory" class="text-sm font-medium text-gray-700">Product Category</label>
                     <select id="editCategory"
@@ -117,19 +110,16 @@
                         <option value="">Select Category</option>
                     </select>
                 </div>
-
                 <div>
                     <label for="editBuyingPrice" class="text-sm font-medium text-gray-700">Buying Price ($)</label>
                     <input type="number" id="editBuyingPrice" step="0.01"
                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 </div>
-
                 <div>
                     <label for="editQuantity" class="text-sm font-medium text-gray-700">Quantity</label>
                     <input type="number" id="editQuantity" min="0"
                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 </div>
-
                 <div>
                     <label for="editLocation" class="text-sm font-medium text-gray-700">Location</label>
                     <select id="editLocation"
@@ -138,13 +128,11 @@
                         <option value="">Select Location</option>
                     </select>
                 </div>
-
                 <div>
                     <label for="editDateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
                     <input type="date" id="editDateOfPurchase"
                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 </div>
-
                 <div>
                     <label for="editStatus" class="text-sm font-medium text-gray-700">Status</label>
                     <select id="editStatus"
@@ -154,7 +142,6 @@
                         <option value="Active">Active</option>
                     </select>
                 </div>
-
                 <div class="flex justify-end space-x-4 mt-6">
                     <button type="button" id="closeEditModal"
                             class="px-4 py-2 rounded-md text-gray-500 bg-gray-100 hover:bg-gray-200">
@@ -168,7 +155,6 @@
             </form>
         </div>
     </div>
-
     <!-- Modal Delete Product -->
     <div id="deleteModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
         <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
@@ -189,14 +175,25 @@
             </div>
         </div>
     </div>
-
     <script>
+        // Check user role
+        const userRole = localStorage.getItem('userRole') || 'User';
+        const editButton = document.getElementById('openEditModal');
+        const deleteButton = document.getElementById('openDeleteModal');
+
+        if (userRole === 'Admin') {
+            editButton.style.display = 'inline-block';
+            deleteButton.style.display = 'inline-block';
+        } else {
+            editButton.style.display = 'none';
+            deleteButton.style.display = 'none';
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             let currentProduct = null;
             let categoriesData = [];
             let dataCentersData = [];
             const productId = getProductIdFromUrl();
-
             // ========================
             // INITIALIZE PAGE
             // ========================
@@ -204,10 +201,8 @@
                 showError("Invalid Product ID", "Please provide a valid Product ID.");
                 return;
             }
-
             // Load data in sequence
             initializePage();
-
             async function initializePage() {
                 try {
                     // Load dropdown data first
@@ -219,7 +214,6 @@
                     showError("Initialization Error", "Failed to load page data.");
                 }
             }
-
             // ========================
             // GET PRODUCT ID FROM URL
             // ========================
@@ -227,7 +221,6 @@
                 const params = new URLSearchParams(window.location.search);
                 return params.get("id");
             }
-
             // ========================
             // LOAD DROPDOWN DATA
             // ========================
@@ -238,10 +231,8 @@
                         fetch("/api/Category/dropdown"),
                         fetch("/api/DataCenters/dropdown")
                     ]);
-
                     console.log("Categories response:", categoriesRes.status);
                     console.log("DataCenters response:", dataCentersRes.status);
-
                     if (categoriesRes.ok) {
                         categoriesData = await categoriesRes.json();
                         console.log("Categories loaded:", categoriesData);
@@ -249,7 +240,6 @@
                     } else {
                         console.error("Failed to load categories:", categoriesRes.status);
                     }
-
                     if (dataCentersRes.ok) {
                         dataCentersData = await dataCentersRes.json();
                         console.log("Data centers loaded:", dataCentersData);
@@ -262,7 +252,6 @@
                     // Don't show error for dropdowns, continue loading product
                 }
             }
-
             // ========================
             // POPULATE SELECT ELEMENT
             // ========================
@@ -272,14 +261,12 @@
                     console.error(`Select element ${selectId} not found`);
                     return;
                 }
-
                 // Clear existing options except the first one
                 const firstOption = select.firstElementChild;
                 select.innerHTML = '';
                 if (firstOption) {
                     select.appendChild(firstOption);
                 }
-
                 // Add new options
                 data.forEach(item => {
                     const option = document.createElement("option");
@@ -287,10 +274,8 @@
                     option.textContent = item[textField];
                     select.appendChild(option);
                 });
-
                 console.log(`Populated ${selectId} with ${data.length} options`);
             }
-
             // ========================
             // LOAD PRODUCT DETAILS
             // ========================
@@ -298,7 +283,6 @@
                 try {
                     showLoading(true);
                     console.log(`Loading product details for ID: ${id}`);
-
                     const response = await fetch(`/api/items/${id}`);
                     if (!response.ok) {
                         if (response.status === 404) {
@@ -306,12 +290,10 @@
                         }
                         throw new Error(`Failed to fetch product details: ${response.status}`);
                     }
-
                     currentProduct = await response.json();
                     console.log("Product loaded:", currentProduct);
-
                     displayProductDetails(currentProduct);
-                    displayProductImage(currentProduct); // ✅ TAMBAHKAN: Display category image
+                    displayProductImage(currentProduct);
                     showLoading(false);
                 } catch (error) {
                     console.error("Error loading product:", error);
@@ -319,41 +301,6 @@
                     showLoading(false);
                 }
             }
-                    function displayProductImage(product) {
-            const productImage = document.getElementById("productImage");
-            const imageLoading = document.getElementById("imageLoading");
-
-            // Show loading
-            if (imageLoading) {
-                imageLoading.classList.remove("hidden");
-            }
-
-            if (product.categoryImage) {
-                productImage.src = `/${product.categoryImage}`;
-                productImage.alt = `${product.categoryName} Image`;
-            } else {
-                productImage.src = "/images/dummy_picture.png";
-                productImage.alt = "Default Product Image";
-            }
-
-            // Hide loading when image loads
-            productImage.onload = function() {
-                if (imageLoading) {
-                    imageLoading.classList.add("hidden");
-                }
-            };
-
-            // Handle error loading image
-            productImage.onerror = function() {
-                this.src = "/images/dummy_picture.png";
-                this.alt = "Default Product Image";
-                if (imageLoading) {
-                    imageLoading.classList.add("hidden");
-                }
-            };
-
-            console.log("Product image set to:", productImage.src);
-        }
             // ========================
             // DISPLAY PRODUCT DETAILS
             // ========================
@@ -377,33 +324,43 @@
                         ${product.dateOfPurchase ? new Date(product.dateOfPurchase).toLocaleDateString() : 'N/A'}
                     </li>
                 `;
-
                 document.getElementById("productDetails").classList.remove("hidden");
             }
-
-            // ✅ TAMBAHKAN: Function untuk display product image dari category
+            // ========================
+            // DISPLAY PRODUCT IMAGE
+            // ========================
             function displayProductImage(product) {
                 const productImage = document.getElementById("productImage");
-
+                const imageLoading = document.getElementById("imageLoading");
+                // Show loading
+                if (imageLoading) {
+                    imageLoading.classList.remove("hidden");
+                }
                 if (product.categoryImage) {
-                    // Jika category memiliki image, gunakan itu
+                    // Use category image if available
                     productImage.src = `/${product.categoryImage}`;
                     productImage.alt = `${product.categoryName} Image`;
                 } else {
-                    // Fallback ke dummy image jika tidak ada
+                    // Fallback to dummy image if none
                     productImage.src = "/images/dummy_picture.png";
                     productImage.alt = "Default Product Image";
                 }
-
+                // Hide loading when image loads
+                productImage.onload = function() {
+                    if (imageLoading) {
+                        imageLoading.classList.add("hidden");
+                    }
+                };
                 // Handle error loading image
                 productImage.onerror = function() {
                     this.src = "/images/dummy_picture.png";
                     this.alt = "Default Product Image";
+                    if (imageLoading) {
+                        imageLoading.classList.add("hidden");
+                    }
                 };
-
                 console.log("Product image set to:", productImage.src);
             }
-
             // ========================
             // GET STATUS COLOR
             // ========================
@@ -411,18 +368,16 @@
                 switch(status) {
                     case 'Arrived': return 'bg-green-200 text-green-800';
                     case 'Pending': return 'bg-yellow-200 text-yellow-800';
-                    case 'Active': return 'bg-blue-200 text-blue-800'; // ✅ TAMBAHKAN status Active
+                    case 'Active': return 'bg-blue-200 text-blue-800';
                     default: return 'bg-gray-200 text-gray-800';
                 }
             }
-
             // ========================
             // SHOW/HIDE LOADING
             // ========================
             function showLoading(show) {
                 document.getElementById("loadingState").classList.toggle("hidden", !show);
             }
-
             // ========================
             // SHOW ERROR
             // ========================
@@ -431,7 +386,6 @@
                 document.getElementById("errorState").classList.remove("hidden");
                 document.getElementById("loadingState").classList.add("hidden");
             }
-
             // ========================
             // MODAL HANDLERS
             // ========================
@@ -447,11 +401,9 @@
                     document.getElementById("editModal").classList.remove("hidden");
                 }
             });
-
             document.getElementById("closeEditModal").addEventListener("click", () => {
                 document.getElementById("editModal").classList.add("hidden");
             });
-
             // Delete Modal
             document.getElementById("openDeleteModal").addEventListener("click", () => {
                 if (currentProduct) {
@@ -459,17 +411,14 @@
                     document.getElementById("deleteModal").classList.remove("hidden");
                 }
             });
-
             document.getElementById("closeDeleteModal").addEventListener("click", () => {
                 document.getElementById("deleteModal").classList.add("hidden");
             });
-
             // ========================
             // POPULATE EDIT FORM
             // ========================
             function populateEditForm(product) {
                 console.log("Populating edit form with product:", product);
-
                 document.getElementById("editProductId").value = product.id || '';
                 document.getElementById("editProductName").value = product.itemName || '';
                 document.getElementById("editItemCode").value = product.itemCode || '';
@@ -478,36 +427,30 @@
                 document.getElementById("editBuyingPrice").value = product.buyingPrice || '';
                 document.getElementById("editQuantity").value = product.quantity || '';
                 document.getElementById("editStatus").value = product.status || 'Pending';
-
                 if (product.dateOfPurchase) {
                     const date = new Date(product.dateOfPurchase);
                     document.getElementById("editDateOfPurchase").value = date.toISOString().split('T')[0];
                 }
-
                 // Set category - menggunakan categoryId yang sudah ada
                 if (product.categoryId) {
                     document.getElementById("editCategory").value = product.categoryId;
                     console.log("Set category to:", product.categoryId, product.categoryName);
                 }
-
                 // Set location - menggunakan dataCenterId yang sudah ada
                 if (product.dataCenterId) {
                     document.getElementById("editLocation").value = product.dataCenterId;
                     console.log("Set location to:", product.dataCenterId, product.dataCenterName);
                 }
             }
-
             // ========================
             // EDIT FORM SUBMISSION
             // ========================
             document.getElementById("editForm").addEventListener("submit", async (e) => {
                 e.preventDefault();
-
                 const saveButton = document.getElementById("saveEditButton");
                 const originalText = saveButton.textContent;
                 saveButton.textContent = "Saving...";
                 saveButton.disabled = true;
-
                 const updatedData = {
                     itemName: document.getElementById("editProductName").value,
                     itemCode: document.getElementById("editItemCode").value,
@@ -520,9 +463,7 @@
                     status: document.getElementById("editStatus").value,
                     dateOfPurchase: document.getElementById("editDateOfPurchase").value
                 };
-
                 console.log("Updating product with data:", updatedData);
-
                 try {
                     const response = await fetch(`/api/items/${productId}`, {
                         method: "PUT",
@@ -531,12 +472,10 @@
                         },
                         body: JSON.stringify(updatedData)
                     });
-
                     if (!response.ok) {
                         const errorText = await response.text();
                         throw new Error(`Failed to update product: ${response.status} - ${errorText}`);
                     }
-
                     alert("Product updated successfully!");
                     document.getElementById("editModal").classList.add("hidden");
                     await loadProductDetails(productId); // Reload product details
@@ -548,7 +487,6 @@
                     saveButton.disabled = false;
                 }
             });
-
             // ========================
             // DELETE CONFIRMATION
             // ========================
@@ -557,7 +495,6 @@
                 const originalText = deleteButton.textContent;
                 deleteButton.textContent = "Deleting...";
                 deleteButton.disabled = true;
-
                 try {
                     const response = await fetch(`/api/items/${productId}`, {
                         method: "DELETE",
@@ -565,11 +502,9 @@
                             "Content-Type": "application/json"
                         }
                     });
-
                     if (!response.ok) {
                         throw new Error("Failed to delete product");
                     }
-
                     alert("Product deleted successfully!");
                     goBack(); // Redirect back after successful deletion
                 } catch (error) {
@@ -579,7 +514,6 @@
                     deleteButton.disabled = false;
                 }
             });
-
             // ========================
             // CLOSE MODALS ON BACKGROUND CLICK
             // ========================
@@ -588,14 +522,12 @@
                     document.getElementById("editModal").classList.add("hidden");
                 }
             });
-
             document.getElementById("deleteModal").addEventListener("click", (e) => {
                 if (e.target === e.currentTarget) {
                     document.getElementById("deleteModal").classList.add("hidden");
                 }
             });
         });
-
         // ========================
         // GO BACK FUNCTION
         // ========================

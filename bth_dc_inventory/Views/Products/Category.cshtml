@@ -17,13 +17,13 @@
                 <h1 class="text-3xl font-bold text-gray-700">Category Management</h1>
                 <p class="text-gray-400 text-sm">Manage product categories and classifications</p>
             </header>
-            <!-- Add Category Button -->
+            <!-- Add Category Button (Only visible for Admin) -->
             <button id="addCategoryButton"
-                    class="hover:bg-teal-700 bg-teal-600 text-white px-4 py-2 rounded-md shadow">
+                    class="hover:bg-teal-700 bg-teal-600 text-white px-4 py-2 rounded-md shadow"
+                    style="display: none;">
                 + Add Category
             </button>
         </div>
-
         <!-- Stats -->
         <section class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-6">
             <div class="bg-white shadow-md rounded-lg p-6">
@@ -43,30 +43,27 @@
                 <p id="averageItems" class="text-3xl font-bold text-orange-600">Loading...</p>
             </div>
         </section>
-
         <!-- Categories Grid -->
         <section id="categoriesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <!-- Categories will be loaded here -->
         </section>
-
         <!-- Loading State -->
         <div id="loadingState" class="text-center py-8">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
             <p class="text-gray-600">Loading categories...</p>
         </div>
-
         <!-- Empty State -->
         <div id="emptyState" class="text-center py-8 hidden">
             <div class="text-gray-400 text-6xl mb-4">📦</div>
             <h3 class="text-xl font-semibold text-gray-600 mb-2">No Categories Found</h3>
             <p class="text-gray-500 mb-4">Start by creating your first category</p>
             <button onclick="document.getElementById('addCategoryButton').click()"
-                    class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">
+                    class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700"
+                    style="display: none;">
                 Add Category
             </button>
         </div>
     </div>
-
     <!-- Modal Add Category -->
     <div id="addCategoryModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-8 max-h-screen overflow-y-auto">
@@ -74,7 +71,6 @@
                 <h2 class="text-xl font-bold text-gray-700">Add New Category</h2>
                 <button id="closeAddModal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
-
             <form id="addCategoryForm" class="space-y-4">
                 <!-- Image Upload -->
                 <div>
@@ -92,7 +88,6 @@
                     <input type="file" id="uploadImage" accept="image/*"
                            class="mt-3 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100" />
                 </div>
-
                 <!-- Category Name & Description -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -110,7 +105,6 @@
                                   placeholder="Describe this category..."></textarea>
                     </div>
                 </div>
-
                 <!-- Buttons -->
                 <div class="flex justify-end space-x-4 mt-6">
                     <button type="button" id="cancelAddModal"
@@ -125,7 +119,6 @@
             </form>
         </div>
     </div>
-
     <!-- Modal Edit Category -->
     <div id="editCategoryModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-8 max-h-screen overflow-y-auto">
@@ -133,10 +126,8 @@
                 <h2 class="text-xl font-bold text-gray-700">Edit Category</h2>
                 <button id="closeEditModal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
-
             <form id="editCategoryForm" class="space-y-4">
                 <input type="hidden" id="editCategoryId">
-
                 <!-- Image Upload -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Category Image</label>
@@ -150,7 +141,6 @@
                     <input type="file" id="editUploadImage" accept="image/*"
                            class="mt-3 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
                 </div>
-
                 <!-- Category Name & Description -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -168,7 +158,6 @@
                                   placeholder="Describe this category..."></textarea>
                     </div>
                 </div>
-
                 <!-- Buttons -->
                 <div class="flex justify-end space-x-4 mt-6">
                     <button type="button" id="cancelEditModal"
@@ -183,7 +172,6 @@
             </form>
         </div>
     </div>
-
     <!-- Modal Delete Category -->
     <div id="deleteCategoryModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-8">
@@ -191,7 +179,6 @@
                 <h2 class="text-xl font-bold text-gray-700">Delete Category</h2>
                 <button id="closeDeleteModal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
-
             <div class="text-center mb-6">
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                     <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -204,7 +191,6 @@
                     This action cannot be undone and will affect <span id="deleteProductCount" class="font-semibold">0</span> products.
                 </p>
             </div>
-
             <div class="flex justify-center space-x-4">
                 <button id="cancelDelete" type="button"
                         class="px-4 py-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-100">
@@ -217,20 +203,27 @@
             </div>
         </div>
     </div>
-
     <script>
+        // Check user role
+        const userRole = localStorage.getItem('userRole') || 'User';
+        const addCategoryButton = document.getElementById('addCategoryButton');
+
+        if (userRole === 'Admin') {
+            addCategoryButton.style.display = 'inline-block';
+        } else {
+            addCategoryButton.style.display = 'none';
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
             const API_URL = "/api/Category";
             let categoriesData = [];
             let selectedCategoryId = null;
-
             // ========================
             // INITIALIZE PAGE
             // ========================
             loadCategories();
             initializeModals();
             initializeImageHandlers();
-
             // ========================
             // UTILITY FUNCTIONS
             // ========================
@@ -245,7 +238,6 @@
                     categoriesGrid.classList.remove("hidden");
                 }
             }
-
             function showError(message) {
                 let errorDiv = document.getElementById("errorNotification");
                 if (!errorDiv) {
@@ -260,7 +252,6 @@
                     errorDiv.classList.add("hidden");
                 }, 5000);
             }
-
             function showSuccess(message) {
                 let successDiv = document.getElementById("successNotification");
                 if (!successDiv) {
@@ -275,7 +266,6 @@
                     successDiv.classList.add("hidden");
                 }, 3000);
             }
-
             function showFieldError(elementId, message) {
                 const errorElement = document.getElementById(elementId);
                 if (errorElement) {
@@ -283,14 +273,12 @@
                     errorElement.classList.remove("hidden");
                 }
             }
-
             function hideFieldError(elementId) {
                 const errorElement = document.getElementById(elementId);
                 if (errorElement) {
                     errorElement.classList.add("hidden");
                 }
             }
-
             // ========================
             // LOAD CATEGORIES
             // ========================
@@ -299,10 +287,10 @@
                     showLoading(true);
                     const response = await fetch(API_URL);
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`); // ✅ DIPERBAIKI
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     categoriesData = await response.json();
-                    console.log("Categories loaded:", categoriesData); // ✅ DEBUG
+                    console.log("Categories loaded:", categoriesData);
                     renderCategories(categoriesData);
                     updateStats(categoriesData);
                     showLoading(false);
@@ -312,9 +300,8 @@
                     showLoading(false);
                 }
             }
-
             // ========================
-            // RENDER CATEGORIES - ✅ ENHANCED WITH BETTER DISPLAY
+            // RENDER CATEGORIES
             // ========================
             function renderCategories(categories) {
                 const container = document.getElementById("categoriesGrid");
@@ -323,17 +310,34 @@
                     document.getElementById("emptyState").classList.remove("hidden");
                     return;
                 }
-
                 document.getElementById("emptyState").classList.add("hidden");
                 container.innerHTML = categories.map(category => {
                     const imageUrl = category.image
                         ? `/${category.image}`
                         : '/images/dummy_picture.png';
-
-                    // ✅ ENHANCED: Better display for total items
                     const itemsText = category.totalItems === 1 ? 'product' : 'products';
                     const itemsColor = category.totalItems > 0 ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600';
-
+                    let editAndDeleteButtons = '';
+                    if (userRole === 'Admin') {
+                        editAndDeleteButtons = `
+                            <div class="flex justify-between items-center pt-2 border-t">
+                                <button class="editCategoryButton text-blue-600 hover:text-blue-800 font-medium text-sm px-3 py-1 rounded hover:bg-blue-50 transition-colors"
+                                        data-id="${category.id}">
+                                    ✏️ Edit
+                                </button>
+                                <button class="deleteCategoryButton text-red-600 hover:text-red-800 font-medium text-sm px-3 py-1 rounded hover:bg-red-50 transition-colors"
+                                        data-id="${category.id}">
+                                    🗑️ Delete
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        editAndDeleteButtons = `
+                            <div class="flex justify-between items-center pt-2 border-t">
+                                <span class="text-gray-400 w-full text-center">No Permission</span>
+                            </div>
+                        `;
+                    }
                     return `
                     <div class="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
                         <div class="aspect-w-16 aspect-h-9 bg-gray-200">
@@ -353,86 +357,68 @@
                             <p class="text-sm text-gray-500 mb-4 line-clamp-2 h-10">
                                 ${category.description || "No description available"}
                             </p>
-                            <div class="flex justify-between items-center pt-2 border-t">
-                                <button class="editCategoryButton text-blue-600 hover:text-blue-800 font-medium text-sm px-3 py-1 rounded hover:bg-blue-50 transition-colors"
-                                        data-id="${category.id}">
-                                    ✏️ Edit
-                                </button>
-                                <button class="deleteCategoryButton text-red-600 hover:text-red-800 font-medium text-sm px-3 py-1 rounded hover:bg-red-50 transition-colors"
-                                        data-id="${category.id}">
-                                    🗑️ Delete
-                                </button>
-                            </div>
+                            ${editAndDeleteButtons}
                         </div>
                     </div>
                 `;
                 }).join("");
                 bindCategoryEvents();
             }
-
             // ========================
-            // UPDATE STATS - ✅ ENHANCED WITH BETTER CALCULATIONS
+            // UPDATE STATS
             // ========================
             function updateStats(categories) {
-                console.log("Updating stats with:", categories); // ✅ DEBUG
-
+                console.log("Updating stats with:", categories);
                 const totalCategories = categories.length;
                 const activeCategories = categories.filter(cat => (cat.totalItems || 0) > 0).length;
                 const totalProducts = categories.reduce((sum, cat) => {
-                    console.log(`Category: ${cat.categoryName}, Items: ${cat.totalItems}`); // ✅ DIPERBAIKI
+                    console.log(`Category: ${cat.categoryName}, Items: ${cat.totalItems}`);
                     return sum + (cat.totalItems || 0);
                 }, 0);
                 const averageItems = totalCategories > 0 ? Math.round(totalProducts / totalCategories * 10) / 10 : 0;
-
-                console.log(`Stats - Categories: ${totalCategories}, Active: ${activeCategories}, Products: ${totalProducts}, Average: ${averageItems}`); // ✅ DIPERBAIKI
-
+                console.log(`Stats - Categories: ${totalCategories}, Active: ${activeCategories}, Products: ${totalProducts}, Average: ${averageItems}`);
                 document.getElementById("totalCategories").textContent = totalCategories;
-                document.getElementById("activeCategories").textContent = activeCategories; // ✅ Show categories with items
+                document.getElementById("activeCategories").textContent = activeCategories;
                 document.getElementById("totalProducts").textContent = totalProducts.toLocaleString();
                 document.getElementById("averageItems").textContent = averageItems;
             }
-
             // ========================
             // BIND EVENTS
             // ========================
             function bindCategoryEvents() {
-                document.querySelectorAll('.editCategoryButton').forEach(button => {
-                    button.addEventListener('click', function () {
-                        const categoryId = this.getAttribute('data-id');
-                        selectedCategoryId = categoryId;
-                        openEditModal(categoryId);
+                if (userRole === 'Admin') {
+                    document.querySelectorAll('.editCategoryButton').forEach(button => {
+                        button.addEventListener('click', function () {
+                            const categoryId = this.getAttribute('data-id');
+                            selectedCategoryId = categoryId;
+                            openEditModal(categoryId);
+                        });
                     });
-                });
-
-                document.querySelectorAll('.deleteCategoryButton').forEach(button => {
-                    button.addEventListener('click', function () {
-                        const categoryId = this.getAttribute('data-id');
-                        selectedCategoryId = categoryId;
-                        openDeleteModal(categoryId);
+                    document.querySelectorAll('.deleteCategoryButton').forEach(button => {
+                        button.addEventListener('click', function () {
+                            const categoryId = this.getAttribute('data-id');
+                            selectedCategoryId = categoryId;
+                            openDeleteModal(categoryId);
+                        });
                     });
-                });
+                }
             }
-
             // ... (rest of the functions remain the same, but with template literals fixed)
-
             // ========================
-            // EDIT CATEGORY - ✅ FIXED TEMPLATE LITERALS
+            // EDIT CATEGORY
             // ========================
             async function openEditModal(categoryId) {
                 try {
-                    const response = await fetch(`${API_URL}/${categoryId}`); // ✅ DIPERBAIKI
+                    const response = await fetch(`${API_URL}/${categoryId}`);
                     if (!response.ok) {
                         throw new Error("Failed to fetch category details");
                     }
                     const category = await response.json();
-
                     document.getElementById("editCategoryId").value = category.id;
                     document.getElementById("editCategoryName").value = category.categoryName || "";
                     document.getElementById("editCategoryDescription").value = category.description || "";
-
                     const editImagePreview = document.getElementById("editedUploadedImage");
                     const editDefaultText = document.getElementById("defaultEditText");
-
                     if (category.image) {
                         editImagePreview.src = `/${category.image}`;
                         editImagePreview.classList.remove("hidden");
@@ -441,54 +427,44 @@
                         editImagePreview.classList.add("hidden");
                         editDefaultText.classList.remove("hidden");
                     }
-
                     document.getElementById("editCategoryModal").classList.remove("hidden");
                 } catch (error) {
                     console.error("Error loading category for edit:", error);
                     showError("Failed to load category details.");
                 }
             }
-
             async function handleEditCategory(e) {
                 e.preventDefault();
                 const submitButton = document.getElementById("submitEditButton");
                 const originalText = submitButton.textContent;
-
                 try {
                     submitButton.disabled = true;
                     submitButton.textContent = "Saving...";
                     hideFieldError("editCategoryNameError");
-
                     const formData = new FormData();
                     formData.append('id', document.getElementById("editCategoryId").value);
                     formData.append('categoryName', document.getElementById("editCategoryName").value.trim());
                     formData.append('description', document.getElementById("editCategoryDescription").value.trim());
-
                     const imageFile = document.getElementById("editUploadImage").files[0];
                     if (imageFile) {
                         formData.append('image', imageFile);
                     }
-
                     if (!formData.get('categoryName')) {
                         showFieldError("editCategoryNameError", "Category name is required");
                         return;
                     }
-
-                    const response = await fetch(`${API_URL}/${selectedCategoryId}`, { // ✅ DIPERBAIKI
+                    const response = await fetch(`${API_URL}/${selectedCategoryId}`, {
                         method: "PUT",
                         body: formData
                     });
-
                     if (!response.ok) {
                         const errorText = await response.text();
                         throw new Error(errorText || "Failed to update category");
                     }
-
                     showSuccess("Category updated successfully!");
                     document.getElementById("editCategoryModal").classList.add("hidden");
                     resetEditForm();
-                    loadCategories(); // ✅ Reload to get updated total items
-
+                    loadCategories();
                 } catch (error) {
                     console.error("Error updating category:", error);
                     if (error.message.includes("already exists")) {
@@ -501,9 +477,8 @@
                     submitButton.textContent = originalText;
                 }
             }
-
             // ========================
-            // DELETE CATEGORY - ✅ FIXED TEMPLATE LITERALS
+            // DELETE CATEGORY
             // ========================
             function openDeleteModal(categoryId) {
                 const category = categoriesData.find(cat => cat.id == categoryId);
@@ -513,28 +488,22 @@
                     document.getElementById("deleteCategoryModal").classList.remove("hidden");
                 }
             }
-
             async function handleDeleteCategory() {
                 const confirmButton = document.getElementById("confirmDelete");
                 const originalText = confirmButton.textContent;
-
                 try {
                     confirmButton.disabled = true;
                     confirmButton.textContent = "Deleting...";
-
-                    const response = await fetch(`${API_URL}/${selectedCategoryId}`, { // ✅ DIPERBAIKI
+                    const response = await fetch(`${API_URL}/${selectedCategoryId}`, {
                         method: "DELETE"
                     });
-
                     if (!response.ok) {
                         const errorText = await response.text();
                         throw new Error(errorText || "Failed to delete category");
                     }
-
                     showSuccess("Category deleted successfully!");
                     document.getElementById("deleteCategoryModal").classList.add("hidden");
                     loadCategories();
-
                 } catch (error) {
                     console.error("Error deleting category:", error);
                     showError("Failed to delete category. " + error.message);
@@ -543,7 +512,6 @@
                     confirmButton.textContent = originalText;
                 }
             }
-
             // ... (rest of modal and form functions remain the same)
             // ========================
             // MODAL INITIALIZATION
@@ -554,57 +522,45 @@
                 const addModal = document.getElementById("addCategoryModal");
                 const closeAddModal = document.getElementById("closeAddModal");
                 const cancelAddModal = document.getElementById("cancelAddModal");
-
                 addButton.addEventListener("click", () => {
                     addModal.classList.remove("hidden");
                 });
-
                 closeAddModal.addEventListener("click", () => {
                     addModal.classList.add("hidden");
                     resetAddForm();
                 });
-
                 cancelAddModal.addEventListener("click", () => {
                     addModal.classList.add("hidden");
                     resetAddForm();
                 });
-
                 // Edit Category Modal
                 const editModal = document.getElementById("editCategoryModal");
                 const closeEditModal = document.getElementById("closeEditModal");
                 const cancelEditModal = document.getElementById("cancelEditModal");
-
                 closeEditModal.addEventListener("click", () => {
                     editModal.classList.add("hidden");
                     resetEditForm();
                 });
-
                 cancelEditModal.addEventListener("click", () => {
                     editModal.classList.add("hidden");
                     resetEditForm();
                 });
-
                 // Delete Category Modal
                 const deleteModal = document.getElementById("deleteCategoryModal");
                 const closeDeleteModal = document.getElementById("closeDeleteModal");
                 const cancelDelete = document.getElementById("cancelDelete");
                 const confirmDelete = document.getElementById("confirmDelete");
-
                 closeDeleteModal.addEventListener("click", () => {
                     deleteModal.classList.add("hidden");
                 });
-
                 cancelDelete.addEventListener("click", () => {
                     deleteModal.classList.add("hidden");
                 });
-
                 confirmDelete.addEventListener("click", handleDeleteCategory);
-
                 // Form submissions
                 document.getElementById("addCategoryForm").addEventListener("submit", handleAddCategory);
                 document.getElementById("editCategoryForm").addEventListener("submit", handleEditCategory);
             }
-
             // ========================
             // IMAGE HANDLERS
             // ========================
@@ -612,7 +568,6 @@
                 const uploadImage = document.getElementById("uploadImage");
                 const uploadedImage = document.getElementById("uploadedImage");
                 const defaultText = document.getElementById("defaultText");
-
                 uploadImage.addEventListener("change", function (e) {
                     const file = e.target.files[0];
                     if (file) {
@@ -625,11 +580,9 @@
                         reader.readAsDataURL(file);
                     }
                 });
-
                 const editUploadImage = document.getElementById("editUploadImage");
                 const editedUploadedImage = document.getElementById("editedUploadedImage");
                 const defaultEditText = document.getElementById("defaultEditText");
-
                 editUploadImage.addEventListener("change", function (e) {
                     const file = e.target.files[0];
                     if (file) {
@@ -643,7 +596,6 @@
                     }
                 });
             }
-
             // ========================
             // ADD CATEGORY
             // ========================
@@ -651,41 +603,33 @@
                 e.preventDefault();
                 const submitButton = document.getElementById("submitAddButton");
                 const originalText = submitButton.textContent;
-
                 try {
                     submitButton.disabled = true;
                     submitButton.textContent = "Adding...";
                     hideFieldError("categoryNameError");
-
                     const formData = new FormData();
                     formData.append('categoryName', document.getElementById("categoryName").value.trim());
                     formData.append('description', document.getElementById("description").value.trim());
-
                     const imageFile = document.getElementById("uploadImage").files[0];
                     if (imageFile) {
                         formData.append('image', imageFile);
                     }
-
                     if (!formData.get('categoryName')) {
                         showFieldError("categoryNameError", "Category name is required");
                         return;
                     }
-
                     const response = await fetch(API_URL, {
                         method: "POST",
                         body: formData
                     });
-
                     if (!response.ok) {
                         const errorText = await response.text();
                         throw new Error(errorText || "Failed to create category");
                     }
-
                     showSuccess("Category created successfully!");
                     document.getElementById("addCategoryModal").classList.add("hidden");
                     resetAddForm();
-                    loadCategories(); // ✅ Reload to show new category
-
+                    loadCategories();
                 } catch (error) {
                     console.error("Error creating category:", error);
                     if (error.message.includes("already exists")) {
@@ -698,7 +642,6 @@
                     submitButton.textContent = originalText;
                 }
             }
-
             // ========================
             // FORM RESET FUNCTIONS
             // ========================
@@ -708,7 +651,6 @@
                 document.getElementById("defaultText").classList.remove("hidden");
                 hideFieldError("categoryNameError");
             }
-
             function resetEditForm() {
                 document.getElementById("editCategoryForm").reset();
                 document.getElementById("editedUploadedImage").classList.add("hidden");

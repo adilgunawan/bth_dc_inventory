@@ -1,9 +1,7 @@
 ﻿@{
     Layout = "_LayoutAuth";
 }
-
 <div class="flex h-screen">
-
     <!-- LEFT -->
     <div class="w-1/2 flex items-center justify-center bg-white">
         <!-- LOGO INFINEON (TOP LEFT) -->
@@ -11,9 +9,7 @@
             <img src="~/images/logo-infineon.jpg"
                  class="h-16 md:h-20">
         </div>
-
         <div class="w-[380px] p-8 rounded-xl shadow-lg">
-
             <!-- LOGO -->
             <div class="flex flex-col items-center mb-6">
                 <img src="~/images/logo-icon.svg" class="h-20 mb-4" />
@@ -52,10 +48,19 @@
                     Login
                 </button>
             </form>
-           
+
+            <!-- REGISTER LINK -->
+            <div class="text-center mt-6">
+                <p class="text-sm text-gray-600">
+                    Don't have an account?
+                    <a href="https://localhost:7035/Account/register"
+                       class="text-teal-600 hover:text-teal-700 font-medium hover:underline transition">
+                        Sign up
+                    </a>
+                </p>
+            </div>
         </div>
     </div>
-
     <!-- RIGHT IMAGE -->
     <div class="w-1/2">
         <img src="~/images/datacenter.png"
@@ -65,27 +70,21 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const loginButton = document.getElementById("loginButton");
-
             loginButton.addEventListener("click", async function (event) {
                 event.preventDefault();
-
                 // ✅ Tampilkan loading state
                 const originalText = loginButton.textContent;
                 loginButton.disabled = true;
                 loginButton.textContent = "Logging in...";
-
                 try {
                     const email = document.getElementById("email").value.trim();
                     const password = document.getElementById("password").value.trim();
-
                     // ✅ Validasi input
                     if (!email || !password) {
                         alert("Please fill in all fields");
                         return;
                     }
-
                     console.log("🔐 Attempting login for:", email);
-
                     const response = await fetch("/api/users/login", {
                         method: "POST",
                         headers: {
@@ -96,35 +95,25 @@
                             password: password
                         })
                     });
-
                     console.log("Login response status:", response.status);
-
                     if (response.ok) {
                         const result = await response.json();
                         console.log("Login response:", result);
-
                         if (result.success && result.token) {
                             alert("Login berhasil! Selamat datang, " + result.userName);
-
                             // ✅ Simpan dengan key yang benar
                             localStorage.setItem("authToken", result.token);
                             localStorage.setItem("userName", result.userName);
                             localStorage.setItem("userEmail", result.userEmail);
                             localStorage.setItem("userRole", result.userRole);
-
                             console.log("✅ Token saved:", result.token.substring(0, 20) + "...");
-
                             // ✅ Redirect ke Products/Dashboard - ada beberapa opsi:
-
                             // OPSI 1: Dengan Products sebagai controller
                             window.location.href = "/Products/Dashboard";
-
                             // OPSI 2: Jika route Anda berbeda
                             // window.location.href = "/products/dashboard";
-
                             // OPSI 3: Dengan base URL absolut
                             // window.location.href = window.location.origin + "/Products/Dashboard";
-
                         } else {
                             alert(result.message || "Login failed");
                         }
@@ -145,4 +134,3 @@
         });
     </script>
 </div>
-

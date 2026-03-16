@@ -240,7 +240,7 @@
             // ========================
             function updateStats(stats) {
                 document.getElementById("totalEntries").textContent = stats.totalItems || 0;
-                document.getElementById("totalValue").textContent = `€${(stats.totalValue || 0).toLocaleString()}`;
+                document.getElementById("totalValue").textContent = `$${(stats.totalValue || 0).toLocaleString()}`;
                 document.getElementById("totalCategories").textContent = stats.totalCategories || 0;
                 document.getElementById("totalDataCenters").textContent = stats.totalDataCenters || 0;
             }

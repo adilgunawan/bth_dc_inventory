@@ -14,15 +14,16 @@
         <!-- Header -->
         <div class="flex items-center justify-between my-8">
             <div>
-                <h1 class="text-2xl font-semibold">Data Center 3</h1>
+                <h1 class="text-2xl font-semibold">Data Center 1</h1>
                 <p class="text-gray-500">Manage Data Center Products</p>
             </div>
-            <button id="openModal" class="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700">
+            <!-- Add Product Button (Only visible for Admin) -->
+            <button id="openModal" class="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700"
+                    style="display: none;">
                 <span class="text-xl">+</span>
                 Add Product
             </button>
         </div>
-
         <!-- Add Product Modal -->
         <div id="addProductModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
             <div class="bg-white max-w-lg w-full mx-auto rounded-lg p-6 shadow-lg">
@@ -35,7 +36,6 @@
                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                                required />
                     </div>
-
                     <!-- Product ID -->
                     <div>
                         <label for="productId" class="text-sm font-medium text-gray-700">PO Number</label>
@@ -43,7 +43,6 @@
                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                                required />
                     </div>
-
                     <!-- Category -->
                     <div>
                         <label for="category" class="text-sm font-medium text-gray-700">Category</label>
@@ -53,7 +52,6 @@
                             <option value="">Select product category</option>
                         </select>
                     </div>
-
                     <!-- Buying Price -->
                     <div>
                         <label for="buyingPrice" class="text-sm font-medium text-gray-700">Buying Price $</label>
@@ -61,7 +59,6 @@
                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                                required />
                     </div>
-
                     <!-- Quantity -->
                     <div>
                         <label for="quantity" class="text-sm font-medium text-gray-700">Quantity</label>
@@ -69,7 +66,6 @@
                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                                required />
                     </div>
-
                     <!-- Location -->
                     <div>
                         <label for="location" class="text-sm font-medium text-gray-700">Location</label>
@@ -79,7 +75,6 @@
                             <option value="">Select Location</option>
                         </select>
                     </div>
-
                     <!-- Date of Purchase -->
                     <div>
                         <label for="dateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
@@ -87,7 +82,6 @@
                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                                required />
                     </div>
-
                     <!-- Status -->
                     <div>
                         <label for="status" class="text-sm font-medium text-gray-700">Status</label>
@@ -99,7 +93,6 @@
                             <option value="Arrived">Arrived</option>
                         </select>
                     </div>
-
                     <!-- Buttons -->
                     <div class="flex justify-end space-x-4">
                         <button type="button" id="closeModal" class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-md hover:bg-gray-100">Discard</button>
@@ -108,14 +101,12 @@
                 </form>
             </div>
         </div>
-
         <!-- Edit Product Modal -->
         <div id="editProductModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
             <div class="bg-white max-w-lg w-full mx-auto rounded-lg p-6 shadow-lg">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Edit Product</h2>
                 <form id="editProductForm" class="space-y-4">
                     <input type="hidden" id="editItemId">
-
                     <!-- Product Name -->
                     <div>
                         <label for="editProductName" class="text-sm font-medium text-gray-700">Product Name</label>
@@ -123,15 +114,13 @@
                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                                required />
                     </div>
-
                     <!-- Product ID -->
                     <div>
-                        <label for="editProductId" class="text-sm font-medium text-gray-700">Product ID</label>
-                        <input type="text" id="editProductId" placeholder="Enter product ID"
+                        <label for="editProductId" class="text-sm font-medium text-gray-700"> PO Number</label>
+                        <input type="text" id="editProductId" placeholder="Enter PO Number"
                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                                required />
                     </div>
-
                     <!-- Category -->
                     <div>
                         <label for="editCategory" class="text-sm font-medium text-gray-700">Category</label>
@@ -141,7 +130,6 @@
                             <option value="">Select product category</option>
                         </select>
                     </div>
-
                     <!-- Buying Price -->
                     <div>
                         <label for="editBuyingPrice" class="text-sm font-medium text-gray-700">Buying Price $</label>
@@ -149,7 +137,6 @@
                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                                required />
                     </div>
-
                     <!-- Quantity -->
                     <div>
                         <label for="editQuantity" class="text-sm font-medium text-gray-700">Quantity</label>
@@ -157,7 +144,6 @@
                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                                required />
                     </div>
-
                     <!-- Location -->
                     <div>
                         <label for="editLocation" class="text-sm font-medium text-gray-700">Location</label>
@@ -167,7 +153,6 @@
                             <option value="">Select Location</option>
                         </select>
                     </div>
-
                     <!-- Date of Purchase -->
                     <div>
                         <label for="editDateOfPurchase" class="text-sm font-medium text-gray-700">Date of Purchase</label>
@@ -175,7 +160,6 @@
                                class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                                required />
                     </div>
-
                     <!-- Status -->
                     <div>
                         <label for="editStatus" class="text-sm font-medium text-gray-700">Status</label>
@@ -185,9 +169,9 @@
                             <option value="">Select Status Product</option>
                             <option value="Pending">Pending</option>
                             <option value="Arrived">Arrived</option>
+                            <option value="Arrived">Active</option>
                         </select>
                     </div>
-
                     <!-- Buttons -->
                     <div class="flex justify-end space-x-4">
                         <button type="button" id="closeEditModal" class="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-md hover:bg-gray-100">Cancel</button>
@@ -196,7 +180,6 @@
                 </form>
             </div>
         </div>
-
         <!-- Delete Modal -->
         <div id="deleteModal" class="fixed inset-0 bg-black/30 flex justify-center items-center hidden z-50">
             <div class="bg-white w-96 rounded-lg p-6 shadow-lg">
@@ -212,13 +195,12 @@
                         Cancel
                     </button>
                     <button type="button" id="confirmDeleteButton"
-                            class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">
+                            class="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-700">
                         Yes
                     </button>
                 </div>
             </div>
         </div>
-
         <!-- Search & Filter -->
         <div class="bg-white p-4 rounded-xl shadow-sm flex items-center m-1 mb-10">
             <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2 flex-1 me-4">
@@ -229,7 +211,6 @@
                 <option value="">All Categories</option>
             </select>
         </div>
-
         <!-- Table -->
         <div class="bg-white rounded-xl shadow-sm overflow-hidden">
             <table class="w-full text-sm">
@@ -248,15 +229,22 @@
                     <!-- Dynamic content will be loaded here -->
                 </tbody>
             </table>
-
             <!-- Pagination -->
             <div id="pagination" class="flex justify-center gap-2 mt-4 p-4"></div>
         </div>
-
         <div id="loader" class="hidden text-center py-4">🔄 Loading...</div>
     </div>
-
     <script>
+        // Check user role
+        const userRole = localStorage.getItem('userRole') || 'User';
+        const openModal = document.getElementById('openModal');
+
+        if (userRole === 'Admin') {
+            openModal.style.display = 'flex';
+        } else {
+            openModal.style.display = 'none';
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
             const DATA_CENTER_ID = 6; // Data Center 3 ID
             const productTableBody = document.getElementById("productTableBody");
@@ -268,14 +256,12 @@
             let totalPages = 0;
             let currentSearchQuery = "";
             let currentCategoryFilter = "";
-
             // ========================
             // LOAD INITIAL DATA
             // ========================
-            loadDataCenter3Products();
+            loadDataCenter1Products();
             loadCategoryFilter();
             loadDropdowns();
-
             // ========================
             // ADD PRODUCT MODAL
             // ========================
@@ -283,23 +269,19 @@
             const openModal = document.getElementById("openModal");
             const closeModal = document.getElementById("closeModal");
             const addProductModal = document.getElementById("addProductModal");
-
             openModal.addEventListener("click", () => {
                 addProductModal.classList.remove("hidden");
             });
-
             closeModal.addEventListener("click", () => {
                 addProductModal.classList.add("hidden");
                 addProductForm.reset();
             });
-
             // Close modal on background click
             addProductModal.addEventListener("click", (e) => {
                 if (e.target === addProductModal) {
                     addProductModal.classList.add("hidden");
                 }
             });
-
             // ========================
             // LOAD DROPDOWNS
             // ========================
@@ -309,68 +291,55 @@
                         fetch("/api/Category/dropdown"),
                         fetch("/api/DataCenters/dropdown")
                     ]);
-
                     if (!catRes.ok || !dcRes.ok) {
                         throw new Error("Failed to fetch dropdown data");
                     }
-
                     const categories = await catRes.json();
                     const dataCenters = await dcRes.json();
-
                     // Load categories for add form
                     const categorySelect = document.getElementById("category");
                     const locationSelect = document.getElementById("location");
-
                     categorySelect.innerHTML = '<option value="">Select Category</option>';
                     locationSelect.innerHTML = '<option value="">Select Location</option>';
-
                     categories.forEach(cat => {
                         const option = document.createElement("option");
                         option.value = cat.id;
                         option.textContent = cat.categoryName;
                         categorySelect.appendChild(option);
                     });
-
                     dataCenters.forEach(dc => {
                         const option = document.createElement("option");
                         option.value = dc.id;
                         option.textContent = dc.name;
                         locationSelect.appendChild(option);
                     });
-
                     // Load categories for edit form
                     const editCategorySelect = document.getElementById("editCategory");
                     const editLocationSelect = document.getElementById("editLocation");
-
                     editCategorySelect.innerHTML = '<option value="">Select Category</option>';
                     editLocationSelect.innerHTML = '<option value="">Select Location</option>';
-
                     categories.forEach(cat => {
                         const option = document.createElement("option");
                         option.value = cat.id;
                         option.textContent = cat.categoryName;
                         editCategorySelect.appendChild(option);
                     });
-
                     dataCenters.forEach(dc => {
                         const option = document.createElement("option");
                         option.value = dc.id;
                         option.textContent = dc.name;
                         editLocationSelect.appendChild(option);
                     });
-
                 } catch (error) {
                     console.error("Dropdown Error:", error);
                     alert("Failed to load dropdown data");
                 }
             }
-
             // ========================
             // SUBMIT ADD FORM
             // ========================
             addProductForm.addEventListener("submit", async function (e) {
                 e.preventDefault();
-
                 const productData = {
                     itemCode: document.getElementById("productId").value.trim(),
                     itemName: document.getElementById("productName").value.trim(),
@@ -381,7 +350,6 @@
                     dateOfPurchase: document.getElementById("dateOfPurchase").value,
                     status: document.getElementById("status").value
                 };
-
                 try {
                     const response = await fetch("/api/items", {
                         method: "POST",
@@ -390,12 +358,11 @@
                         },
                         body: JSON.stringify(productData)
                     });
-
                     if (response.ok) {
                         alert("Product successfully added!");
                         addProductForm.reset();
                         addProductModal.classList.add("hidden");
-                        loadDataCenter3Products();
+                        loadDataCenter1Products();
                     } else {
                         const errorData = await response.json();
                         alert(`Error: ${errorData.message || "Failed to add product."}`);
@@ -405,7 +372,6 @@
                     alert("An error occurred while adding the product.");
                 }
             });
-
             // ========================
             // EDIT PRODUCT
             // ========================
@@ -413,13 +379,11 @@
             const closeEditModal = document.getElementById("closeEditModal");
             const editProductForm = document.getElementById("editProductForm");
             let currentProductId = null;
-
             // Edit button click handler
             productTableBody.addEventListener("click", async function (e) {
                 if (e.target.classList.contains("editProductButton")) {
                     const productRow = e.target.closest("tr");
                     currentProductId = productRow.dataset.id;
-
                     try {
                         const response = await fetch(`/api/items/${currentProductId}`, {
                             method: "GET",
@@ -427,10 +391,8 @@
                                 "Content-Type": "application/json"
                             }
                         });
-
                         if (response.ok) {
                             const product = await response.json();
-
                             document.getElementById("editItemId").value = product.id;
                             document.getElementById("editProductName").value = product.itemName;
                             document.getElementById("editProductId").value = product.itemCode;
@@ -439,12 +401,10 @@
                             document.getElementById("editBuyingPrice").value = product.buyingPrice;
                             document.getElementById("editQuantity").value = product.quantity;
                             document.getElementById("editStatus").value = product.status;
-
                             if (product.dateOfPurchase) {
                                 const date = new Date(product.dateOfPurchase);
                                 document.getElementById("editDateOfPurchase").value = date.toISOString().split('T')[0];
                             }
-
                             editModal.classList.remove("hidden");
                         } else {
                             alert("Failed to load product data for editing.");
@@ -455,16 +415,13 @@
                     }
                 }
             });
-
             // Close edit modal
             closeEditModal.addEventListener("click", () => {
                 editModal.classList.add("hidden");
             });
-
             // Submit edit form
             editProductForm.addEventListener("submit", async function (e) {
                 e.preventDefault();
-
                 const updatedData = {
                     itemName: document.getElementById("editProductName").value,
                     itemCode: document.getElementById("editProductId").value,
@@ -475,7 +432,6 @@
                     status: document.getElementById("editStatus").value,
                     dateOfPurchase: document.getElementById("editDateOfPurchase").value
                 };
-
                 try {
                     const response = await fetch(`/api/items/${currentProductId}`, {
                         method: "PUT",
@@ -484,11 +440,10 @@
                         },
                         body: JSON.stringify(updatedData)
                     });
-
                     if (response.ok) {
                         alert("Product updated successfully!");
                         editModal.classList.add("hidden");
-                        loadDataCenter3Products();
+                        loadDataCenter1Products();
                     } else {
                         alert("Failed to update product.");
                     }
@@ -497,7 +452,6 @@
                     alert("An error occurred. Please try again.");
                 }
             });
-
             // ========================
             // DELETE PRODUCT
             // ========================
@@ -506,7 +460,6 @@
             const confirmDeleteButton = document.getElementById("confirmDeleteButton");
             const deleteProductName = document.getElementById("deleteProductName");
             let deleteProductId = null;
-
             productTableBody.addEventListener("click", function (e) {
                 if (e.target.classList.contains("deleteProductButton")) {
                     const productRow = e.target.closest("tr");
@@ -516,18 +469,14 @@
                     deleteModal.classList.remove("hidden");
                 }
             });
-
             closeDeleteModal.addEventListener("click", () => {
                 deleteModal.classList.add("hidden");
             });
-
             confirmDeleteButton.addEventListener("click", async function () {
                 if (!deleteProductId) return;
-
                 const originalText = this.textContent;
                 this.textContent = "Deleting...";
                 this.disabled = true;
-
                 try {
                     const response = await fetch(`/api/items/${deleteProductId}`, {
                         method: "DELETE",
@@ -535,11 +484,10 @@
                             "Content-Type": "application/json"
                         }
                     });
-
                     if (response.ok) {
                         alert("Product deleted successfully!");
                         deleteModal.classList.add("hidden");
-                        loadDataCenter3Products();
+                        loadDataCenter1Products();
                         deleteProductId = null;
                     } else {
                         alert("Failed to delete product.");
@@ -552,11 +500,10 @@
                     this.disabled = false;
                 }
             });
-
             // ========================
             // LOAD DATA CENTER 3 PRODUCTS
             // ========================
-            async function loadDataCenter3Products() {
+            async function loadDataCenter1Products() {
                 try {
                     const response = await fetch(`/api/items/data-center/${DATA_CENTER_ID}`, {
                         method: "GET",
@@ -564,26 +511,21 @@
                             "Content-Type": "application/json"
                         }
                     });
-
                     if (!response.ok) {
                         throw new Error(`Failed to fetch products. Status: ${response.status}`);
                     }
-
                     const products = await response.json();
                     updateTable(products);
-
                 } catch (error) {
                     console.error("Error while loading products:", error);
-                    alert("Failed to load products for Data Center 3.");
+                    alert("Failed to load products for Data Center 1.");
                 }
             }
-
             // ========================
             // UPDATE TABLE
             // ========================
             function updateTable(products) {
                 productTableBody.innerHTML = "";
-
                 if (products.length === 0) {
                     productTableBody.innerHTML = `
                         <tr>
@@ -591,10 +533,20 @@
                         </tr>`;
                     return;
                 }
-
                 products.forEach(product => {
                     const row = document.createElement("tr");
                     row.dataset.id = product.id;
+                    let actionHtml = "";
+                    if (userRole === 'Admin') {
+                        actionHtml = `
+                            <button class="editProductButton border p-2 rounded hover:bg-gray-100" data-id="${product.id}">✏️</button>
+                            <button class="deleteProductButton border p-2 rounded text-red-500 hover:bg-red-50" data-id="${product.id}">🗑️</button>
+                        `;
+                    } else {
+                        actionHtml = `
+                            <span class="text-gray-400">No Permission</span>
+                        `;
+                    }
                     row.innerHTML = `
                         <td class="px-4 py-3">${product.itemCode || "-"}</td>
                         <td class="px-4 py-3">${product.itemName || "-"}</td>
@@ -610,14 +562,12 @@
                             </a>
                         </td>
                         <td class="px-4 py-3 flex gap-2">
-                            <button class="editProductButton border p-2 rounded hover:bg-gray-100" data-id="${product.id}">✏️</button>
-                            <button class="deleteProductButton border p-2 rounded text-red-500 hover:bg-red-50" data-id="${product.id}">🗑️</button>
+                            ${actionHtml}
                         </td>
                     `;
                     productTableBody.appendChild(row);
                 });
             }
-
             // ========================
             // SEARCH FUNCTIONALITY
             // ========================
@@ -627,7 +577,6 @@
                     fetchFilteredProducts(1, currentSearchQuery, currentCategoryFilter);
                 }
             });
-
             // ========================
             // CATEGORY FILTER
             // ========================
@@ -635,7 +584,6 @@
                 try {
                     const response = await fetch("/api/Category/dropdown");
                     const categories = await response.json();
-
                     categories.forEach(cat => {
                         const option = document.createElement("option");
                         option.value = cat.id;
@@ -646,35 +594,29 @@
                     console.error("Failed to load category filter", error);
                 }
             }
-
             categoryFilter.addEventListener("change", function () {
                 currentCategoryFilter = this.value;
                 fetchFilteredProducts(1, currentSearchQuery, currentCategoryFilter);
             });
-
             // ========================
             // FETCH FILTERED PRODUCTS
             // ========================
             async function fetchFilteredProducts(page, searchQuery = "", categoryId = "") {
                 const loader = document.getElementById("loader");
                 if (loader) loader.classList.remove("hidden");
-
                 try {
                     let url = `/api/items/filter?page=${page}&pageSize=${pageSize}&dataCenterId=${DATA_CENTER_ID}`;
                     if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
                     if (categoryId) url += `&categoryId=${categoryId}`;
-
                     const response = await fetch(url, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json"
                         }
                     });
-
                     if (!response.ok) {
                         throw new Error(`Failed to fetch products. Status: ${response.status}`);
                     }
-
                     const data = await response.json();
                     updateTable(data.data);
                     updatePagination(data.page, data.totalPages);
@@ -685,7 +627,6 @@
                     if (loader) loader.classList.add("hidden");
                 }
             }
-
             // ========================
             // UPDATE PAGINATION
             // ========================
@@ -693,9 +634,7 @@
                 currentPage = page;
                 totalPages = totalPagesCount;
                 paginationDiv.innerHTML = "";
-
                 if (totalPages <= 1) return;
-
                 // Previous button
                 if (currentPage > 1) {
                     paginationDiv.innerHTML += `
@@ -703,7 +642,6 @@
                             Previous
                         </button>`;
                 }
-
                 // Page numbers
                 for (let i = 1; i <= totalPages; i++) {
                     const activeClass = i === currentPage ? "bg-teal-600 text-white" : "bg-gray-300 text-black";
@@ -712,7 +650,6 @@
                             ${i}
                         </button>`;
                 }
-
                 // Next button
                 if (currentPage < totalPages) {
                     paginationDiv.innerHTML += `
@@ -720,7 +657,6 @@
                             Next
                         </button>`;
                 }
-
                 // Add event listeners
                 document.querySelectorAll(".pagination-button").forEach(button => {
                     button.addEventListener("click", function () {

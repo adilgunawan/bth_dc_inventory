@@ -18,7 +18,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 );
 
 // =========================
-// CONFIGURE JWT AUTHENTICATION - ✅ DIPERBAIKI
+// CONFIGURE JWT AUTHENTICATION - 
 // =========================
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSettings["Key"];
@@ -52,10 +52,10 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtIssuer, // ✅ Gunakan dari appsettings.json
-        ValidAudience = jwtAudience, // ✅ Gunakan dari appsettings.json
+        ValidIssuer = jwtIssuer, 
+        ValidAudience = jwtAudience, 
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        ClockSkew = TimeSpan.Zero // ✅ Hapus default 5 minute tolerance
+        ClockSkew = TimeSpan.Zero 
     };
 
     // ✅ Event handlers untuk debugging
@@ -94,7 +94,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// ✅ Authorization
+//  Authorization
 builder.Services.AddAuthorization();
 
 // =========================
@@ -109,10 +109,10 @@ builder.Services.Configure<IISServerOptions>(options =>
     options.MaxRequestBodySize = 52428800; // 50MB
 });
 
-// ✅ EPPlus License
+//  EPPlus License
 OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
 
-// ✅ QuestPDF License
+//  QuestPDF License
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 QuestPDF.Settings.CheckIfAllTextGlyphsAreAvailable = false;
 
@@ -141,14 +141,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// ✅ PENTING: Urutan middleware harus benar
+//  PENTING: Urutan middleware harus benar
 app.UseAuthentication(); // Harus sebelum UseAuthorization
 app.UseAuthorization();
 
 // =========================
 // ROUTING
 // =========================
-app.MapControllers(); // ✅ Untuk API endpoints
+app.MapControllers(); //  Untuk API endpoints
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

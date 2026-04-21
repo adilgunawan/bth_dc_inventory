@@ -63,7 +63,7 @@ namespace bth_dc_inventory.Helpers
             }
         }
 
-        // ✅ Tambahan: Method untuk validate token secara manual
+        //  Tambahan: Method untuk validate token secara manual
         public static ClaimsPrincipal? ValidateToken(string token, string secretKey, string issuer, string audience)
         {
             try

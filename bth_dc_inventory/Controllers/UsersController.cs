@@ -23,7 +23,7 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================================
-        // LOGIN: POST api/users/login - ✅ SUDAH OK
+        // LOGIN: POST api/users/login - 
         // =====================================================
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
@@ -100,7 +100,7 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================================
-        // GET CURRENT USER: GET api/users/current - ✅ UNTUK PROFILE
+        // GET CURRENT USER: GET api/users/current -  UNTUK PROFILE
         // =====================================================
         [HttpGet("current")]
         [Authorize]
@@ -161,7 +161,7 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================================
-        // GET ALL USERS: GET api/users - ✅ UNTUK SETTINGS PAGE
+        // GET ALL USERS: GET api/users -  UNTUK SETTINGS PAGE
         // =====================================================
         [HttpGet]
         [Authorize]
@@ -194,7 +194,7 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================================
-        // GET USER STATS: GET api/users/stats - ✅ UNTUK SETTINGS PAGE
+        // GET USER STATS: GET api/users/stats -  UNTUK SETTINGS PAGE
         // =====================================================
         [HttpGet("stats")]
         [Authorize]

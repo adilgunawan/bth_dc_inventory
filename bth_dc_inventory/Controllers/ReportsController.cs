@@ -245,7 +245,7 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
-        // NEW ENDPOINTS (by Purchase Date) ✅
+        // NEW ENDPOINTS (by Purchase Date) 
         // =====================================
 
         [HttpGet("stats-by-purchase-date")]

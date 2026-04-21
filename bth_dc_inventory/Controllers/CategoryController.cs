@@ -20,7 +20,7 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
-        // GET: api/Category - ✅ DENGAN DEBUG LENGKAP
+        // GET: api/Category - 
         // =====================================
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryReadDto>>> GetCategories()
@@ -76,7 +76,7 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
-        // GET: api/Category/debug - ✅ ENDPOINT KHUSUS DEBUG
+        // GET: api/Category/debug - 
         // =====================================
         [HttpGet("debug")]
         public async Task<ActionResult> DebugCategoryItems()
@@ -123,7 +123,7 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
-        // GET: api/Category/{id} - ✅ DENGAN DEBUG
+        // GET: api/Category/{id} - ✅ 
         // =====================================
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryReadDto>> GetCategory(int id)
@@ -134,7 +134,7 @@ namespace bth_dc_inventory.Controllers
                 if (category == null)
                     return NotFound();
 
-                // ✅ HITUNG ITEMS SECARA TERPISAH
+                //  HITUNG ITEMS SECARA TERPISAH
                 var itemCount = await _context.Items.CountAsync(i => i.CategoryId == id);
 
                 Console.WriteLine($"Category {id} ({category.CategoryName}) has {itemCount} items");
@@ -158,7 +158,7 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
-        // GET: api/Category/stats - ✅ DENGAN PERBAIKAN
+        // GET: api/Category/stats - ✅ 
         // =====================================
         [HttpGet("stats")]
         public async Task<ActionResult<object>> GetCategoryStats()
@@ -209,7 +209,7 @@ namespace bth_dc_inventory.Controllers
         }
 
         // =====================================
-        // GET: api/Category/dropdown - ✅ DENGAN PERBAIKAN
+        // GET: api/Category/dropdown - ✅ 
         // =====================================
         [HttpGet("dropdown")]
         public async Task<ActionResult<IEnumerable<object>>> GetCategoryDropdown()

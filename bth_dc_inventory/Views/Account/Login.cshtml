@@ -49,14 +49,20 @@
                 </button>
             </form>
 
-            <!-- REGISTER LINK -->
+            <!-- REGISTER LINK (GANTI A LINK NYA JGN LOCAL LAGI!!)  -->
             <div class="text-center mt-6">
                 <p class="text-sm text-gray-600">
                     Don't have an account?
-                    <a href="https://localhost:7035/Account/register"
+                    @* <a href="https://localhost:7035/Account/register" *@
+                    @*    class="text-teal-600 hover:text-teal-700 font-medium hover:underline transition"> *@
+                    @*     Sign up *@
+                    @* </a> *@
+                    <a asp-controller="Account" asp-action="Register"
                        class="text-teal-600 hover:text-teal-700 font-medium hover:underline transition">
-                        Sign up
+                        
+                        Sign Up
                     </a>
+                   
                 </p>
             </div>
         </div>

@@ -629,7 +629,7 @@ namespace bth_dc_inventory.Controllers
 
                 // Headers
                 worksheet.Cells[3, 1].Value = "No";
-                worksheet.Cells[3, 2].Value = "Item Code";
+                worksheet.Cells[3, 2].Value = "PO Number";
                 worksheet.Cells[3, 3].Value = "Item Name";
                 worksheet.Cells[3, 4].Value = "Category";
                 worksheet.Cells[3, 5].Value = "Data Center";

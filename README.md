@@ -10,7 +10,7 @@ The system aims to simplify inventory operations, reduce manual errors, and prov
 
 ## 📸 Screenshots
 
-_Coming Soon! A visual representation of the application's user interface._
+
 <img width="1600" height="805" alt="image" src="https://github.com/user-attachments/assets/05a6ff37-6e30-4f3d-b91a-279419d42fd0" />
 
 ---

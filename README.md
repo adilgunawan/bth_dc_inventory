@@ -210,3 +210,6 @@ graph TD
         G
     end
 ```
+## 👨‍💻 Developer
+
+This project was fully designed and developed by **Adil Gunawan**.
